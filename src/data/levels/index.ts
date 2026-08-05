@@ -1,8 +1,9 @@
 import type { LevelDefinition } from '../../core/types';
 import { world1Levels } from './world1';
+import { world2Levels } from './world2';
 
-// Worlds 2-5 land here as they're built: world2Levels, world3Levels, ...
-export const allLevels: LevelDefinition[] = [...world1Levels];
+// Worlds 3-5 land here as they're built.
+export const allLevels: LevelDefinition[] = [...world1Levels, ...world2Levels];
 
 export function getLevel(id: number): LevelDefinition {
   const level = allLevels.find((l) => l.id === id);
@@ -10,4 +11,4 @@ export function getLevel(id: number): LevelDefinition {
   return level;
 }
 
-export { world1Levels };
+export { world1Levels, world2Levels };

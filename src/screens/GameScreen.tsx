@@ -88,9 +88,20 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
     hintTimer.current = setTimeout(() => setHintFold(null), 2400);
   }
 
-  const canvasSize = Math.min(Dimensions.get('window').width - 32, 420);
+  const canvasSize = Math.min(Dimensions.get('window').width - 16, 460);
   const stars = starsFor(level, folds.length);
   const overPar = folds.length > level.expectedFolds;
+
+  // The board cells the final shape must cover (goal silhouette placed at
+  // its anchor). Worlds 1-2: a single cell.
+  const goalCells = useMemo(() => {
+    const anchor = level.goal.anchor;
+    if (!anchor) return undefined;
+    return level.goal.shape.cells.map((c) => ({
+      row: c.row + anchor.row,
+      col: c.col + anchor.col,
+    }));
+  }, [level]);
 
   return (
     <View style={styles.root}>
@@ -116,7 +127,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
           state={state}
           start={level.start}
           size={canvasSize}
-          anchor={level.goal.anchor}
+          goalCells={goalCells}
           hint={hintFold}
           onFold={handleFold}
         />

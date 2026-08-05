@@ -30,6 +30,28 @@ function canonicalKey(state: FoldState): string {
  * Used for hints ("what's my best next move from here?") and by tests to
  * verify every level is solvable in exactly its advertised fold count.
  */
+/** Fewest folds that could possibly shrink `from` cells down to `to` cells
+ * along one axis -- a single fold at best halves an extent. */
+function foldsToShrink(from: number, to: number): number {
+  let folds = 0;
+  let reach = to;
+  while (reach < from) {
+    reach *= 2;
+    folds++;
+  }
+  return folds;
+}
+
+/** Admissible lower bound on remaining folds: per axis, the current extent
+ * must shrink to the goal's extent, and each fold can at best halve it. */
+function lowerBound(state: FoldState, goal: LevelGoal): number {
+  const { minRow, maxRow, minCol, maxCol } = getBounds(state.cells);
+  return (
+    foldsToShrink(maxCol - minCol + 1, goal.shape.width) +
+    foldsToShrink(maxRow - minRow + 1, goal.shape.height)
+  );
+}
+
 export function solve(start: FoldState, goal: LevelGoal, cap: number): Fold[] | null {
   if (checkGoal(start, goal)) return [];
 
@@ -47,6 +69,9 @@ export function solve(start: FoldState, goal: LevelGoal, cap: number): Fold[] | 
         const state = applyFold(node.state, fold);
         const path = [...node.path, fold];
         if (checkGoal(state, goal)) return path;
+
+        // Branch & bound: drop states that provably can't finish under cap.
+        if (depth + lowerBound(state, goal) > cap) continue;
 
         const key = canonicalKey(state);
         if (seen.has(key)) continue;
