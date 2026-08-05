@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from 'react';
-import { Canvas, Group, Path, Rect, RoundedRect } from '@shopify/react-native-skia';
+import { useMemo, useState } from 'react';
+import { Canvas, Group, Path, Rect, RoundedRect, rect } from '@shopify/react-native-skia';
 import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
@@ -10,17 +10,20 @@ import {
 } from 'react-native-reanimated';
 import { isValidFold } from '../core/fold';
 import { getBounds, getStackAt } from '../core/grid';
-import type { CellCoord, Fold, FoldState } from '../core/types';
-import type { ShapePattern } from '../core/types';
+import type { CellCoord, Fold, FoldState, ShapePattern } from '../core/types';
 import { paperColor, theme } from '../theme';
 
 // Travel before a drag commits to an axis/direction.
 const SLOP = 8;
+// See-through folded flap, like paper against the light.
+const FLAP_OPACITY = 0.86;
 
 // armedKey encoding shared between the UI-thread worklet and JS:
 // 0 = dragging right (left edge folds over)   1 = dragging left
 // 2 = dragging down (top edge folds over)     3 = dragging up
 type ArmKey = 0 | 1 | 2 | 3;
+
+const BIG = 4000; // "infinite" clip extent
 
 interface PaperCanvasProps {
   state: FoldState;
@@ -39,20 +42,20 @@ interface PaperCanvasProps {
 /**
  * The interactive paper, folded like real paper: drag in any direction and
  * the sheet's edge on the opposite side folds over toward your finger. The
- * crease sits at the midpoint between that edge and your finger (paper
- * physics), snapped live to cell boundaries -- so one long drag folds a 6x6
- * clean in half, and dragging further folds more. Release commits the fold
- * where the crease sits; drag back to shrink the flap to nothing and release
- * to cancel.
+ * crease sits exactly at the midpoint between that edge and the finger and
+ * moves CONTINUOUSLY -- no snapping mid-drag. The sheet is rendered in two
+ * clipped passes: the part beyond the crease stays put, the part before it
+ * is mirrored across the crease and drawn on top, slightly transparent, back
+ * face showing. A thin accent line marks the grid boundary the crease will
+ * snap to on release; letting go eases the crease onto that line and commits
+ * the fold. Dragging back to the edge cancels (or re-arms a new direction).
  *
- * Per-frame work runs on the UI thread: the crease position is a Reanimated
- * shared value feeding Skia directly. React state changes only when the
- * crease crosses a cell boundary (flap membership) and on commit.
+ * Per-frame work runs on the UI thread: the crease is a Reanimated shared
+ * value feeding Skia transforms and clips directly. React state changes only
+ * when a drag arms and when a fold commits.
  */
 export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: PaperCanvasProps) {
   const [armKey, setArmKey] = useState<ArmKey | null>(null);
-  const [creaseIdx, setCreaseIdx] = useState(0);
-  const armRef = useRef<{ key: ArmKey; idx: number }>({ key: 0, idx: 0 });
 
   // --- geometry (frozen per level via `start`) ---
   const maxDim = Math.max(start.width, start.height);
@@ -75,117 +78,153 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
   // --- animation state ---
   const creaseSv = useSharedValue(0);
   const armedKeySv = useSharedValue(-1);
-  const idxSv = useSharedValue(0);
 
   function jsArm(key: ArmKey) {
-    armRef.current = { key, idx: 0 };
     setArmKey(key);
-    setCreaseIdx(0);
   }
 
-  function jsSetIdx(idx: number) {
-    armRef.current.idx = idx;
-    setCreaseIdx(idx);
-  }
-
-  function jsRelease() {
-    const { key, idx } = armRef.current;
-    if (armKeyValid(key) && idx > 0) {
-      const fold: Fold =
-        key === 0
-          ? { axis: 'vertical', line: bounds.minCol + idx - 1, moves: 'lower' }
-          : key === 1
-            ? { axis: 'vertical', line: bounds.maxCol - idx, moves: 'upper' }
-            : key === 2
-              ? { axis: 'horizontal', line: bounds.minRow + idx - 1, moves: 'lower' }
-              : { axis: 'horizontal', line: bounds.maxRow - idx, moves: 'upper' };
-      if (isValidFold(state, fold)) onFold(fold);
-    }
-    armRef.current = { key: 0, idx: 0 };
+  function jsClear() {
     setArmKey(null);
-    setCreaseIdx(0);
-    idxSv.value = 0;
     armedKeySv.value = -1;
   }
 
-  function armKeyValid(key: number): key is ArmKey {
-    return key >= 0 && key <= 3;
+  function jsCommit(key: ArmKey, idx: number) {
+    const fold: Fold =
+      key === 0
+        ? { axis: 'vertical', line: bounds.minCol + idx - 1, moves: 'lower' }
+        : key === 1
+          ? { axis: 'vertical', line: bounds.maxCol - idx, moves: 'upper' }
+          : key === 2
+            ? { axis: 'horizontal', line: bounds.minRow + idx - 1, moves: 'lower' }
+            : { axis: 'horizontal', line: bounds.maxRow - idx, moves: 'upper' };
+    if (isValidFold(state, fold)) onFold(fold);
+    setArmKey(null);
+    armedKeySv.value = -1;
   }
 
   const pan = Gesture.Pan()
     .onBegin(() => {
-      idxSv.value = 0;
       armedKeySv.value = -1;
     })
     .onUpdate((e) => {
       const tx = e.translationX;
       const ty = e.translationY;
-
-      // Arm (or re-arm while the flap is empty) from the drag direction.
       const beyondSlop = Math.abs(tx) > SLOP || Math.abs(ty) > SLOP;
-      if (beyondSlop && (armedKeySv.value === -1 || idxSv.value === 0)) {
+
+      // Arm from drag direction; re-arm while the flap is still tiny.
+      if (beyondSlop && armedKeySv.value === -1) {
         const key = Math.abs(tx) >= Math.abs(ty) ? (tx > 0 ? 0 : 1) : (ty > 0 ? 2 : 3);
-        if (key !== armedKeySv.value) {
-          armedKeySv.value = key;
-          // Start the crease at the folding edge so the slide begins there.
-          creaseSv.value =
-            key === 0 ? leftEdgePx : key === 1 ? rightEdgePx : key === 2 ? topEdgePx : bottomEdgePx;
-          runOnJS(jsArm)(key as ArmKey);
-        }
+        armedKeySv.value = key;
+        creaseSv.value =
+          key === 0 ? leftEdgePx : key === 1 ? rightEdgePx : key === 2 ? topEdgePx : bottomEdgePx;
+        runOnJS(jsArm)(key as ArmKey);
       }
       if (armedKeySv.value === -1) return;
 
-      // Crease = midpoint between the folding edge and the finger, snapped
-      // to the nearest cell boundary inside the sheet.
       const key = armedKeySv.value;
-      let idx = 0;
-      if (key === 0) {
-        idx = Math.round(((leftEdgePx + e.x) / 2 - leftEdgePx) / cell);
-        idx = Math.min(Math.max(idx, 0), nCols);
-      } else if (key === 1) {
-        idx = Math.round((rightEdgePx - (rightEdgePx + e.x) / 2) / cell);
-        idx = Math.min(Math.max(idx, 0), nCols);
-      } else if (key === 2) {
-        idx = Math.round(((topEdgePx + e.y) / 2 - topEdgePx) / cell);
-        idx = Math.min(Math.max(idx, 0), nRows);
-      } else {
-        idx = Math.round((bottomEdgePx - (bottomEdgePx + e.y) / 2) / cell);
-        idx = Math.min(Math.max(idx, 0), nRows);
+
+      // Allow changing direction while the fold is barely started.
+      const edge =
+        key === 0 ? leftEdgePx : key === 1 ? rightEdgePx : key === 2 ? topEdgePx : bottomEdgePx;
+      if (beyondSlop && Math.abs(creaseSv.value - edge) < cell * 0.4) {
+        const want = Math.abs(tx) >= Math.abs(ty) ? (tx > 0 ? 0 : 1) : (ty > 0 ? 2 : 3);
+        if (want !== key) {
+          armedKeySv.value = want;
+          creaseSv.value =
+            want === 0
+              ? leftEdgePx
+              : want === 1
+                ? rightEdgePx
+                : want === 2
+                  ? topEdgePx
+                  : bottomEdgePx;
+          runOnJS(jsArm)(want as ArmKey);
+          return;
+        }
       }
 
-      if (idx !== idxSv.value) {
-        idxSv.value = idx;
-        const px =
-          key === 0
-            ? leftEdgePx + idx * cell
-            : key === 1
-              ? rightEdgePx - idx * cell
-              : key === 2
-                ? topEdgePx + idx * cell
-                : bottomEdgePx - idx * cell;
-        creaseSv.value = withTiming(px, { duration: 90 });
-        runOnJS(jsSetIdx)(idx);
+      // Crease = midpoint between the folding edge and the finger --
+      // continuous, follows the finger exactly. Clamped so the fold can
+      // never exceed the sheet (last legal crease is one cell short of the
+      // far edge).
+      if (key === 0) {
+        const c = (leftEdgePx + e.x) / 2;
+        creaseSv.value = Math.min(Math.max(c, leftEdgePx), rightEdgePx - cell);
+      } else if (key === 1) {
+        const c = (rightEdgePx + e.x) / 2;
+        creaseSv.value = Math.max(Math.min(c, rightEdgePx), leftEdgePx + cell);
+      } else if (key === 2) {
+        const c = (topEdgePx + e.y) / 2;
+        creaseSv.value = Math.min(Math.max(c, topEdgePx), bottomEdgePx - cell);
+      } else {
+        const c = (bottomEdgePx + e.y) / 2;
+        creaseSv.value = Math.max(Math.min(c, bottomEdgePx), topEdgePx + cell);
       }
     })
     .onFinalize(() => {
-      runOnJS(jsRelease)();
+      const key = armedKeySv.value;
+      if (key === -1) {
+        runOnJS(jsClear)();
+        return;
+      }
+      const edge =
+        key === 0 ? leftEdgePx : key === 1 ? rightEdgePx : key === 2 ? topEdgePx : bottomEdgePx;
+      const span = key <= 1 ? nCols : nRows;
+      const idx = Math.min(Math.max(Math.round(Math.abs(creaseSv.value - edge) / cell), 0), span);
+      if (idx === 0) {
+        runOnJS(jsClear)();
+        return;
+      }
+      const target = key === 0 || key === 2 ? edge + idx * cell : edge - idx * cell;
+      creaseSv.value = withTiming(target, { duration: 110 }, () => {
+        runOnJS(jsCommit)(key as ArmKey, idx);
+      });
     });
 
-  // --- derived Skia props ---
-  const armVertical = armKey === 0 || armKey === 1; // vertical crease line
+  // --- derived Skia props (all UI-thread, driven by the continuous crease) ---
+  const armVertical = armKey === 0 || armKey === 1;
+  const flapOnLow = armKey === 0 || armKey === 2; // flap is the low-coordinate side
+
   const flapTransform = useDerivedValue(() => {
     const c = creaseSv.value;
-    if (armVertical) {
-      return [{ translateX: c }, { scaleX: -1 }, { translateX: -c }];
-    }
+    if (armVertical) return [{ translateX: c }, { scaleX: -1 }, { translateX: -c }];
     return [{ translateY: c }, { scaleY: -1 }, { translateY: -c }];
   }, [armVertical]);
-  const creaseLineX = useDerivedValue(
-    () => (armVertical ? creaseSv.value - 1.5 : leftEdgePx),
+
+  // Base pass shows only the side beyond the crease; flap pass (source
+  // coords, pre-mirror) shows only the side before it.
+  const baseClip = useDerivedValue(() => {
+    const c = creaseSv.value;
+    if (armVertical) {
+      return flapOnLow ? rect(c, -BIG, BIG * 2, BIG * 2) : rect(-BIG, -BIG, c + BIG, BIG * 2);
+    }
+    return flapOnLow ? rect(-BIG, c, BIG * 2, BIG * 2) : rect(-BIG, -BIG, BIG * 2, c + BIG);
+  }, [armVertical, flapOnLow]);
+  const flapClip = useDerivedValue(() => {
+    const c = creaseSv.value;
+    if (armVertical) {
+      return flapOnLow ? rect(-BIG, -BIG, c + BIG, BIG * 2) : rect(c, -BIG, BIG * 2, BIG * 2);
+    }
+    return flapOnLow ? rect(-BIG, -BIG, BIG * 2, c + BIG) : rect(-BIG, c, BIG * 2, BIG * 2);
+  }, [armVertical, flapOnLow]);
+
+  // The grid boundary the crease will snap to on release -- the only thing
+  // that jumps, by design.
+  const dropLinePos = useDerivedValue(() => {
+    if (armKey === null) return -100;
+    const edge =
+      armKey === 0 ? leftEdgePx : armKey === 1 ? rightEdgePx : armKey === 2 ? topEdgePx : bottomEdgePx;
+    const idx = Math.round(Math.abs(creaseSv.value - edge) / cell);
+    if (idx === 0) return -100;
+    const px = armKey === 0 || armKey === 2 ? edge + idx * cell : edge - idx * cell;
+    return px - 1.5;
+  }, [armKey, leftEdgePx, rightEdgePx, topEdgePx, bottomEdgePx, cell]);
+  const dropLineX = useDerivedValue(
+    () => (armVertical ? dropLinePos.value : leftEdgePx),
     [armVertical, leftEdgePx]
   );
-  const creaseLineY = useDerivedValue(
-    () => (armVertical ? topEdgePx : creaseSv.value - 1.5),
+  const dropLineY = useDerivedValue(
+    () => (armVertical ? topEdgePx : dropLinePos.value),
     [armVertical, topEdgePx]
   );
 
@@ -203,30 +242,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
     return out;
   }, [state]);
 
-  // Which board positions ride the current flap.
-  const flapSet = useMemo(() => {
-    const s = new Set<string>();
-    if (armKey === null || creaseIdx === 0) return s;
-    for (const { pos } of occupied) {
-      const inFlap =
-        armKey === 0
-          ? pos.col <= bounds.minCol + creaseIdx - 1
-          : armKey === 1
-            ? pos.col >= bounds.maxCol - creaseIdx + 1
-            : armKey === 2
-              ? pos.row <= bounds.minRow + creaseIdx - 1
-              : pos.row >= bounds.maxRow - creaseIdx + 1;
-      if (inFlap) s.add(`${pos.row}:${pos.col}`);
-    }
-    return s;
-  }, [armKey, creaseIdx, occupied, bounds]);
-
-  const staticCells = occupied.filter((c) => !flapSet.has(`${c.pos.row}:${c.pos.col}`));
-  const flapCells = occupied.filter((c) => flapSet.has(`${c.pos.row}:${c.pos.col}`));
-
-  // Continuous paper: cells butt together (no gap, no per-cell rounding).
-  // Depth differences read as overlaid paper regions, exactly like the real
-  // thing; the whole sheet gets one soft drop shadow.
+  // Continuous paper: cells butt together; depth reads as overlaid regions.
   const renderCell = (c: { pos: CellCoord; depth: number; faceUp: boolean }, flipped = false) => (
     <Rect
       key={`${c.pos.row}:${c.pos.col}`}
@@ -268,34 +284,46 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
     return { isV, cPx, lo, hi, arrow };
   }, [hint, state, cell]);
 
-  const flapActive = armKey !== null && creaseIdx > 0;
+  const folding = armKey !== null;
 
   return (
     <GestureDetector gesture={pan}>
       <View style={{ width: size, height: size }}>
         <Canvas style={{ width: size, height: size }}>
-          {/* sheet drop shadow + resting paper */}
-          {staticCells.map(renderSheetShadow)}
-          {staticCells.map((c) => renderCell(c))}
-
-          {/* the flap, mirrored across the (animated) crease */}
-          {flapActive && (
-            <Group transform={flapTransform}>
-              {flapCells.map((c) => (
-                <Rect
-                  key={`lift${c.pos.row}:${c.pos.col}`}
-                  x={screenX(c.pos.col) + 4}
-                  y={screenY(c.pos.row) + 5}
-                  width={cell}
-                  height={cell}
-                  color={theme.colors.paperShadow}
-                />
-              ))}
-              {flapCells.map((c) => renderCell(c, true))}
+          {/* stationary paper (clipped to beyond the crease while folding) */}
+          {folding ? (
+            <Group clip={baseClip}>
+              {occupied.map(renderSheetShadow)}
+              {occupied.map((c) => renderCell(c))}
+            </Group>
+          ) : (
+            <Group>
+              {occupied.map(renderSheetShadow)}
+              {occupied.map((c) => renderCell(c))}
             </Group>
           )}
 
-          {/* goal zone: the cells the final shape must cover, tinted whole */}
+          {/* the flap: mirrored across the continuous crease, back face up,
+              slightly transparent so the layers underneath ghost through */}
+          {folding && (
+            <Group transform={flapTransform} opacity={FLAP_OPACITY}>
+              <Group clip={flapClip}>
+                {occupied.map((c) => (
+                  <Rect
+                    key={`fsh${c.pos.row}:${c.pos.col}`}
+                    x={screenX(c.pos.col) + 4}
+                    y={screenY(c.pos.row) + 5}
+                    width={cell}
+                    height={cell}
+                    color={theme.colors.paperShadow}
+                  />
+                ))}
+                {occupied.map((c) => renderCell(c, true))}
+              </Group>
+            </Group>
+          )}
+
+          {/* goal zone: always visible, above everything but the hint */}
           {goalCells?.map((g) => (
             <Rect
               key={`goal${g.row}:${g.col}`}
@@ -308,11 +336,11 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
             />
           ))}
 
-          {/* active crease line (follows the animated crease) */}
-          {flapActive && (
+          {/* the boundary the fold will drop onto when released */}
+          {folding && (
             <Rect
-              x={creaseLineX}
-              y={creaseLineY}
+              x={dropLineX}
+              y={dropLineY}
               width={armVertical ? 3 : (nCols + 1) * cell}
               height={armVertical ? (nRows + 1) * cell : 3}
               color={theme.colors.accent}
