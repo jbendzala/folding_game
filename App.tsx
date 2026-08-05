@@ -1,26 +1,68 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GameScreen } from './src/screens/GameScreen';
-import { allLevels } from './src/data/levels';
+import { HomeScreen } from './src/screens/HomeScreen';
+import { allLevels, getLevel } from './src/data/levels';
+import {
+  loadProgress,
+  recordSolve,
+  saveProgress,
+  type ProgressMap,
+} from './src/state/progress';
+import { theme } from './src/theme';
+
+type Route = { screen: 'home' } | { screen: 'level'; id: number };
 
 export default function App() {
-  const [levelId, setLevelId] = useState(1);
+  const [route, setRoute] = useState<Route>({ screen: 'home' });
+  const [progress, setProgress] = useState<ProgressMap>({});
 
-  function goToNextLevel() {
-    const index = allLevels.findIndex((l) => l.id === levelId);
-    const next = allLevels[index + 1];
-    if (next) setLevelId(next.id);
+  useEffect(() => {
+    loadProgress().then(setProgress);
+  }, []);
+
+  function handleSolved(levelId: number, folds: number) {
+    setProgress((prev) => {
+      const next = recordSolve(prev, getLevel(levelId), folds);
+      saveProgress(next);
+      return next;
+    });
+  }
+
+  function nextLevelIdAfter(id: number): number | null {
+    const index = allLevels.findIndex((l) => l.id === id);
+    return allLevels[index + 1]?.id ?? null;
   }
 
   return (
     <GestureHandlerRootView style={styles.fill}>
       <SafeAreaProvider>
         <View style={styles.fill}>
-          <GameScreen levelId={levelId} onNextLevel={goToNextLevel} />
-          <StatusBar style="auto" />
+          {route.screen === 'home' ? (
+            <HomeScreen
+              progress={progress}
+              onOpenLevel={(id) => setRoute({ screen: 'level', id })}
+            />
+          ) : (
+            <GameScreen
+              // Remount per level: all in-level state (folds, hints, overlay)
+              // must die with the level, or a stale fold list gets replayed
+              // against the next level's shape for one render and crashes.
+              key={route.id}
+              level={getLevel(route.id)}
+              onExit={() => setRoute({ screen: 'home' })}
+              onSolved={(folds) => handleSolved(route.id, folds)}
+              onNextLevel={
+                nextLevelIdAfter(route.id) !== null
+                  ? () => setRoute({ screen: 'level', id: nextLevelIdAfter(route.id)! })
+                  : null
+              }
+            />
+          )}
+          <StatusBar style="light" />
         </View>
       </SafeAreaProvider>
     </GestureHandlerRootView>
@@ -30,6 +72,6 @@ export default function App() {
 const styles = StyleSheet.create({
   fill: {
     flex: 1,
-    backgroundColor: '#f4f7fc',
+    backgroundColor: theme.colors.bg,
   },
 });

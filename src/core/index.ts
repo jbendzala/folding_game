@@ -3,3 +3,4 @@ export * from './grid';
 export * from './fold';
 export * from './goal';
 export * from './parseShape';
+export * from './solver';

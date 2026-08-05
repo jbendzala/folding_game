@@ -18,10 +18,14 @@ Design doc for all 50 planned levels: [docs/design/fold-levels.md](docs/design/f
 ```
 src/
   core/            Renderer-agnostic game engine: grid, fold transform, goal
-                    checking. No RN imports -- pure TypeScript, unit tested.
+                    checking, BFS solver (hints). No RN imports -- pure
+                    TypeScript, unit tested.
   data/levels/      Level definitions, one file per world.
-  components/       Skia/RN rendering components (PaperCanvas, ...).
-  screens/          GameScreen and friends.
+  components/       Skia/RN rendering (PaperCanvas: drag-to-fold with a live
+                    flap animation driven by Reanimated on the UI thread).
+  screens/          HomeScreen (level select), GameScreen (play + solved flow).
+  state/            Progress persistence (AsyncStorage) + star scoring.
+  theme.ts          Colors/type/radii in one place.
 docs/design/         Design docs (level list, rationale).
 ```
 
