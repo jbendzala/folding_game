@@ -1,20 +1,35 @@
+import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GameScreen } from './src/screens/GameScreen';
+import { allLevels } from './src/data/levels';
 
 export default function App() {
+  const [levelId, setLevelId] = useState(1);
+
+  function goToNextLevel() {
+    const index = allLevels.findIndex((l) => l.id === levelId);
+    const next = allLevels[index + 1];
+    if (next) setLevelId(next.id);
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <GestureHandlerRootView style={styles.fill}>
+      <SafeAreaProvider>
+        <View style={styles.fill}>
+          <GameScreen levelId={levelId} onNextLevel={goToNextLevel} />
+          <StatusBar style="auto" />
+        </View>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  fill: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#f4f7fc',
   },
 });

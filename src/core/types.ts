@@ -1,0 +1,102 @@
+/**
+ * Core, renderer-agnostic types for the Fold game engine.
+ *
+ * A "sheet" is a fixed bounding grid of unit cells; some are paper, some are
+ * holes (never paper). Folding never creates or destroys paper cells, it only
+ * moves them and stacks them on top of one another. See src/core/fold.ts for
+ * the transform, and docs/design/fold-levels.md for the design rationale.
+ */
+
+export type Axis = 'vertical' | 'horizontal';
+
+export interface CellCoord {
+  row: number;
+  col: number;
+}
+
+/** A unit square of the original sheet. Identity never changes after creation. */
+export interface OriginalCell {
+  id: string;
+  initial: CellCoord;
+}
+
+/**
+ * One fold: a straight line through the CURRENT shape's bounding box, and
+ * which side moves onto the other.
+ */
+export interface Fold {
+  axis: Axis;
+  /**
+   * Boundary index in the CURRENT coordinate system.
+   * Vertical fold: `line = k` is the boundary between column k and column k+1.
+   * Horizontal fold: `line = k` is the boundary between row k and row k+1.
+   */
+  line: number;
+  /**
+   * Which side moves.
+   * 'lower' = the side with the smaller row/col index flips onto the higher side.
+   * 'upper' = the side with the larger row/col index flips onto the lower side.
+   */
+  moves: 'lower' | 'upper';
+}
+
+export interface CellState {
+  cell: OriginalCell;
+  position: CellCoord;
+  /**
+   * Higher = higher in the physical stack at this position (closer to the
+   * viewer). Not a simple "fold step number": when an already-stacked group
+   * of cells moves together, folding flips it as a rigid block, so its
+   * internal order reverses. Only relative order between cells matters --
+   * the raw numbers have no meaning on their own.
+   */
+  zOrder: number;
+  /** Toggles on every fold this cell participates in. */
+  faceUp: boolean;
+}
+
+export interface FoldState {
+  cells: CellState[];
+  history: Fold[];
+}
+
+/** A static shape pattern, normalized so its bounding box starts at (0,0). */
+export interface ShapePattern {
+  width: number;
+  height: number;
+  /** Occupied cells only -- anything inside the bounding box and not listed is a hole. */
+  cells: CellCoord[];
+}
+
+export type StackRequirement =
+  | { kind: 'topCell'; at: CellCoord; cellId: string }
+  | { kind: 'fullOrder'; at: CellCoord; order: string[] };
+
+export interface LevelGoal {
+  /** Normalized silhouette the final result's occupied cells must match. */
+  shape: ShapePattern;
+  /**
+   * If set, the shape's (0,0) must land at this EXACT absolute board
+   * coordinate -- position matters, not just silhouette. This is what
+   * Worlds 1-2's "fold down to the target cell" goal actually needs: in a
+   * full reduction every cell ends up in the same final stack regardless of
+   * fold choices, so the only thing fold *direction* can change is WHERE
+   * that final cell sits on the original board (folding away from the
+   * target keeps it stationary, so it never moves from its own coordinate).
+   * Worlds 3+ omit this -- the resulting silhouette can land anywhere.
+   */
+  anchor?: CellCoord;
+  stackRequirements?: StackRequirement[];
+}
+
+export interface LevelDefinition {
+  id: number;
+  name: string;
+  world: number;
+  start: ShapePattern;
+  goal: LevelGoal;
+  newConcept: string;
+  difficulty: number;
+  expectedFolds: number;
+  designerNotes: string;
+}
