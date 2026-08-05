@@ -78,6 +78,10 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
   // --- animation state ---
   const creaseSv = useSharedValue(0);
   const armedKeySv = useSharedValue(-1);
+  // How many cells the current drag would fold (0 = none yet) and the drop
+  // indicator's fade -- it re-fades softly each time it moves to a new line.
+  const dropIdxSv = useSharedValue(0);
+  const dropOpacitySv = useSharedValue(0);
 
   function jsArm(key: ArmKey) {
     setArmKey(key);
@@ -117,6 +121,8 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
         armedKeySv.value = key;
         creaseSv.value =
           key === 0 ? leftEdgePx : key === 1 ? rightEdgePx : key === 2 ? topEdgePx : bottomEdgePx;
+        dropIdxSv.value = 0;
+        dropOpacitySv.value = 0;
         runOnJS(jsArm)(key as ArmKey);
       }
       if (armedKeySv.value === -1) return;
@@ -138,6 +144,8 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
                 : want === 2
                   ? topEdgePx
                   : bottomEdgePx;
+          dropIdxSv.value = 0;
+          dropOpacitySv.value = 0;
           runOnJS(jsArm)(want as ArmKey);
           return;
         }
@@ -159,6 +167,23 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
       } else {
         const c = (bottomEdgePx + e.y) / 2;
         creaseSv.value = Math.max(Math.min(c, bottomEdgePx), topEdgePx + cell);
+      }
+
+      // Track which line the fold would drop on; fade the indicator in
+      // softly whenever it appears or moves.
+      const span = key <= 1 ? nCols : nRows;
+      const idx = Math.min(
+        Math.max(Math.round(Math.abs(creaseSv.value - edge) / cell), 0),
+        span
+      );
+      if (idx !== dropIdxSv.value) {
+        dropIdxSv.value = idx;
+        if (idx > 0) {
+          dropOpacitySv.value = 0;
+          dropOpacitySv.value = withTiming(1, { duration: 140 });
+        } else {
+          dropOpacitySv.value = withTiming(0, { duration: 80 });
+        }
       }
     })
     .onFinalize(() => {
@@ -208,15 +233,15 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
     return flapOnLow ? rect(-BIG, -BIG, BIG * 2, c + BIG) : rect(-BIG, c, BIG * 2, BIG * 2);
   }, [armVertical, flapOnLow]);
 
-  // The grid boundary the crease will snap to on release -- the only thing
-  // that jumps, by design.
+  // Where the paper's folding EDGE will land when released (the edge mirrors
+  // across the snapped crease, so it travels two cells per folded cell).
   const dropLinePos = useDerivedValue(() => {
     if (armKey === null) return -100;
     const edge =
       armKey === 0 ? leftEdgePx : armKey === 1 ? rightEdgePx : armKey === 2 ? topEdgePx : bottomEdgePx;
-    const idx = Math.round(Math.abs(creaseSv.value - edge) / cell);
+    const idx = dropIdxSv.value;
     if (idx === 0) return -100;
-    const px = armKey === 0 || armKey === 2 ? edge + idx * cell : edge - idx * cell;
+    const px = armKey === 0 || armKey === 2 ? edge + 2 * idx * cell : edge - 2 * idx * cell;
     return px - 1.5;
   }, [armKey, leftEdgePx, rightEdgePx, topEdgePx, bottomEdgePx, cell]);
   const dropLineX = useDerivedValue(
@@ -336,7 +361,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
             />
           ))}
 
-          {/* the boundary the fold will drop onto when released */}
+          {/* where the paper's edge will land when released */}
           {folding && (
             <Rect
               x={dropLineX}
@@ -344,6 +369,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
               width={armVertical ? 3 : (nCols + 1) * cell}
               height={armVertical ? (nRows + 1) * cell : 3}
               color={theme.colors.accent}
+              opacity={dropOpacitySv}
             />
           )}
 

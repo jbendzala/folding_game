@@ -2,6 +2,37 @@ import { shapeFromRows } from '../../core/parseShape';
 import type { LevelDefinition } from '../../core/types';
 
 /**
+ * World 3+ goal type: fold the sheet into a target silhouette -- anywhere on
+ * the board, any number of layers, but the outline (including holes) must
+ * match exactly. Both start and goal come from ASCII rows.
+ */
+export function shapeLevel(params: {
+  id: number;
+  name: string;
+  world: number;
+  rows: string[];
+  goalRows: string[];
+  newConcept: string;
+  difficulty: number;
+  expectedFolds: number;
+  designerNotes: string;
+}): LevelDefinition {
+  const { shape: start } = shapeFromRows(params.rows);
+  const { shape: goalShape } = shapeFromRows(params.goalRows);
+  return {
+    id: params.id,
+    name: params.name,
+    world: params.world,
+    start,
+    goal: { shape: goalShape },
+    newConcept: params.newConcept,
+    difficulty: params.difficulty,
+    expectedFolds: params.expectedFolds,
+    designerNotes: params.designerNotes,
+  };
+}
+
+/**
  * Worlds 1-2 share one goal type: fold the whole sheet down to a single 1x1
  * result that sits exactly at the marked '*' cell's own original board
  * position. Position, not topmost layer, is what fold direction actually

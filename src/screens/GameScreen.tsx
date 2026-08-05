@@ -121,6 +121,14 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
         </View>
       </View>
 
+      {/* silhouette goal preview (worlds with shape goals, no board anchor) */}
+      {!goalCells && (
+        <View style={styles.goalRow}>
+          <Text style={styles.goalLabel}>GOAL</Text>
+          <GoalPreview shape={level.goal.shape} />
+        </View>
+      )}
+
       {/* paper */}
       <View style={styles.stage}>
         <PaperCanvas
@@ -181,6 +189,36 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
           </Animated.View>
         </Animated.View>
       )}
+    </View>
+  );
+}
+
+/** Tiny rendering of the target silhouette, shown when the goal is a shape
+ * (not a board-anchored cell). */
+function GoalPreview({ shape }: { shape: { width: number; height: number; cells: { row: number; col: number }[] } }) {
+  const mini = Math.min(Math.floor(64 / Math.max(shape.width, shape.height)), 16);
+  return (
+    <View
+      style={{
+        width: shape.width * mini,
+        height: shape.height * mini,
+      }}
+    >
+      {shape.cells.map((c) => (
+        <View
+          key={`${c.row}:${c.col}`}
+          style={{
+            position: 'absolute',
+            left: c.col * mini,
+            top: c.row * mini,
+            width: mini,
+            height: mini,
+            backgroundColor: theme.colors.accent,
+            borderWidth: 0.5,
+            borderColor: theme.colors.bgRaised,
+          }}
+        />
+      ))}
     </View>
   );
 }
@@ -280,6 +318,19 @@ const styles = StyleSheet.create({
   },
   foldPillTextOver: {
     color: theme.colors.accent,
+  },
+  goalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    paddingTop: 18,
+  },
+  goalLabel: {
+    color: theme.colors.inkFaint,
+    fontSize: theme.font.tiny,
+    fontWeight: '800',
+    letterSpacing: 2,
   },
   stage: {
     flex: 1,
