@@ -26,7 +26,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   const reportedRef = useRef(false);
 
   const state = useMemo(
-    () => replayFolds(() => createInitialState(level.start), folds),
+    () => replayFolds(() => createInitialState(level.start, level.pins), folds),
     [level, folds]
   );
   const solved = useMemo(() => checkGoal(state, level.goal), [state, level]);
@@ -126,6 +126,11 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
         <View style={styles.goalRow}>
           <Text style={styles.goalLabel}>GOAL</Text>
           <GoalPreview shape={level.goal.shape} />
+          {level.goal.uniformDepth !== undefined && (
+            <View style={styles.depthChip}>
+              <Text style={styles.depthChipText}>×{level.goal.uniformDepth} thick</Text>
+            </View>
+          )}
         </View>
       )}
 
@@ -331,6 +336,17 @@ const styles = StyleSheet.create({
     fontSize: theme.font.tiny,
     fontWeight: '800',
     letterSpacing: 2,
+  },
+  depthChip: {
+    backgroundColor: theme.colors.accentSoft,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: theme.radius.pill,
+  },
+  depthChipText: {
+    color: theme.colors.accent,
+    fontSize: theme.font.small,
+    fontWeight: '800',
   },
   stage: {
     flex: 1,

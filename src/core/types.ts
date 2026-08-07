@@ -58,6 +58,13 @@ export interface CellState {
 export interface FoldState {
   cells: CellState[];
   history: Fold[];
+  /**
+   * Board coordinates pinned to the table. A pinned cell can never be on the
+   * moving side of a fold (the fold is simply invalid); paper may still fold
+   * ONTO a pin -- it holds the bottom layer down. Pins never move, so these
+   * coordinates are constant for the whole level.
+   */
+  pins?: CellCoord[];
 }
 
 /** A static shape pattern, normalized so its bounding box starts at (0,0). */
@@ -86,6 +93,13 @@ export interface LevelGoal {
    * Worlds 3+ omit this -- the resulting silhouette can land anywhere.
    */
   anchor?: CellCoord;
+  /**
+   * If set, every occupied cell of the final shape must be exactly this many
+   * layers thick. Turns sloppy folding into visible unevenness: conservation
+   * demands |start cells| = |goal cells| * uniformDepth, so every wasted
+   * overlap somewhere is a missing layer somewhere else.
+   */
+  uniformDepth?: number;
   stackRequirements?: StackRequirement[];
 }
 
@@ -95,6 +109,8 @@ export interface LevelDefinition {
   world: number;
   start: ShapePattern;
   goal: LevelGoal;
+  /** Cells pinned to the table (see FoldState.pins). */
+  pins?: CellCoord[];
   newConcept: string;
   difficulty: number;
   expectedFolds: number;

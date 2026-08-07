@@ -19,18 +19,7 @@ describe('applyFold', () => {
     expect(checkGoal(state, level.goal)).toBe(true);
   });
 
-  it('solves Level 2 (Green Corner) with the OPPOSITE directions from Level 1', () => {
-    const level = getLevel(2);
-    let state = createInitialState(level.start);
-
-    // Target is top-left here: fold right col onto left, bottom row onto top.
-    state = applyFold(state, { axis: 'vertical', line: 0, moves: 'upper' });
-    state = applyFold(state, { axis: 'horizontal', line: 0, moves: 'upper' });
-
-    expect(checkGoal(state, level.goal)).toBe(true);
-  });
-
-  it('fails Level 1 if you use Level 2\'s directions (the habit trap actually bites)', () => {
+  it('fails Level 1 with the opposite directions (the habit trap actually bites)', () => {
     const level = getLevel(1);
     let state = createInitialState(level.start);
 
@@ -49,7 +38,7 @@ describe('applyFold', () => {
   });
 
   it('reduces a 4-wide strip to 1 cell in the expected minimum of folds', () => {
-    const level = getLevel(3); // Wide Rectangle, 2x4, target at (0,0)
+    const level = getLevel(2); // Wide Rectangle, 2x4, target at (0,0)
     let state = createInitialState(level.start);
 
     state = applyFold(state, { axis: 'vertical', line: 1, moves: 'upper' }); // 4 -> 2

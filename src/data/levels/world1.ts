@@ -2,9 +2,9 @@ import type { LevelDefinition } from '../../core/types';
 import { singleCellLevel } from './helpers';
 
 /**
- * World 1 -- "The Basics"
- * Goal throughout: fold the sheet down to a single 1x1 result at the marked
- * cell. See docs/design/fold-levels.md for the full design rationale.
+ * World 1 -- "Paper Basics" (the only rectangle world)
+ * Five levels of fold grammar: direction, chaining, and two "obvious fold is
+ * wrong" traps. Everything after this world is shapes, holes, layers, pins.
  */
 export const world1Levels: LevelDefinition[] = [
   singleCellLevel({
@@ -19,76 +19,26 @@ export const world1Levels: LevelDefinition[] = [
   }),
   singleCellLevel({
     id: 2,
-    name: 'Green Corner',
-    world: 1,
-    rows: ['* #', '# #'],
-    newConcept: 'Same shape as Level 1, opposite target -- both fold directions reverse.',
-    difficulty: 1,
-    expectedFolds: 2,
-    designerNotes: 'Quietly corrects "always fold right/down" muscle memory from Level 1.',
-  }),
-  singleCellLevel({
-    id: 3,
     name: 'Wide Rectangle',
     world: 1,
     rows: ['* # # #', '# # # #'],
-    newConcept: 'Chaining two folds on the same axis (4 -> 2 -> 1) before touching the other axis.',
-    difficulty: 2,
+    newConcept: 'Chaining folds on one axis (4 -> 2 -> 1) -- or fold it in half at once.',
+    difficulty: 1,
     expectedFolds: 3,
     designerNotes: 'First taste of "this dimension needs more than one fold."',
   }),
   singleCellLevel({
-    id: 4,
-    name: 'Tall Rectangle',
-    world: 1,
-    rows: ['# *', '# #', '# #', '# #'],
-    newConcept: 'Mirrors Level 3 on the other axis -- confirms the lesson generalized.',
-    difficulty: 2,
-    expectedFolds: 3,
-    designerNotes: 'Cheap but necessary: proves the chaining lesson transfers across axes.',
-  }),
-  singleCellLevel({
-    id: 5,
-    name: 'Large Square',
-    world: 1,
-    rows: ['# # # *', '# # # #', '# # # #', '# # # #'],
-    newConcept: 'First level needing both axes and multiple folds per axis -- a real plan.',
-    difficulty: 3,
-    expectedFolds: 4,
-    designerNotes: 'The first level that needs to be planned, not just walked through.',
-  }),
-  singleCellLevel({
-    id: 6,
+    id: 3,
     name: 'Center Target',
     world: 1,
     rows: ['# # # #', '# # * #', '# # # #', '# # # #'],
-    newConcept: 'Target sits near the fold\'s center line -- only one direction preserves it.',
-    difficulty: 3,
+    newConcept: 'Target near the middle -- only one direction per axis preserves it.',
+    difficulty: 2,
     expectedFolds: 4,
     designerNotes: 'First deliberate "obvious fold, wrong pick" trap.',
   }),
   singleCellLevel({
-    id: 7,
-    name: 'Edge Target',
-    world: 1,
-    rows: ['# * # #', '# # # #', '# # # #', '# # # #'],
-    newConcept: 'Vertical and horizontal folds are fully independent -- any order, same result.',
-    difficulty: 4,
-    expectedFolds: 4,
-    designerNotes: 'Removes an anxiety Level 6 just introduced, right on schedule.',
-  }),
-  singleCellLevel({
-    id: 8,
-    name: 'Opposite Corner',
-    world: 1,
-    rows: ['# # # #', '# # # #', '# # # #', '* # # #'],
-    newConcept: 'No new rule -- a memorization trap. Every direction is reversed from Level 5.',
-    difficulty: 4,
-    expectedFolds: 4,
-    designerNotes: 'Same square as Level 5, relabeled target: tests understanding, not recall.',
-  }),
-  singleCellLevel({
-    id: 9,
+    id: 4,
     name: 'Five by Five',
     world: 1,
     rows: [
@@ -98,26 +48,26 @@ export const world1Levels: LevelDefinition[] = [
       '# # # # #',
       '# # # # #',
     ],
-    newConcept: 'First odd-length dimension -- a single fold on width 5 always splits 2 vs 3.',
-    difficulty: 4,
+    newConcept: 'Odd sizes never split evenly -- a fold is always 2 vs 3.',
+    difficulty: 3,
     expectedFolds: 6,
-    designerNotes: 'Quietly previews World 2 without naming it.',
+    designerNotes: 'Perfectly symmetric card; calm before the shapes arrive.',
   }),
   singleCellLevel({
-    id: 10,
-    name: 'Large Grid',
+    id: 5,
+    name: 'Offset Center',
     world: 1,
     rows: [
       '# # # # # #',
       '# # # # # #',
+      '# # # * # #',
       '# # # # # #',
       '# # # # # #',
-      '# * # # # #',
       '# # # # # #',
     ],
-    newConcept: 'No new rule -- World 1\'s capstone, combining every lesson at the largest scale yet.',
-    difficulty: 5,
+    newConcept: 'The instinctive half-fold is wrong -- the target is one cell off center.',
+    difficulty: 3,
     expectedFolds: 6,
-    designerNotes: 'Closes the world with a level that needs planning but zero new ideas.',
+    designerNotes: 'Graduation exam for rectangles. The last one in the game.',
   }),
 ];

@@ -10,22 +10,26 @@ import type { CellCoord, ShapePattern } from './types';
  * cells" that raw character columns would have.
  *
  *   . or empty token -> hole (no paper)
+ *   P                 -> paper, pinned to the table (collected in `pins`)
+ *   @                 -> pinned paper that is ALSO the '*' target marker
  *   any other token   -> paper; the token itself is recorded as a marker
  *                        (e.g. "*" for a single-cell target, so callers can
  *                        look up its coordinate by name)
  */
 export function shapeFromRows(
   rows: string[],
-  markerNames: Record<string, string> = { '*': 'target' }
-): { shape: ShapePattern; markers: Map<string, CellCoord> } {
+  markerNames: Record<string, string> = { '*': 'target', '@': 'target' }
+): { shape: ShapePattern; markers: Map<string, CellCoord>; pins: CellCoord[] } {
   const grid = rows.map((row) => row.trim().split(/\s+/));
   const cells: CellCoord[] = [];
   const markers = new Map<string, CellCoord>();
+  const pins: CellCoord[] = [];
 
   grid.forEach((tokens, row) => {
     tokens.forEach((token, col) => {
       if (token === '.' || token === '') return;
       cells.push({ row, col });
+      if (token === 'P' || token === '@') pins.push({ row, col });
       const name = markerNames[token];
       if (name) markers.set(name, { row, col });
     });
@@ -33,5 +37,5 @@ export function shapeFromRows(
 
   const height = grid.length;
   const width = Math.max(...grid.map((r) => r.length));
-  return { shape: { width, height, cells }, markers };
+  return { shape: { width, height, cells }, markers, pins };
 }

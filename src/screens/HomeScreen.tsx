@@ -1,16 +1,8 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { allLevels } from '../data/levels';
+import { allLevels, WORLD_NAMES } from '../data/levels';
 import { highestUnlocked, type ProgressMap } from '../state/progress';
 import { theme } from '../theme';
-
-const WORLD_NAMES: Record<number, string> = {
-  1: 'The Basics',
-  2: 'Odd Dimensions',
-  3: 'Missing Pieces',
-  4: 'Interesting Geometry',
-  5: 'Mind Benders',
-};
 
 interface HomeScreenProps {
   progress: ProgressMap;
@@ -18,7 +10,8 @@ interface HomeScreenProps {
 }
 
 export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
-  const unlocked = highestUnlocked(progress, allLevels.map((l) => l.id));
+  // Dev builds unlock everything for level previewing; release keeps progression.
+  const unlocked = __DEV__ ? Infinity : highestUnlocked(progress, allLevels.map((l) => l.id));
   const totalStars = Object.values(progress).reduce((sum, p) => sum + p.stars, 0);
   const solvedCount = Object.values(progress).filter((p) => p.solved).length;
 

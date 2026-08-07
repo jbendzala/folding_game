@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Canvas, Group, Path, Rect, RoundedRect, rect } from '@shopify/react-native-skia';
+import { Canvas, Circle, Group, Path, Rect, RoundedRect, rect } from '@shopify/react-native-skia';
 import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
@@ -74,6 +74,22 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
   const bottomEdgePx = screenY(bounds.maxRow + 1);
   const nCols = bounds.maxCol - bounds.minCol;
   const nRows = bounds.maxRow - bounds.minRow;
+
+  // Pins cap how far the crease may travel: the fold can include cells up to
+  // but never past a pinned row/column (a pin must stay on the still side).
+  const pins = state.pins ?? [];
+  const creaseMaxK0 = pins.length
+    ? Math.min(rightEdgePx - cell, ...pins.map((p) => screenX(p.col)))
+    : rightEdgePx - cell;
+  const creaseMinK1 = pins.length
+    ? Math.max(leftEdgePx + cell, ...pins.map((p) => screenX(p.col + 1)))
+    : leftEdgePx + cell;
+  const creaseMaxK2 = pins.length
+    ? Math.min(bottomEdgePx - cell, ...pins.map((p) => screenY(p.row)))
+    : bottomEdgePx - cell;
+  const creaseMinK3 = pins.length
+    ? Math.max(topEdgePx + cell, ...pins.map((p) => screenY(p.row + 1)))
+    : topEdgePx + cell;
 
   // --- animation state ---
   const creaseSv = useSharedValue(0);
@@ -157,16 +173,16 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
       // far edge).
       if (key === 0) {
         const c = (leftEdgePx + e.x) / 2;
-        creaseSv.value = Math.min(Math.max(c, leftEdgePx), rightEdgePx - cell);
+        creaseSv.value = Math.min(Math.max(c, leftEdgePx), creaseMaxK0);
       } else if (key === 1) {
         const c = (rightEdgePx + e.x) / 2;
-        creaseSv.value = Math.max(Math.min(c, rightEdgePx), leftEdgePx + cell);
+        creaseSv.value = Math.max(Math.min(c, rightEdgePx), creaseMinK1);
       } else if (key === 2) {
         const c = (topEdgePx + e.y) / 2;
-        creaseSv.value = Math.min(Math.max(c, topEdgePx), bottomEdgePx - cell);
+        creaseSv.value = Math.min(Math.max(c, topEdgePx), creaseMaxK2);
       } else {
         const c = (bottomEdgePx + e.y) / 2;
-        creaseSv.value = Math.max(Math.min(c, bottomEdgePx), topEdgePx + cell);
+        creaseSv.value = Math.max(Math.min(c, bottomEdgePx), creaseMinK3);
       }
 
       // Track which line the fold would drop on; fade the indicator in
@@ -359,6 +375,24 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
               color={theme.colors.accent}
               opacity={0.4}
             />
+          ))}
+
+          {/* pins: fastened to the table, these cells never move */}
+          {pins.map((p) => (
+            <Group key={`pin${p.row}:${p.col}`}>
+              <Circle
+                cx={screenX(p.col) + cell / 2}
+                cy={screenY(p.row) + cell / 2}
+                r={Math.max(cell * 0.16, 7)}
+                color="#1c2333"
+              />
+              <Circle
+                cx={screenX(p.col) + cell / 2}
+                cy={screenY(p.row) + cell / 2}
+                r={Math.max(cell * 0.06, 2.5)}
+                color="#f2ede3"
+              />
+            </Group>
           ))}
 
           {/* where the paper's edge will land when released */}

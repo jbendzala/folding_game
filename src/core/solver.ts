@@ -5,18 +5,31 @@ import type { Fold, FoldState, LevelGoal } from './types';
 
 /**
  * A state signature good enough to dedupe a BFS frontier for silhouette +
- * anchor goals (Worlds 1-3): future fold options depend only on the bounding
- * box, and goal-checking depends only on the set of distinct occupied
- * positions -- which original cell sits under which is irrelevant.
+ * anchor goals: future fold options depend only on the bounding box (pins are
+ * level-constant), and goal-checking depends only on the set of distinct
+ * occupied positions. For uniform-depth goals, per-position layer counts
+ * matter too, so the key includes them.
  *
- * NOT valid for stack-order goals (World 5): two states with identical
- * footprints can differ in layer order. Extend the key before using this
- * solver there.
+ * NOT valid for stack-order goals (marks): two states with identical
+ * footprints and depths can differ in layer order. Extend the key before
+ * using this solver there.
  */
-function canonicalKey(state: FoldState): string {
+function canonicalKey(state: FoldState, withDepths: boolean): string {
   const { minRow, maxRow, minCol, maxCol } = getBounds(state.cells);
-  const positions = getOccupiedPositions(state)
-    .map((p) => `${p.row}:${p.col}`)
+  if (!withDepths) {
+    const positions = getOccupiedPositions(state)
+      .map((p) => `${p.row}:${p.col}`)
+      .sort()
+      .join(',');
+    return `${minRow},${maxRow},${minCol},${maxCol}|${positions}`;
+  }
+  const counts = new Map<string, number>();
+  for (const cs of state.cells) {
+    const k = `${cs.position.row}:${cs.position.col}`;
+    counts.set(k, (counts.get(k) ?? 0) + 1);
+  }
+  const positions = [...counts.entries()]
+    .map(([k, n]) => `${k}=${n}`)
     .sort()
     .join(',');
   return `${minRow},${maxRow},${minCol},${maxCol}|${positions}`;
@@ -43,24 +56,37 @@ function foldsToShrink(from: number, to: number): number {
 }
 
 /** Admissible lower bound on remaining folds: per axis, the current extent
- * must shrink to the goal's extent, and each fold can at best halve it. */
+ * must shrink to the goal's extent, and each fold can at best halve it. For
+ * uniform-depth goals, each fold can also at best double the max depth. */
 function lowerBound(state: FoldState, goal: LevelGoal): number {
   const { minRow, maxRow, minCol, maxCol } = getBounds(state.cells);
-  return (
+  const axisBound =
     foldsToShrink(maxCol - minCol + 1, goal.shape.width) +
-    foldsToShrink(maxRow - minRow + 1, goal.shape.height)
-  );
+    foldsToShrink(maxRow - minRow + 1, goal.shape.height);
+  if (goal.uniformDepth === undefined) return axisBound;
+
+  const counts = new Map<string, number>();
+  for (const cs of state.cells) {
+    const k = `${cs.position.row}:${cs.position.col}`;
+    counts.set(k, (counts.get(k) ?? 0) + 1);
+  }
+  let maxDepth = 0;
+  for (const n of counts.values()) maxDepth = Math.max(maxDepth, n);
+  // foldsToShrink doubles per step either way -- reuse it for depth growth.
+  const depthBound = foldsToShrink(goal.uniformDepth, maxDepth);
+  return Math.max(axisBound, depthBound);
 }
 
 export function solve(start: FoldState, goal: LevelGoal, cap: number): Fold[] | null {
   if (checkGoal(start, goal)) return [];
 
+  const withDepths = goal.uniformDepth !== undefined;
   interface Node {
     state: FoldState;
     path: Fold[];
   }
   let frontier: Node[] = [{ state: start, path: [] }];
-  const seen = new Set<string>([canonicalKey(start)]);
+  const seen = new Set<string>([canonicalKey(start, withDepths)]);
 
   for (let depth = 1; depth <= cap; depth++) {
     const next: Node[] = [];
@@ -73,7 +99,7 @@ export function solve(start: FoldState, goal: LevelGoal, cap: number): Fold[] | 
         // Branch & bound: drop states that provably can't finish under cap.
         if (depth + lowerBound(state, goal) > cap) continue;
 
-        const key = canonicalKey(state);
+        const key = canonicalKey(state, withDepths);
         if (seen.has(key)) continue;
         seen.add(key);
         next.push({ state, path });

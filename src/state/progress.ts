@@ -1,7 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { LevelDefinition } from '../core/types';
 
-const STORAGE_KEY = 'fold/progress/v1';
+// v2: the level list was fully re-cut (6 chapters); old ids don't map, so a
+// fresh key intentionally resets pre-release progress.
+const STORAGE_KEY = 'fold/progress/v2';
 
 export interface LevelProgress {
   solved: boolean;

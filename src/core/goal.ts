@@ -27,6 +27,18 @@ export function checkGoal(state: FoldState, goal: LevelGoal): boolean {
   const pattern = normalizeToShape(occupied);
   if (!shapesMatch(pattern, goal.shape)) return false;
   if (goal.anchor && (minRow !== goal.anchor.row || minCol !== goal.anchor.col)) return false;
+
+  if (goal.uniformDepth !== undefined) {
+    const counts = new Map<string, number>();
+    for (const cs of state.cells) {
+      const k = `${cs.position.row}:${cs.position.col}`;
+      counts.set(k, (counts.get(k) ?? 0) + 1);
+    }
+    for (const n of counts.values()) {
+      if (n !== goal.uniformDepth) return false;
+    }
+  }
+
   if (!goal.stackRequirements || goal.stackRequirements.length === 0) return true;
   const toAbsolute = (at: CellCoord): CellCoord => ({
     row: at.row + minRow,

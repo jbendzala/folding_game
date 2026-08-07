@@ -1,14 +1,26 @@
 import { getBounds } from './grid';
 import type { CellState, Fold, FoldState } from './types';
 
-/** A fold line must sit strictly inside the current shape's extent on that axis
- * -- otherwise it wouldn't move any paper at all. */
+/** A fold line must sit strictly inside the current shape's extent on that
+ * axis (otherwise it wouldn't move any paper), and the moving side must not
+ * contain a pinned cell -- pins hold their spot on the table. */
 export function isValidFold(state: FoldState, fold: Fold): boolean {
   const { minRow, maxRow, minCol, maxCol } = getBounds(state.cells);
-  if (fold.axis === 'vertical') {
-    return fold.line >= minCol && fold.line < maxCol;
+  const inBounds =
+    fold.axis === 'vertical'
+      ? fold.line >= minCol && fold.line < maxCol
+      : fold.line >= minRow && fold.line < maxRow;
+  if (!inBounds) return false;
+
+  if (state.pins) {
+    const axisKey = fold.axis === 'vertical' ? 'col' : 'row';
+    for (const pin of state.pins) {
+      const v = pin[axisKey];
+      const pinMoves = fold.moves === 'lower' ? v <= fold.line : v > fold.line;
+      if (pinMoves) return false;
+    }
   }
-  return fold.line >= minRow && fold.line < maxRow;
+  return true;
 }
 
 /**
@@ -67,7 +79,9 @@ export function applyFold(state: FoldState, fold: Fold): FoldState {
     };
   });
 
-  return { cells, history: [...state.history, fold] };
+  return state.pins
+    ? { cells, history: [...state.history, fold], pins: state.pins }
+    : { cells, history: [...state.history, fold] };
 }
 
 /** Replays a fold sequence from a fresh initial state -- the simplest, most
@@ -79,19 +93,20 @@ export function replayFolds(
   return folds.reduce((state, fold) => applyFold(state, fold), createInitial());
 }
 
-/** Every fold (line + direction, both axes) that's currently legal, i.e. every
- * line strictly inside the shape's current bounding box. Used by the UI to
- * offer fold choices, and by tests to search for solutions. */
+/** Every fold (line + direction, both axes) that's currently legal: every
+ * line strictly inside the shape's current bounding box whose moving side
+ * doesn't contain a pin. Used by the UI to offer fold choices, and by the
+ * solver to search for solutions. */
 export function listValidFolds(state: FoldState): Fold[] {
   const { minRow, maxRow, minCol, maxCol } = getBounds(state.cells);
-  const folds: Fold[] = [];
+  const candidates: Fold[] = [];
   for (let line = minCol; line < maxCol; line++) {
-    folds.push({ axis: 'vertical', line, moves: 'lower' });
-    folds.push({ axis: 'vertical', line, moves: 'upper' });
+    candidates.push({ axis: 'vertical', line, moves: 'lower' });
+    candidates.push({ axis: 'vertical', line, moves: 'upper' });
   }
   for (let line = minRow; line < maxRow; line++) {
-    folds.push({ axis: 'horizontal', line, moves: 'lower' });
-    folds.push({ axis: 'horizontal', line, moves: 'upper' });
+    candidates.push({ axis: 'horizontal', line, moves: 'lower' });
+    candidates.push({ axis: 'horizontal', line, moves: 'upper' });
   }
-  return folds;
+  return state.pins ? candidates.filter((f) => isValidFold(state, f)) : candidates;
 }
