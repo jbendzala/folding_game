@@ -65,8 +65,11 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
   const maxDim = Math.max(start.width, start.height);
   const marginCells = maxDim >= 3 ? 2 : 0.25;
   const cell = Math.max(24, Math.floor(size / (maxDim + marginCells)));
-  const originX = (size - start.width * cell) / 2;
-  const originY = (size - start.height * cell) / 2;
+  // Whole-pixel origin: with a fractional one, every shared cell edge lands
+  // mid-pixel and Skia antialiases both neighbours into it, painting a seam
+  // on some boundaries and not others. Creases are drawn explicitly below.
+  const originX = Math.round((size - start.width * cell) / 2);
+  const originY = Math.round((size - start.height * cell) / 2);
   const screenX = (col: number) => originX + col * cell;
   const screenY = (row: number) => originY + row * cell;
 
@@ -326,6 +329,39 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
     />
   );
 
+  // Crease lines on every internal boundary -- i.e. only between two cells
+  // that are both paper, so holes and outer edges stay clean.
+  const creaseSegments = useMemo(() => {
+    const filled = new Set(occupied.map((c) => `${c.pos.row}:${c.pos.col}`));
+    const segs: { key: string; x: number; y: number; w: number; h: number }[] = [];
+    for (const { pos } of occupied) {
+      if (filled.has(`${pos.row}:${pos.col + 1}`)) {
+        segs.push({
+          key: `cv${pos.row}:${pos.col}`,
+          x: screenX(pos.col + 1),
+          y: screenY(pos.row),
+          w: 1,
+          h: cell,
+        });
+      }
+      if (filled.has(`${pos.row + 1}:${pos.col}`)) {
+        segs.push({
+          key: `ch${pos.row}:${pos.col}`,
+          x: screenX(pos.col),
+          y: screenY(pos.row + 1),
+          w: cell,
+          h: 1,
+        });
+      }
+    }
+    return segs;
+  }, [occupied, cell, originX, originY]);
+
+  const renderCreases = () =>
+    creaseSegments.map((s) => (
+      <Rect key={s.key} x={s.x} y={s.y} width={s.w} height={s.h} color={theme.colors.crease} />
+    ));
+
   const renderSheetShadow = (c: { pos: CellCoord }) => (
     <Rect
       key={`sh${c.pos.row}:${c.pos.col}`}
@@ -368,11 +404,13 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
             <Group clip={baseClip}>
               {occupied.map(renderSheetShadow)}
               {occupied.map((c) => renderCell(c))}
+              {renderCreases()}
             </Group>
           ) : (
             <Group>
               {occupied.map(renderSheetShadow)}
               {occupied.map((c) => renderCell(c))}
+              {renderCreases()}
             </Group>
           )}
 
@@ -394,6 +432,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
                   />
                 ))}
                 {occupied.map((c) => renderCell(c, true))}
+                {renderCreases()}
               </Group>
             </Group>
           )}

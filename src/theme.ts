@@ -23,6 +23,9 @@ export const theme = {
     // Face-down top layer gets a cooler tint so flips are visible.
     paperDown: ['#e3e0d8', '#d8d2c0', '#c9bda0', '#b8a67e', '#a48d5c', '#8d7642', '#766033'],
     paperShadow: 'rgba(0, 0, 0, 0.35)',
+    // Scored crease lines between cells: a warm shadow tone, drawn
+    // deliberately so the grid reads the same on every board.
+    crease: 'rgba(94, 71, 36, 0.16)',
 
     // Accents
     accent: '#ff6d4d', // coral -- target marker, hints, primary actions
