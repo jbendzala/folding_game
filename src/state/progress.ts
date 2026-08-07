@@ -1,9 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { LevelDefinition } from '../core/types';
 
-// v2: the level list was fully re-cut (6 chapters); old ids don't map, so a
-// fresh key intentionally resets pre-release progress.
-const STORAGE_KEY = 'fold/progress/v2';
+// v3: ~a dozen levels kept their id but became different puzzles (Diamond,
+// Frame, Staircase, Pyramid, Lightning, L, T...) when the 1x1 goals were
+// replaced with real silhouettes. Carrying their stars over would mark
+// unplayed puzzles as finished, so pre-release progress resets again.
+const STORAGE_KEY = 'fold/progress/v3';
 
 export interface LevelProgress {
   solved: boolean;
