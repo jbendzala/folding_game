@@ -43,12 +43,12 @@ export const world5Levels: LevelDefinition[] = [
       '. # # # .',
       '. . # . .',
     ],
-    goalRows: ['. # # # .', '# # # # #', '. # # # .'],
-    newConcept: 'Crush the diamond into a hexagon -- both points fold in, the waist survives.',
+    goalRows: ['# # #', '. # .'],
+    newConcept: 'Thirteen cells down to four -- four folds, and every one of them can lose it.',
     difficulty: 7,
-    expectedFolds: 2,
-    designerNotes: 'The showcase shape finally has a goal worth the silhouette: 75% trap, 8 paths '
-      + '(was 0% trap and 46,080 paths -- the most trivial level in the game).',
+    expectedFolds: 4,
+    designerNotes: 'The showcase shape gets a real journey: 4 folds at 65% mean trap. Earlier '
+      + 'versions ended in 1-2 folds, which is why the shape never paid off.',
   }),
   shapeLevel({
     id: 24,

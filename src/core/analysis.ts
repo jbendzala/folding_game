@@ -2,7 +2,7 @@ import { applyFold, listValidFolds } from './fold';
 import { createInitialState, getOccupiedPositions, normalizeToShape } from './grid';
 import { checkGoal } from './goal';
 import { canonicalKey, solve } from './solver';
-import type { FoldState, LevelDefinition, LevelGoal, ShapePattern } from './types';
+import type { Fold, FoldState, LevelDefinition, LevelGoal, ShapePattern } from './types';
 
 /**
  * Measured difficulty, straight from the solver -- authored `difficulty`
@@ -26,11 +26,23 @@ export interface LevelAnalysis {
   /** Distinct fold SEQUENCES of minimum length (order-sensitive, so
    * commuting folds inflate this -- compare levels, don't read absolutely). */
   minimalPaths: number;
+  /**
+   * Mean losing-move fraction across EVERY step of a shortest solution, not
+   * just the opening. This is the metric that matters for multi-fold levels:
+   * `trapRate` only judges move one, so a six-fold puzzle where every opening
+   * works can still be tightly constrained later -- or genuinely mindless.
+   */
+  meanTrap: number;
   /** 0-10, combining length, trap rate and dead ends. */
   score: number;
 }
 
-export function analyzeLevel(level: LevelDefinition, extraCap = 2): LevelAnalysis {
+export function analyzeLevel(
+  level: LevelDefinition,
+  extraCap = 2,
+  /** Counting minimal paths explodes on long solutions; skip when searching. */
+  countPaths = true
+): LevelAnalysis {
   const start = createInitialState(level.start, level.pins);
   const shortest = solve(start, level.goal, level.expectedFolds + extraCap);
   const minFolds = shortest ? shortest.length : null;
@@ -44,6 +56,7 @@ export function analyzeLevel(level: LevelDefinition, extraCap = 2): LevelAnalysi
       deadEndOpenings: openingFolds.length,
       trapRate: 1,
       minimalPaths: 0,
+      meanTrap: 1,
       score: 0,
     };
   }
@@ -63,13 +76,14 @@ export function analyzeLevel(level: LevelDefinition, extraCap = 2): LevelAnalysi
 
   const trapRate = openingFolds.length > 0 ? 1 - viable / openingFolds.length : 0;
   const deadEndRate = openingFolds.length > 0 ? deadEnds / openingFolds.length : 0;
-  const minimalPaths = countMinimalPaths(start, level.goal, minFolds);
+  const minimalPaths = countPaths ? countMinimalPaths(start, level.goal, minFolds) : -1;
+  const meanTrap = measureMeanTrap(start, level.goal, shortest!);
 
-  // Length contributes, but trap rate dominates: a long obvious puzzle is
-  // busywork, a short deceptive one is a puzzle.
+  // Length and sustained constraint both count: a long unconstrained puzzle
+  // is busywork, a constrained one-fold puzzle is over too fast.
   const score = Math.min(
     10,
-    Math.round((minFolds * 0.7 + trapRate * 7 + deadEndRate * 3) * 10) / 10
+    Math.round((minFolds * 0.9 + meanTrap * 5 + deadEndRate * 2) * 10) / 10
   );
 
   return {
@@ -79,8 +93,37 @@ export function analyzeLevel(level: LevelDefinition, extraCap = 2): LevelAnalysi
     deadEndOpenings: deadEnds,
     trapRate,
     minimalPaths,
+    meanTrap,
     score,
   };
+}
+
+/** Walks one shortest solution, measuring at each step what fraction of the
+ * legal moves would leave the shortest path. */
+function measureMeanTrap(start: FoldState, goal: LevelGoal, solution: readonly Fold[]): number {
+  let state = start;
+  let sum = 0;
+  let steps = 0;
+
+  for (let i = 0; i < solution.length; i++) {
+    const remaining = solution.length - i;
+    const legal = listValidFolds(state);
+    if (legal.length > 0) {
+      let viable = 0;
+      for (const fold of legal) {
+        const next = applyFold(state, fold);
+        if (remaining === 1) {
+          if (checkGoal(next, goal)) viable++;
+        } else if (solve(next, goal, remaining - 1)?.length === remaining - 1) {
+          viable++;
+        }
+      }
+      sum += 1 - viable / legal.length;
+      steps++;
+    }
+    state = applyFold(state, solution[i]);
+  }
+  return steps > 0 ? sum / steps : 0;
 }
 
 function countMinimalPaths(start: FoldState, goal: LevelGoal, depth: number): number {
