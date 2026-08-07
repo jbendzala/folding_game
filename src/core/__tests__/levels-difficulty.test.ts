@@ -45,8 +45,8 @@ describe('the late game is a chain of folds, not a single move', () => {
     expect(mean).toBeGreaterThan(2.5);
   });
 
-  it('the finale world never resolves in fewer than five folds', () => {
-    for (const level of allLevels.filter((l) => l.world === 8)) {
+  it('the finale worlds never resolve in fewer than five folds', () => {
+    for (const level of allLevels.filter((l) => l.world >= 8)) {
       expect(
         level.expectedFolds,
         `${level.name} is too short for the finale`

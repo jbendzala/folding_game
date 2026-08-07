@@ -7,6 +7,7 @@ import { world5Levels } from './world5';
 import { world6Levels } from './world6';
 import { world7Levels } from './world7';
 import { world8Levels } from './world8';
+import { world9Levels } from './world9';
 
 export const allLevels: LevelDefinition[] = [
   ...world1Levels,
@@ -17,6 +18,7 @@ export const allLevels: LevelDefinition[] = [
   ...world6Levels,
   ...world7Levels,
   ...world8Levels,
+  ...world9Levels,
 ];
 
 export const WORLD_NAMES: Record<number, string> = {
@@ -28,6 +30,7 @@ export const WORLD_NAMES: Record<number, string> = {
   6: 'Pinned Down',
   7: 'Masterpieces',
   8: 'The Long Fold',
+  9: 'The Gauntlet',
 };
 
 export function getLevel(id: number): LevelDefinition {

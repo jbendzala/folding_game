@@ -72,6 +72,61 @@ const STARTS: Record<string, string[]> = {
     '. . # # # . .',
     '. . # # # . .',
   ],
+
+  // --- irregular sheets with holes: a hole is fragile, so any fold that
+  // patches it loses outright. Add 'P' for a pin.
+  perforated: ['# # # # # # #', '# . # . # . #', '# # # # # # #', '# . # . # . #', '# # # # # # #'],
+  window: [
+    '# # # # # #',
+    '# # # # # #',
+    '# # . . # #',
+    '# # . . # #',
+    '# # # # # #',
+    '# # # # # #',
+  ],
+  swiss: [
+    '# # # # # #',
+    '# . # # . #',
+    '# # # # # #',
+    '# # # # # #',
+    '# . # # . #',
+    '# # # # # #',
+  ],
+  ringcross: [
+    '. . # # # . .',
+    '. # # # # # .',
+    '# # . . . # #',
+    '# # . # . # #',
+    '# # . . . # #',
+    '. # # # # # .',
+    '. . # # # . .',
+  ],
+  pinnedcross: [
+    '. . # # # . .',
+    '. . # # # . .',
+    'P # # # # # #',
+    '# # # # # # #',
+    '# # # # # # #',
+    '. . # # # . .',
+    '. . # # # . .',
+  ],
+  pinnedbutterfly: [
+    'P # . . . # #',
+    '# # # . # # #',
+    '. # # # # # .',
+    '. . # # # . .',
+    '. # # # # # .',
+    '# # # . # # #',
+    '# # . . . # #',
+  ],
+  pinnedwindow: [
+    'P # # # # #',
+    '# # # # # #',
+    '# # . . # #',
+    '# # . . # #',
+    '# # # # # #',
+    '# # # # # #',
+  ],
 };
 
 function render(shape: ShapePattern): string[] {
@@ -94,13 +149,14 @@ for (const name of names) {
     console.log(`unknown shape: ${name}`);
     continue;
   }
-  const { shape: start } = shapeFromRows(rows);
+  const { shape: start, pins } = shapeFromRows(rows);
   console.log(
-    `\n\n=== ${name.toUpperCase()} (${start.width}x${start.height}, ${start.cells.length} cells)`
+    `\n\n=== ${name.toUpperCase()} (${start.width}x${start.height}, ${start.cells.length} cells` +
+      `${pins.length ? `, ${pins.length} pinned` : ''})`
   );
   console.log(render(start).join('\n'));
 
-  const goals = reachableGoals(start, maxFolds)
+  const goals = reachableGoals(start, maxFolds, pins)
     // Small, specific targets -- the kind you have to work down to.
     .filter((g) => g.shape.cells.length >= 2 && g.shape.cells.length <= 8)
     // Longest solutions first: that is the whole point of this pass.
@@ -114,6 +170,7 @@ for (const name of names) {
       name,
       world: 0,
       start,
+      ...(pins.length > 0 ? { pins } : {}),
       goal:
         goal.uniformDepth !== undefined
           ? { shape: goal.shape, uniformDepth: goal.uniformDepth }
