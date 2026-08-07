@@ -14,7 +14,7 @@ import type { Fold, FoldState, LevelGoal } from './types';
  * footprints and depths can differ in layer order. Extend the key before
  * using this solver there.
  */
-function canonicalKey(state: FoldState, withDepths: boolean): string {
+export function canonicalKey(state: FoldState, withDepths: boolean): string {
   const { minRow, maxRow, minCol, maxCol } = getBounds(state.cells);
   if (!withDepths) {
     const positions = getOccupiedPositions(state)

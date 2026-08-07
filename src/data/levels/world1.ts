@@ -23,7 +23,7 @@ export const world1Levels: LevelDefinition[] = [
     world: 1,
     rows: ['* # # #', '# # # #'],
     newConcept: 'Chaining folds on one axis (4 -> 2 -> 1) -- or fold it in half at once.',
-    difficulty: 1,
+    difficulty: 2,
     expectedFolds: 3,
     designerNotes: 'First taste of "this dimension needs more than one fold."',
   }),
