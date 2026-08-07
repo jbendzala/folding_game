@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Canvas, Circle, Group, Path, Rect, RoundedRect, rect } from '@shopify/react-native-skia';
 import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -57,9 +57,14 @@ interface PaperCanvasProps {
 export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: PaperCanvasProps) {
   const [armKey, setArmKey] = useState<ArmKey | null>(null);
 
-  // --- geometry (frozen per level via `start`) ---
+  // --- geometry (cell size frozen per level via `start`) ---
+  // Folding past the halfway point makes the flap legitimately overhang the
+  // far edge (fold 3 cells of a 5-cell sheet and 1 cell sticks out), so the
+  // frame reserves a cell of margin for it. Boards of 2 can't overhang at
+  // all (the only fold is the exact half), so they keep the full canvas.
   const maxDim = Math.max(start.width, start.height);
-  const cell = Math.max(24, Math.floor((size - 24) / maxDim));
+  const marginCells = maxDim >= 3 ? 2 : 0.25;
+  const cell = Math.max(24, Math.floor(size / (maxDim + marginCells)));
   const originX = (size - start.width * cell) / 2;
   const originY = (size - start.height * cell) / 2;
   const screenX = (col: number) => originX + col * cell;
@@ -90,6 +95,28 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
   const creaseMinK3 = pins.length
     ? Math.max(topEdgePx + cell, ...pins.map((p) => screenY(p.row + 1)))
     : topEdgePx + cell;
+
+  // --- view panning ---
+  // Cell size stays fixed, but a fold can walk paper right out of the
+  // starting frame (x -> 2*line+1-x compounds: two folds on a 6-wide sheet
+  // can reach column 12), so the view follows the paper, re-centering on the
+  // current shape. State only changes on commit, so this never moves under a
+  // dragging finger.
+  const shapeCenterX = originX + ((bounds.minCol + bounds.maxCol + 1) / 2) * cell;
+  const shapeCenterY = originY + ((bounds.minRow + bounds.maxRow + 1) / 2) * cell;
+  const targetPanX = size / 2 - shapeCenterX;
+  const targetPanY = size / 2 - shapeCenterY;
+
+  const panXSv = useSharedValue(targetPanX);
+  const panYSv = useSharedValue(targetPanY);
+  useEffect(() => {
+    panXSv.value = withTiming(targetPanX, { duration: 220 });
+    panYSv.value = withTiming(targetPanY, { duration: 220 });
+  }, [targetPanX, targetPanY]);
+  const contentTransform = useDerivedValue(() => [
+    { translateX: panXSv.value },
+    { translateY: panYSv.value },
+  ]);
 
   // --- animation state ---
   const creaseSv = useSharedValue(0);
@@ -171,17 +198,21 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
       // continuous, follows the finger exactly. Clamped so the fold can
       // never exceed the sheet (last legal crease is one cell short of the
       // far edge).
+      // Touch coords are in view space; the paper is panned, so work in the
+      // base frame the edge/pin constants live in.
+      const px = e.x - panXSv.value;
+      const py = e.y - panYSv.value;
       if (key === 0) {
-        const c = (leftEdgePx + e.x) / 2;
+        const c = (leftEdgePx + px) / 2;
         creaseSv.value = Math.min(Math.max(c, leftEdgePx), creaseMaxK0);
       } else if (key === 1) {
-        const c = (rightEdgePx + e.x) / 2;
+        const c = (rightEdgePx + px) / 2;
         creaseSv.value = Math.max(Math.min(c, rightEdgePx), creaseMinK1);
       } else if (key === 2) {
-        const c = (topEdgePx + e.y) / 2;
+        const c = (topEdgePx + py) / 2;
         creaseSv.value = Math.min(Math.max(c, topEdgePx), creaseMaxK2);
       } else {
-        const c = (bottomEdgePx + e.y) / 2;
+        const c = (bottomEdgePx + py) / 2;
         creaseSv.value = Math.max(Math.min(c, bottomEdgePx), creaseMinK3);
       }
 
@@ -331,6 +362,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
     <GestureDetector gesture={pan}>
       <View style={{ width: size, height: size }}>
         <Canvas style={{ width: size, height: size }}>
+         <Group transform={contentTransform}>
           {/* stationary paper (clipped to beyond the crease while folding) */}
           {folding ? (
             <Group clip={baseClip}>
@@ -352,8 +384,10 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
                 {occupied.map((c) => (
                   <Rect
                     key={`fsh${c.pos.row}:${c.pos.col}`}
-                    x={screenX(c.pos.col) + 4}
-                    y={screenY(c.pos.row) + 5}
+                    // Negated on the mirrored axis so the shadow still falls
+                    // down-right on screen after the flap flips over.
+                    x={screenX(c.pos.col) + (armVertical ? -4 : 4)}
+                    y={screenY(c.pos.row) + (armVertical ? 5 : -5)}
                     width={cell}
                     height={cell}
                     color={theme.colors.paperShadow}
@@ -421,6 +455,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
               <Path path={hintShapes.arrow} color={theme.colors.gold} />
             </Group>
           )}
+         </Group>
         </Canvas>
       </View>
     </GestureDetector>
