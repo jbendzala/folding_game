@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { applyFold, isValidFold, listValidFolds } from '../fold';
 import { createInitialState } from '../grid';
-import { checkGoal } from '../goal';
+import { checkGoal, isGoalStillReachable } from '../goal';
 import { shapeFromRows } from '../parseShape';
+import { allLevels } from '../../data/levels';
 
 describe('pinned cells', () => {
   it('bans any fold whose moving side contains a pin', () => {
@@ -68,5 +69,46 @@ describe('uniform depth goals', () => {
     state = applyFold(state, { axis: 'vertical', line: 0, moves: 'lower' });
     // Silhouette is 2x2 but col depths are 2 and 1 -> not uniform.
     expect(checkGoal(state, goal2x2depth2)).toBe(false);
+  });
+});
+
+describe('dead position detection', () => {
+  it('flags a position folded smaller than the goal', () => {
+    const { shape } = shapeFromRows(['# # # #', '# # # #']);
+    let state = createInitialState(shape);
+    const goal = {
+      shape: {
+        width: 3,
+        height: 2,
+        cells: [
+          { row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 },
+          { row: 1, col: 0 }, { row: 1, col: 1 }, { row: 1, col: 2 },
+        ],
+      },
+    };
+    expect(isGoalStillReachable(state, goal)).toBe(true);
+    // Fold to 2 wide: the goal needs 3, and width never grows back.
+    state = applyFold(state, { axis: 'vertical', line: 1, moves: 'lower' });
+    expect(isGoalStillReachable(state, goal)).toBe(false);
+  });
+
+  it('flags a stack already deeper than a uniform-depth goal', () => {
+    const { shape } = shapeFromRows(['# # # #']);
+    let state = createInitialState(shape);
+    const goal = {
+      shape: { width: 2, height: 1, cells: [{ row: 0, col: 0 }, { row: 0, col: 1 }] },
+      uniformDepth: 2,
+    };
+    state = applyFold(state, { axis: 'vertical', line: 1, moves: 'lower' });
+    expect(isGoalStillReachable(state, goal)).toBe(true); // exactly 2 deep
+    state = applyFold(state, { axis: 'vertical', line: 2, moves: 'lower' });
+    expect(isGoalStillReachable(state, goal)).toBe(false); // 4 deep, cannot thin
+  });
+
+  it('never reports a solved position as dead', () => {
+    for (const level of allLevels.slice(0, 12)) {
+      const state = createInitialState(level.start, level.pins);
+      expect(isGoalStillReachable(state, level.goal), level.name).toBe(true);
+    }
   });
 });

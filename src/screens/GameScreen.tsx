@@ -4,12 +4,22 @@ import * as Haptics from 'expo-haptics';
 import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PaperCanvas } from '../components/PaperCanvas';
-import { checkGoal, createInitialState, isValidFold, replayFolds, solve } from '../core';
+import {
+  checkGoal,
+  createInitialState,
+  isGoalStillReachable,
+  isValidFold,
+  replayFolds,
+  solve,
+} from '../core';
 import type { Fold, LevelDefinition } from '../core/types';
 import { starsFor } from '../state/progress';
 import { theme } from '../theme';
 
-const HINTS_PER_LEVEL = 3;
+// Hints and undo are unrestricted for now. A future limit (daily allowance,
+// purchasable extras) goes here rather than being sprinkled through the
+// component: set a number and the button gates itself.
+const HINT_LIMIT: number | null = null; // null = unlimited
 
 interface GameScreenProps {
   level: LevelDefinition;
@@ -25,7 +35,6 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   const insets = useSafeAreaInsets();
   const [folds, setFolds] = useState<Fold[]>([]);
   const [hintFold, setHintFold] = useState<Fold | null>(null);
-  const [hintsLeft, setHintsLeft] = useState(HINTS_PER_LEVEL);
   const [showSolved, setShowSolved] = useState(false);
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reportedRef = useRef(false);
@@ -35,6 +44,12 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
     [level, folds]
   );
   const solved = useMemo(() => checkGoal(state, level.goal), [state, level]);
+  // Provably dead position. Not a failure state -- undo is right there -- so
+  // this only warns, and never blocks play.
+  const stuck = useMemo(
+    () => !solved && folds.length > 0 && !isGoalStillReachable(state, level.goal),
+    [state, level, solved, folds.length]
+  );
 
   // Let the fold animation land before celebrating.
   useEffect(() => {
@@ -56,6 +71,16 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
     if (hintTimer.current) clearTimeout(hintTimer.current);
     setHintFold(null);
   }
+
+  // A short warning buzz the moment the position goes dead, so the player
+  // does not fold on for another three moves before noticing.
+  const wasStuck = useRef(false);
+  useEffect(() => {
+    if (stuck && !wasStuck.current) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    }
+    wasStuck.current = stuck;
+  }, [stuck]);
 
   function handleFold(fold: Fold) {
     // Defensive: a gesture racing a re-render could hand us a fold computed
@@ -79,7 +104,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   }
 
   function showHint() {
-    if (hintsLeft <= 0 || solved) return;
+    if (solved) return;
     const cap = Math.max(level.expectedFolds - folds.length + 2, 2);
     const path = solve(state, level.goal, cap);
     if (!path || path.length === 0) {
@@ -87,7 +112,6 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       return;
     }
-    setHintsLeft((n) => n - 1);
     setHintFold(path[0]);
     if (hintTimer.current) clearTimeout(hintTimer.current);
     hintTimer.current = setTimeout(() => setHintFold(null), 2400);
@@ -119,11 +143,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
           <Text style={styles.eyebrow}>WORLD {level.world}</Text>
           <Text style={styles.title}>{level.name}</Text>
         </View>
-        <View style={[styles.foldPill, overPar && styles.foldPillOver]}>
-          <Text style={[styles.foldPillText, overPar && styles.foldPillTextOver]}>
-            {folds.length}/{level.expectedFolds}
-          </Text>
-        </View>
+        <View style={styles.headerSpacer} />
       </View>
 
       {/* silhouette goal preview (worlds with shape goals, no board anchor) */}
@@ -151,14 +171,33 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
         />
       </View>
 
+      {/* dead position: inform, do not block */}
+      {stuck && (
+        <Animated.View entering={FadeIn.duration(180)} style={styles.stuckBar}>
+          <Text style={styles.stuckText}>No way to the goal from here</Text>
+          <Pressable onPress={undo} hitSlop={8}>
+            <Text style={styles.stuckAction}>Undo</Text>
+          </Pressable>
+        </Animated.View>
+      )}
+
+      {/* fold counter -- its own row so nothing can obscure it */}
+      <View style={styles.counterRow}>
+        <Text style={styles.counterLabel}>FOLDS</Text>
+        <Text style={[styles.counterValue, overPar && styles.counterOver]}>
+          {folds.length}
+        </Text>
+        <Text style={styles.counterPar}>/ {level.expectedFolds}</Text>
+      </View>
+
       {/* controls */}
       <View style={styles.controls}>
         <ControlButton label="Undo" onPress={undo} disabled={folds.length === 0} />
         <ControlButton label="Reset" onPress={reset} disabled={folds.length === 0} />
         <ControlButton
-          label={`Hint ${'·'.repeat(Math.max(hintsLeft, 0))}`}
+          label="Hint"
           onPress={showHint}
-          disabled={hintsLeft <= 0 || solved}
+          disabled={solved}
           accent
         />
       </View>
@@ -309,6 +348,60 @@ const styles = StyleSheet.create({
     color: theme.colors.ink,
     fontSize: theme.font.heading,
     fontWeight: '800',
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  stuckBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 14,
+    marginHorizontal: 24,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: theme.radius.pill,
+    backgroundColor: 'rgba(255, 92, 105, 0.14)',
+  },
+  stuckText: {
+    color: theme.colors.danger,
+    fontSize: theme.font.small,
+    fontWeight: '700',
+  },
+  stuckAction: {
+    color: theme.colors.ink,
+    fontSize: theme.font.small,
+    fontWeight: '800',
+    textDecorationLine: 'underline',
+  },
+  counterRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    gap: 8,
+    paddingTop: 14,
+    paddingBottom: 12,
+  },
+  counterLabel: {
+    color: theme.colors.inkFaint,
+    fontSize: theme.font.tiny,
+    fontWeight: '800',
+    letterSpacing: 2,
+  },
+  counterValue: {
+    color: theme.colors.ink,
+    fontSize: 26,
+    fontWeight: '900',
+    fontVariant: ['tabular-nums'],
+  },
+  counterOver: {
+    color: theme.colors.accent,
+  },
+  counterPar: {
+    color: theme.colors.inkSoft,
+    fontSize: theme.font.body,
+    fontWeight: '700',
+    fontVariant: ['tabular-nums'],
   },
   foldPill: {
     minWidth: 52,
