@@ -2,91 +2,14 @@ import type { LevelDefinition } from '../../core/types';
 import { shapeLevel } from './helpers';
 
 /**
- * World 9 -- "The Gauntlet"
- * Everything at once: irregular sheets riddled with holes, targets that are
- * themselves holed, pins banning the easy routes, and thickness on top.
- *
- * Holes are what make these brutal. A hole is fragile in one direction only:
- * paper folded onto it patches it forever, and no later fold can reopen it.
- * So every fold has to be checked twice -- once for the silhouette, once for
- * what it does to the gaps.
+ * Chapter 9 -- "No Mercy"
+ * The finale: every rule at once, on the biggest boards, with the longest
+ * chains. Nothing here introduces anything new -- it is the combination
+ * space the earlier chapters spent so long getting to.
  */
 export const world9Levels: LevelDefinition[] = [
   shapeLevel({
     id: 41,
-    name: 'Perforated',
-    world: 9,
-    rows: [
-      '# # # # # # #',
-      '# . # . # . #',
-      '# # # # # # #',
-      '# . # . # . #',
-      '# # # # # # #',
-    ],
-    goalRows: ['# # #', '# . #', '# # #'],
-    newConcept: 'Six holes in, one hole out -- five of them have to be closed, one must not.',
-    difficulty: 9,
-    expectedFolds: 5,
-    designerNotes: '62% mean trap. The player must work out WHICH hole becomes the survivor.',
-  }),
-  shapeLevel({
-    id: 42,
-    name: 'The Window',
-    world: 9,
-    rows: [
-      '# # # # # #',
-      '# # # # # #',
-      '# # . . # #',
-      '# # . . # #',
-      '# # # # # #',
-      '# # # # # #',
-    ],
-    goalRows: ['# # #', '# . #', '# # #'],
-    newConcept: 'Thirty-two cells down to a ring -- and the window survives all six folds.',
-    difficulty: 10,
-    expectedFolds: 6,
-    designerNotes: '6 folds at 66% mean trap. One careless fold seals the window and it is over.',
-  }),
-  shapeLevel({
-    id: 43,
-    name: 'Swiss',
-    world: 9,
-    rows: [
-      '# # # # # #',
-      '# . # # . #',
-      '# # # # # #',
-      '# # # # # #',
-      '# . # # . #',
-      '# # # # # #',
-    ],
-    goalRows: ['#', '#'],
-    uniformDepth: 16,
-    newConcept: 'Four holes, and the answer is two cells sixteen sheets thick -- all of it perfect.',
-    difficulty: 10,
-    expectedFolds: 5,
-    designerNotes: 'Holes AND extreme thickness: every hole must be patched exactly, or a '
-      + 'column comes up a sheet short.',
-  }),
-  shapeLevel({
-    id: 44,
-    name: 'Nailed Window',
-    world: 9,
-    rows: [
-      'P # # # # #',
-      '# # # # # #',
-      '# # . . # #',
-      '# # . . # #',
-      '# # # # # #',
-      '# # # # # #',
-    ],
-    goalRows: ['# . #', '# # #', '# # #'],
-    newConcept: 'The pin takes away the natural route, and the window still has to live.',
-    difficulty: 10,
-    expectedFolds: 5,
-    designerNotes: '74% mean trap -- the most constrained long level in the game.',
-  }),
-  shapeLevel({
-    id: 45,
     name: 'The Gauntlet',
     world: 9,
     rows: [
@@ -101,7 +24,81 @@ export const world9Levels: LevelDefinition[] = [
     newConcept: 'Pin, window, ring, six folds. Nothing here forgives anything.',
     difficulty: 10,
     expectedFolds: 6,
-    designerNotes: 'The final level: level 42 with a pin nailing one corner, so the six-fold '
-      + 'route that solved it there is illegal here.',
+    designerNotes: 'Level 37 with a corner pinned, so the route that solved it is illegal.',
+  }),
+  shapeLevel({
+    id: 42,
+    name: 'Nailed Swiss',
+    world: 9,
+    rows: [
+      'P # # # # #',
+      '# . # # . #',
+      '# # # # # #',
+      '# # # # # #',
+      '# . # # . #',
+      '# # # # # #',
+    ],
+    goalRows: ['#', '#'],
+    uniformDepth: 16,
+    newConcept: 'All three rules: four holes, sixteen sheets, and a pinned corner.',
+    difficulty: 10,
+    expectedFolds: 5,
+    designerNotes: 'The only level using holes, thickness and a pin together.',
+  }),
+  shapeLevel({
+    id: 43,
+    name: 'Pinned Perforation',
+    world: 9,
+    rows: [
+      'P # # # # # #',
+      '# . # . # . #',
+      '# # # # # # #',
+      '# . # . # . #',
+      '# # # # # # #',
+    ],
+    goalRows: ['# # #', '# . #', '# # #'],
+    newConcept: 'Six holes and a pin -- the survivor is no longer the obvious one.',
+    difficulty: 10,
+    expectedFolds: 5,
+    designerNotes: 'Pairs with 36: same sheet, and the pin moves which hole can live.',
+  }),
+  shapeLevel({
+    id: 44,
+    name: 'Pinned Net',
+    world: 9,
+    rows: [
+      'P # . . . # #',
+      '# # # . # # #',
+      '. # # # # # .',
+      '. . # # # . .',
+      '. # # # # # .',
+      '# # # . # # #',
+      '# # . . . # #',
+    ],
+    goalRows: ['# # #', '# . #', '# . #'],
+    newConcept: 'The doorway again, seven folds deep, with a wingtip nailed down.',
+    difficulty: 10,
+    expectedFolds: 7,
+    designerNotes: 'Longest solution in the game. The pin bans the six-fold route that '
+      + 'solves the unpinned version (level 33), forcing a seventh fold.',
+  }),
+  shapeLevel({
+    id: 45,
+    name: 'The Last Word',
+    world: 9,
+    rows: [
+      '. . # # # . .',
+      '. . # # # . .',
+      'P # # # # # #',
+      '# # # # # # #',
+      '# # # # # # #',
+      '. . # # # . .',
+      '. . # # # . .',
+    ],
+    goalRows: ['# .', '# #'],
+    newConcept: 'Thirty-three cells, one pin, three squares. Goodnight.',
+    difficulty: 10,
+    expectedFolds: 6,
+    designerNotes: 'Final level: the long cross with its left arm pinned.',
   }),
 ];

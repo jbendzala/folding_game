@@ -2,55 +2,57 @@ import type { LevelDefinition } from '../../core/types';
 import { shapeLevel } from './helpers';
 
 /**
- * World 3 -- "Hole Algebra"
- * Patch, preserve, combine: paper + hole = paper, hole + hole = hole. The
- * frame capstone folds the sides INTO an enclosed hollow.
+ * Chapter 3 -- "Layers"
+ * The last new rule, plus the first two levels that ask for two mechanics at
+ * once. From here the game stops teaching and starts combining.
  */
 export const world3Levels: LevelDefinition[] = [
   shapeLevel({
     id: 11,
-    name: 'Hole Meets Hole',
+    name: 'Double Over',
     world: 3,
-    rows: ['# . #', '# . #', '# # #'],
-    goalRows: ['# . #', '# # #'],
-    newConcept: 'Empty + empty = empty: two holes folded onto each other stay a hole.',
-    difficulty: 4,
+    rows: ['# # # #', '# # # #'],
+    goalRows: ['# #', '# #'],
+    uniformDepth: 2,
+    newConcept: 'NEW: thickness. The result must be exactly this many sheets everywhere.',
+    difficulty: 3,
     expectedFolds: 1,
-    designerNotes: 'Completes the hole vocabulary: patch (6), preserve (7), combine (11).',
+    designerNotes: 'Easiest possible example, so the chip explains itself.',
   }),
   shapeLevel({
     id: 12,
-    name: 'Diagonal Missing',
+    name: 'Four Ply',
     world: 3,
-    rows: ['. # # #', '# # # #', '# # # #', '# # # .'],
+    rows: ['# # # #', '# # # #', '# # # #', '# # # #'],
     goalRows: ['# #', '# #'],
-    newConcept: 'Two holes, one goal: both must be patched on the way to a solid square.',
-    difficulty: 5,
+    uniformDepth: 4,
+    newConcept: 'Two perfect halves make four perfect layers. Any other pair fails.',
+    difficulty: 4,
     expectedFolds: 2,
-    designerNotes: 'The real test of patch-vs-preserve as a choice, not an accident.',
+    designerNotes: 'First level where a solved-LOOKING shape is still wrong.',
   }),
   shapeLevel({
     id: 13,
-    name: 'Thick L',
+    name: 'Thick Three',
     world: 3,
-    rows: ['# # # #', '# # # #', '# # . .', '# # . .'],
-    goalRows: ['# #', '# #'],
-    newConcept: 'One fold can patch part of its span and stack the rest -- mixed consequences.',
+    rows: ['# # #', '# # #', '# # #'],
+    goalRows: ['# # #'],
+    uniformDepth: 3,
+    newConcept: 'Odd thickness: the letter fold, 1+1+1 rather than 2+1.',
     difficulty: 5,
     expectedFolds: 2,
-    designerNotes: 'Chunkier, bolder L: the tough version of level 8 at a glance.',
+    designerNotes: 'Everyone knows this one from envelopes.',
   }),
   shapeLevel({
     id: 14,
-    name: 'Shrink the Frame',
+    name: 'Blocked Book',
     world: 3,
-    rows: ['# # # #', '# . . #', '# . . #', '# # # #'],
-    goalRows: ['# # #', '# . #', '# . #', '# # #'],
-    newConcept: 'Narrow the frame without sealing the hollow -- the hole must survive.',
+    rows: ['P . . #', '# . . #', '# # # #'],
+    goalRows: ['# .', '# .', '# #'],
+    newConcept: 'FIRST COMBINATION: pin plus hole. The pin decides which way it closes.',
     difficulty: 5,
     expectedFolds: 1,
-    designerNotes: 'The old version (frame -> solid block) measured 0% trap: every opening won. '
-      + 'Keeping the hole alive is what makes it a puzzle -- 67% trap.',
+    designerNotes: 'Level 5\'s book fold, but one arm is nailed down. 80% trap.',
   }),
   shapeLevel({
     id: 15,
@@ -59,9 +61,9 @@ export const world3Levels: LevelDefinition[] = [
     rows: ['# # # #', '# . . #', '# . . #', '# # # #'],
     goalRows: ['# #', '. #', '. #', '# #'],
     uniformDepth: 2,
-    newConcept: 'Same frame, folded onto itself: every cell exactly two sheets thick.',
+    newConcept: 'Hole plus thickness: an enclosed gap, folded to exactly two sheets.',
     difficulty: 6,
     expectedFolds: 1,
-    designerNotes: 'Measured 92% trap, exactly ONE solution -- the sharpest level in the game.',
+    designerNotes: '92% trap, exactly ONE solution. All five rules are now in play.',
   }),
 ];

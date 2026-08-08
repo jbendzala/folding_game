@@ -22,15 +22,15 @@ export const allLevels: LevelDefinition[] = [
 ];
 
 export const WORLD_NAMES: Record<number, string> = {
-  1: 'Paper Basics',
-  2: 'First Shapes',
-  3: 'Hole Algebra',
-  4: 'Layer Cake',
-  5: 'Strange Geometry',
-  6: 'Pinned Down',
-  7: 'Masterpieces',
-  8: 'The Long Fold',
-  9: 'The Gauntlet',
+  1: 'First Folds',
+  2: 'Holes & Pins',
+  3: 'Layers',
+  4: 'Strange Geometry',
+  5: 'Thick & Thin',
+  6: 'Masterpieces',
+  7: 'The Long Fold',
+  8: 'The Gauntlet',
+  9: 'No Mercy',
 };
 
 export function getLevel(id: number): LevelDefinition {

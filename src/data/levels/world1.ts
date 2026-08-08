@@ -1,10 +1,12 @@
 import type { LevelDefinition } from '../../core/types';
-import { singleCellLevel } from './helpers';
+import { shapeLevel, singleCellLevel } from './helpers';
 
 /**
- * World 1 -- "Paper Basics" (the only rectangle world)
- * Five levels of fold grammar: direction, chaining, and two "obvious fold is
- * wrong" traps. Everything after this world is shapes, holes, layers, pins.
+ * Chapter 1 -- "First Folds"
+ * Fold grammar, then straight into shape goals. The old version spent five
+ * levels on rectangles alone; measurement showed the game stopped teaching
+ * at level 16 and then repeated itself for 25 levels, so every teaching
+ * chapter here is compressed to make room for combinations.
  */
 export const world1Levels: LevelDefinition[] = [
   singleCellLevel({
@@ -12,62 +14,51 @@ export const world1Levels: LevelDefinition[] = [
     name: 'Tiny Square',
     world: 1,
     rows: ['# #', '# *'],
-    newConcept: 'One horizontal + one vertical fold; fold direction follows the target.',
+    newConcept: 'Fold the paper onto the marked cell. Direction is everything.',
     difficulty: 1,
     expectedFolds: 2,
-    designerNotes: 'The entire grammar of the game in the smallest possible box.',
+    designerNotes: 'The whole grammar in the smallest possible box.',
   }),
   singleCellLevel({
     id: 2,
     name: 'Wide Rectangle',
     world: 1,
     rows: ['* # # #', '# # # #'],
-    newConcept: 'Chaining folds on one axis (4 -> 2 -> 1) -- or fold it in half at once.',
+    newConcept: 'A long side needs more than one fold -- or one fold in half.',
     difficulty: 2,
     expectedFolds: 3,
-    designerNotes: 'First taste of "this dimension needs more than one fold."',
+    designerNotes: 'First taste of chaining.',
   }),
   singleCellLevel({
     id: 3,
     name: 'Center Target',
     world: 1,
     rows: ['# # # #', '# # * #', '# # # #', '# # # #'],
-    newConcept: 'Target near the middle -- only one direction per axis preserves it.',
-    difficulty: 2,
+    newConcept: 'The target sits near the middle -- only one direction per axis keeps it.',
+    difficulty: 3,
     expectedFolds: 4,
-    designerNotes: 'First deliberate "obvious fold, wrong pick" trap.',
+    designerNotes: 'First deliberate "obvious fold is wrong" trap.',
   }),
-  singleCellLevel({
+  shapeLevel({
     id: 4,
-    name: 'Five by Five',
+    name: 'L Shape',
     world: 1,
-    rows: [
-      '# # # # #',
-      '# # # # #',
-      '# # * # #',
-      '# # # # #',
-      '# # # # #',
-    ],
-    newConcept: 'Odd sizes never split evenly -- a fold is always 2 vs 3.',
+    rows: ['# # #', '# . .', '# . .'],
+    goalRows: ['# # #', '# . .'],
+    newConcept: 'NEW: the goal is a SHAPE now, not a cell. Fold the L into a smaller L.',
     difficulty: 3,
-    expectedFolds: 6,
-    designerNotes: 'Perfectly symmetric card; calm before the shapes arrive.',
+    expectedFolds: 1,
+    designerNotes: 'You must fold INTO the shape, not flatten it. 75% of openings lose.',
   }),
-  singleCellLevel({
+  shapeLevel({
     id: 5,
-    name: 'Offset Center',
+    name: 'U Shape',
     world: 1,
-    rows: [
-      '# # # # # #',
-      '# # # # # #',
-      '# # # * # #',
-      '# # # # # #',
-      '# # # # # #',
-      '# # # # # #',
-    ],
-    newConcept: 'The instinctive half-fold is wrong -- the target is one cell off center.',
-    difficulty: 3,
-    expectedFolds: 6,
-    designerNotes: 'Graduation exam for rectangles. The last one in the game.',
+    rows: ['# . . #', '# . . #', '# # # #'],
+    goalRows: ['. #', '. #', '# #'],
+    newConcept: 'Close it like a book -- the two arms meet exactly.',
+    difficulty: 4,
+    expectedFolds: 1,
+    designerNotes: '90% trap with a unique solution, and it lands at level 5.',
   }),
 ];

@@ -45,12 +45,18 @@ describe('the late game is a chain of folds, not a single move', () => {
     expect(mean).toBeGreaterThan(2.5);
   });
 
-  it('the finale worlds never resolve in fewer than five folds', () => {
-    for (const level of allLevels.filter((l) => l.world >= 8)) {
-      expect(
-        level.expectedFolds,
-        `${level.name} is too short for the finale`
-      ).toBeGreaterThanOrEqual(5);
+  // The point is that the late game is not a STRING of one-gesture puzzles.
+  // A short, very tight level among long ones is good pacing -- Pinned Frame
+  // is three folds and among the most constrained in the game -- so the rule
+  // is a floor per level plus an average per chapter, not a flat minimum.
+  it('late chapters are built from chains, with no one-gesture levels', () => {
+    for (const level of allLevels.filter((l) => l.world >= 7)) {
+      expect(level.expectedFolds, `${level.name} is a single fold this late`).toBeGreaterThanOrEqual(3);
+    }
+    for (const world of [7, 8, 9]) {
+      const chapter = allLevels.filter((l) => l.world === world);
+      const mean = chapter.reduce((sum, l) => sum + l.expectedFolds, 0) / chapter.length;
+      expect(mean, `chapter ${world} averages too few folds`).toBeGreaterThanOrEqual(4.5);
     }
   });
 });

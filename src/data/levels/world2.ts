@@ -1,10 +1,11 @@
 import type { LevelDefinition } from '../../core/types';
-import { shapeLevel } from './helpers';
+import { shapeLevel, singleCellLevel } from './helpers';
 
 /**
- * World 2 -- "First Shapes"
- * The goal becomes a silhouette to make, not a cell to land on. Concave
- * shapes mean folds have uneven consequences across their span.
+ * Chapter 2 -- "Holes & Pins"
+ * Holes, then pins. Pins used to arrive at level 26, more than halfway in;
+ * arriving here means the back two thirds of the game can combine them with
+ * everything else.
  */
 export const world2Levels: LevelDefinition[] = [
   shapeLevel({
@@ -13,10 +14,10 @@ export const world2Levels: LevelDefinition[] = [
     world: 2,
     rows: ['# # #', '# # #', '# # .'],
     goalRows: ['# # #', '# # #'],
-    newConcept: 'A hole can be folded away: fold its row onto a solid one and it vanishes.',
+    newConcept: 'NEW: holes. Fold a gap onto solid paper and it vanishes for good.',
     difficulty: 3,
     expectedFolds: 1,
-    designerNotes: 'Subverts "a hole is permanent" -- animate the notch filling in.',
+    designerNotes: 'Subverts "a hole is permanent".',
   }),
   shapeLevel({
     id: 7,
@@ -24,42 +25,41 @@ export const world2Levels: LevelDefinition[] = [
     world: 2,
     rows: ['. # #', '# # #', '# # #'],
     goalRows: ['. #', '# #'],
-    newConcept: 'The opposite lesson: fold only what never crosses the hole, and it survives.',
-    difficulty: 3,
+    newConcept: 'The reverse: fold only what never crosses the gap, and it survives.',
+    difficulty: 4,
     expectedFolds: 2,
-    designerNotes: 'Same silhouette as 6, mirrored hole, opposite intent -- a paired lesson.',
+    designerNotes: 'Paired with level 6 -- same silhouette, opposite intent.',
   }),
   shapeLevel({
     id: 8,
-    name: 'L Shape',
+    name: 'Hole Meets Hole',
     world: 2,
-    rows: ['# # #', '# . .', '# . .'],
-    goalRows: ['# # #', '# . .'],
-    newConcept: 'Fold the leg up into the bar -- the L keeps its corner, loses its length.',
+    rows: ['# . #', '# . #', '# # #'],
+    goalRows: ['# . #', '# # #'],
+    newConcept: 'Empty onto empty stays empty -- the only way to move a hole.',
     difficulty: 4,
     expectedFolds: 1,
-    designerNotes: 'Measured 75% trap: 2 of 8 openings work. One precise fold, not four vague ones.',
+    designerNotes: 'Completes the hole vocabulary: patch, preserve, combine.',
   }),
   shapeLevel({
     id: 9,
-    name: 'U Shape',
+    name: 'Hold It Down',
     world: 2,
-    rows: ['# . . #', '# . . #', '# # # #'],
-    goalRows: ['. #', '. #', '# #'],
-    newConcept: 'Fold one arm onto the other -- the gap closes exactly, like shutting a book.',
+    rows: ['P # #', '# # #', '# # #'],
+    goalRows: ['# # #', '# # #'],
+    newConcept: 'NEW: pins. A pinned cell never moves, so half the folds simply refuse.',
     difficulty: 4,
     expectedFolds: 1,
-    designerNotes: 'Should feel great: snap animation, soft clack as the arms meet flush.',
+    designerNotes: 'The paper physically will not budge -- the rule teaches itself.',
   }),
-  shapeLevel({
+  singleCellLevel({
     id: 10,
-    name: 'T Shape',
+    name: 'Around the Pin',
     world: 2,
-    rows: ['# # #', '. # .', '. # .'],
-    goalRows: ['# # #', '. # .'],
-    newConcept: 'Shorten the stem without touching the bar -- the T must stay a T.',
-    difficulty: 4,
-    expectedFolds: 1,
-    designerNotes: 'Goal is the same silhouette, smaller: you must fold INTO the shape, not flatten it.',
+    rows: ['# # # #', '# # @ #', '# # # #', '# # # #'],
+    newConcept: 'A pin in the middle bans whole directions. Route around it.',
+    difficulty: 5,
+    expectedFolds: 4,
+    designerNotes: 'Only ONE legal line per axis now.',
   }),
 ];

@@ -1,67 +1,95 @@
 import type { LevelDefinition } from '../../core/types';
-import { shapeLevel, singleCellLevel } from './helpers';
+import { shapeLevel } from './helpers';
 
 /**
- * World 6 -- "Pinned Down"
- * A pinned cell can never be on the moving side of a fold. Pins kill half
- * your options and force routing: which way the book closes, which order
- * the frame folds. ASCII: 'P' = pinned paper, '@' = pinned target.
+ * Chapter 6 -- "Masterpieces"
+ * The big recognizable silhouettes, each folded into another shape worth
+ * looking at, and each carrying a second constraint now.
  */
 export const world6Levels: LevelDefinition[] = [
   shapeLevel({
     id: 26,
-    name: 'Hold It Down',
+    name: 'Arrowhead',
     world: 6,
-    rows: ['P # #', '# # #', '# # #'],
-    goalRows: ['# # #', '# # #'],
-    newConcept: 'NEW RULE: a pinned cell never moves, so half the folds simply refuse.',
-    difficulty: 5,
+    rows: [
+      '. . # . .',
+      '. # # # .',
+      '# # # # #',
+      '. . # . .',
+      '. . # . .',
+    ],
+    goalRows: ['. # # # .', '# # # # #', '. . # . .', '. . # . .'],
+    newConcept: 'Blunt the arrow by exactly one row. Everything else survives.',
+    difficulty: 8,
     expectedFolds: 1,
-    designerNotes: 'Pin intro. The paper physically will not budge toward the pin -- the rule '
-      + 'teaches itself by resisting.',
+    designerNotes: 'The tightest single fold in the game: 94% trap, 17 of 18 openings lose.',
   }),
-  singleCellLevel({
+  shapeLevel({
     id: 27,
-    name: 'Around the Pin',
+    name: 'Butterfly',
     world: 6,
-    rows: ['# # # #', '# # @ #', '# # # #', '# # # #'],
-    newConcept: 'An interior pin bans whole fold directions -- route around it.',
-    difficulty: 7,
+    rows: [
+      '# . . . #',
+      '# # . # #',
+      '. # # # .',
+      '# # . # #',
+      '# . . . #',
+    ],
+    goalRows: ['# . #', '# # #', '# . #'],
+    newConcept: 'Four folds to a tiny H -- both wing gaps survive every one.',
+    difficulty: 8,
     expectedFolds: 4,
-    designerNotes: 'Same fold count as unpinned, but only ONE valid line per axis now.',
+    designerNotes: '63% mean trap. Patch a gap by accident and it is lost.',
   }),
   shapeLevel({
     id: 28,
-    name: 'Blocked Book',
+    name: 'Iron Cross',
     world: 6,
-    rows: ['P . . #', '# . . #', '# # # #'],
-    goalRows: ['# .', '# .', '# #'],
-    newConcept: 'The pin decides which way the book closes -- one arm is nailed down.',
-    difficulty: 7,
-    expectedFolds: 1,
-    designerNotes: 'Level 9\'s U-fold, but the goal orientation is forced by the pin.',
+    rows: [
+      '. . # . .',
+      '. . # . .',
+      '# # # # #',
+      '. . # . .',
+      '. . # . .',
+    ],
+    goalRows: ['. # .', '. # .', '# # #', '. # .', '. # .'],
+    newConcept: 'Shorten one axis while the other keeps its full span.',
+    difficulty: 8,
+    expectedFolds: 2,
+    designerNotes: 'Symmetric shape, asymmetric goal -- the symmetry is the trap.',
   }),
   shapeLevel({
     id: 29,
-    name: 'Pinned Frame',
+    name: 'Pinned Cross',
     world: 6,
-    rows: ['P # # #', '# . . #', '# . . #', '# # # #'],
-    goalRows: ['# #'],
-    newConcept: 'The pin blocks the frame\'s natural solution -- find another route.',
-    difficulty: 8,
-    expectedFolds: 3,
-    designerNotes: 'Level 14\'s frame with its most natural opening move banned by the pin.',
+    rows: [
+      '. . # . .',
+      '. . # . .',
+      'P # # # #',
+      '. . # . .',
+      '. . # . .',
+    ],
+    goalRows: ['. # .', '. # .', '# # #', '. # .', '. # .'],
+    newConcept: 'The same cross with an arm nailed down -- the easy half is gone.',
+    difficulty: 9,
+    expectedFolds: 2,
+    designerNotes: 'Pairs with 28: identical goal, and the route that solved it is illegal.',
   }),
   shapeLevel({
     id: 30,
-    name: 'Fold the Banner',
+    name: 'Pinned Masterpiece',
     world: 6,
-    rows: ['P # # P', '# # # #', '# # # #', '# # # #'],
-    goalRows: ['# # # #'],
-    uniformDepth: 4,
-    newConcept: 'Two pins leave only one legal direction -- combine it with thickness.',
-    difficulty: 8,
+    rows: [
+      '. . # . .',
+      '. # # # .',
+      'P # # # #',
+      '. # # # .',
+      '. . # . .',
+    ],
+    goalRows: ['. # # # .', '# # # # #', '. # # # .'],
+    newConcept: 'Diamond geometry, a pinned point, and one way through.',
+    difficulty: 9,
     expectedFolds: 2,
-    designerNotes: 'Finale: read the pins, then roll the banner up in two perfect folds.',
+    designerNotes: 'Chapter capstone before the long folds begin.',
   }),
 ];
