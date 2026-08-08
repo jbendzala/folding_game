@@ -38,17 +38,75 @@ npm run web       # requires `npx expo install react-dom react-native-web` first
 ```
 
 There's no local Xcode/Android Studio setup assumed -- Expo Go on a physical
-device is the fastest inner loop here. `npx eas build` (cloud) is the path to
-real App Store / Play Store binaries when that's needed.
+device is the fastest inner loop here.
+
+## Sharing a build with other people
+
+The app uses no custom native code, so there are two routes. Both need a free
+Expo account (`npx eas login`), and the first one needs nothing else.
+
+**1. Expo Go + EAS Update** -- no build, seconds to publish, testers need the
+Expo Go app:
+
+```
+npx eas update --branch preview --message "what changed"
+```
+
+Share the resulting link. Testers open it in Expo Go. Free, but only works
+for people willing to install Expo Go, and their Expo Go version has to match
+the SDK (57).
+
+**2. EAS Build** -- real installable apps:
+
+```
+npx eas init                              # once: links the project
+npx eas build -p android --profile preview   # -> APK
+npx eas build -p ios     --profile preview   # -> ad hoc IPA
+```
+
+`preview` is configured for internal distribution in `eas.json`, so Android
+comes out as a directly installable **APK** rather than a Play Store bundle.
+
+**Where it's hosted: EAS hosts it for you.** Each finished build gets a
+shareable URL and QR code on expo.dev -- anyone with the link can install it.
+No hosting to arrange. If you'd rather self-host, the APK is just a file:
+GitHub Releases, Firebase App Distribution, or any static host works.
+
+Platform differences worth knowing before you start:
+
+- **Android** is easy. The APK installs on any device once the tester allows
+  "install from unknown sources". No account beyond Expo, no device registry.
+- **iOS needs a paid Apple Developer account** ($99/yr) to run on physical
+  devices, and each tester's device UDID must be registered
+  (`npx eas device:create`) before the build -- adding a device later means
+  rebuilding. TestFlight avoids the UDID dance and is the better route past a
+  handful of testers. A free alternative for yourself only:
+  `--profile preview-simulator` builds for the iOS Simulator.
+
+For the stores later, `--profile production` produces an Android App Bundle
+and a store-signed iOS build, then `npx eas submit`.
 
 ## Testing
 
 ```
-npm test          # runs the core engine's unit + solvability tests once
+npm test          # engine unit tests + every level solved by the solver
 npm run test:watch
 ```
 
-`src/core/__tests__/world1-solvability.test.ts` is worth knowing about: it
-brute-force searches each World 1 level for its shortest solution and asserts
-it matches the level's `expectedFolds`, so it doubles as a check on the level
-data itself, not just the engine.
+The level tests are worth knowing about. `levels-solvability.test.ts` searches
+each of the 50 levels for its shortest solution and asserts it matches the
+authored `expectedFolds`, and `levels-difficulty.test.ts` fails any level that
+cannot be lost (see `src/core/analysis.ts`) -- so the level *data* is verified,
+not just the engine.
+
+Authoring tools live in `scripts/`:
+
+```
+npx tsx scripts/calibrate.ts        # true minimum folds for every level
+npx tsx scripts/analyze.ts          # difficulty report (trap rates, lengths)
+npx tsx scripts/discover.ts <shape> # reachable goal shapes for a sheet
+npx tsx scripts/longpuzzles.ts      # goals with the longest solutions
+npx tsx scripts/upgrade.ts <id>     # harder goals for an existing level
+npx tsx scripts/hardest.ts <id>     # pin placements that force longer routes
+npx tsx scripts/pinvariants.ts <id> # what each pin position does to a level
+```
