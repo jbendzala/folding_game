@@ -5,6 +5,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
   runOnJS,
   useDerivedValue,
+  useFrameCallback,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
@@ -19,16 +20,19 @@ const SLOP = 8;
 // finger having to keep going -- which keeps the touch away from the screen
 // border where Android's back-swipe and edge panels would steal it.
 const EDGE_ZONE = 72;
-// Extra crease travel per px pushed into that zone.
-const EDGE_BOOST = 2.2;
+// How fast the paper slides while the finger is held at the very edge (px/s).
+const EDGE_PAN_RATE = 1100;
 /**
- * How far the crease travels per px of finger travel, measured from the
- * folding edge. 1 puts the crease under the finger; 0.5 is the calmer,
- * more precise feel (and what real paper does, since the far edge lands on
- * the finger). Reach no longer depends on this -- edge panning covers the
- * deep folds either way -- so it is purely a feel dial.
+ * How far the CREASE travels per px of finger travel, measured from the
+ * folding edge.
+ *
+ * 0.5 is the value that makes the PAPER move at exactly finger speed, which
+ * is what the hand expects: the flap is mirrored across the crease, so the
+ * folding edge travels twice as far as the crease does. At 1 the crease sits
+ * under the finger but the paper outruns it 2:1, which reads as the fold
+ * running away from you.
  */
-const CREASE_TRACKING = 1;
+const CREASE_TRACKING = 0.5;
 // See-through folded flap, like paper against the light.
 const FLAP_OPACITY = 0.86;
 
@@ -130,9 +134,12 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
     panXSv.value = withTiming(targetPanX, { duration: 220 });
     panYSv.value = withTiming(targetPanY, { duration: 220 });
   }, [targetPanX, targetPanY]);
-  // Extra pan applied while dragging into an edge zone (see EDGE_ZONE).
+  // Extra pan accumulated while the finger dwells in an edge zone, plus the
+  // last touch position (the frame callback needs it between touch events).
   const dragPanXSv = useSharedValue(0);
   const dragPanYSv = useSharedValue(0);
+  const fingerXSv = useSharedValue(0);
+  const fingerYSv = useSharedValue(0);
   const contentTransform = useDerivedValue(() => [
     { translateX: panXSv.value + dragPanXSv.value },
     { translateY: panYSv.value + dragPanYSv.value },
@@ -169,9 +176,85 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
     armedKeySv.value = -1;
   }
 
+  /**
+   * Drives the crease every frame from the last known finger position, so
+   * that holding the finger at an edge keeps the paper sliding. Doing this
+   * only on touch-move (the obvious place) stalls the moment the finger
+   * stops, which is exactly when the player is asking for more room.
+   */
+  useFrameCallback((frame) => {
+    'worklet';
+    const key = armedKeySv.value;
+    if (key === -1) return;
+    const dt = Math.min(frame.timeSincePreviousFrame ?? 16, 50) / 1000;
+    const horizontal = key <= 1;
+
+    // Slide the paper while the finger sits in an edge zone. Rate ramps with
+    // how far in it is, so a light touch of the edge creeps and a firm one
+    // moves properly.
+    if (horizontal) {
+      const fx = fingerXSv.value;
+      if (fx < EDGE_ZONE) {
+        dragPanXSv.value += ((EDGE_ZONE - fx) / EDGE_ZONE) * EDGE_PAN_RATE * dt;
+      } else if (fx > size - EDGE_ZONE) {
+        dragPanXSv.value -= ((fx - (size - EDGE_ZONE)) / EDGE_ZONE) * EDGE_PAN_RATE * dt;
+      }
+    } else {
+      const fy = fingerYSv.value;
+      if (fy < EDGE_ZONE) {
+        dragPanYSv.value += ((EDGE_ZONE - fy) / EDGE_ZONE) * EDGE_PAN_RATE * dt;
+      } else if (fy > size - EDGE_ZONE) {
+        dragPanYSv.value -= ((fy - (size - EDGE_ZONE)) / EDGE_ZONE) * EDGE_PAN_RATE * dt;
+      }
+    }
+
+    // Finger position in the paper's own coordinates.
+    const px = fingerXSv.value - panXSv.value - dragPanXSv.value;
+    const py = fingerYSv.value - panYSv.value - dragPanYSv.value;
+
+    let target = creaseSv.value;
+    if (key === 0) {
+      const c = leftEdgePx + (px - leftEdgePx) * CREASE_TRACKING;
+      target = Math.min(Math.max(c, leftEdgePx), creaseMaxK0);
+    } else if (key === 1) {
+      const c = rightEdgePx + (px - rightEdgePx) * CREASE_TRACKING;
+      target = Math.max(Math.min(c, rightEdgePx), creaseMinK1);
+    } else if (key === 2) {
+      const c = topEdgePx + (py - topEdgePx) * CREASE_TRACKING;
+      target = Math.min(Math.max(c, topEdgePx), creaseMaxK2);
+    } else {
+      const c = bottomEdgePx + (py - bottomEdgePx) * CREASE_TRACKING;
+      target = Math.max(Math.min(c, bottomEdgePx), creaseMinK3);
+    }
+    // Ease toward the target instead of snapping: the crease starts at the
+    // folding edge, so without this it would jump to wherever the finger
+    // first landed. Also lends the paper a little weight.
+    creaseSv.value = creaseSv.value + (target - creaseSv.value) * 0.4;
+
+    // Which grid line the fold would drop on; the indicator fades in each
+    // time it moves.
+    const edge =
+      key === 0 ? leftEdgePx : key === 1 ? rightEdgePx : key === 2 ? topEdgePx : bottomEdgePx;
+    const span = horizontal ? nCols : nRows;
+    const idx = Math.min(Math.max(Math.round(Math.abs(creaseSv.value - edge) / cell), 0), span);
+    if (idx !== dropIdxSv.value) {
+      dropIdxSv.value = idx;
+      if (idx > 0) {
+        dropOpacitySv.value = 0;
+        dropOpacitySv.value = withTiming(1, { duration: 140 });
+      } else {
+        dropOpacitySv.value = withTiming(0, { duration: 80 });
+      }
+    }
+  }, true);
+
   const pan = Gesture.Pan()
-    .onBegin(() => {
+    .onBegin((e) => {
       armedKeySv.value = -1;
+      fingerXSv.value = e.x;
+      fingerYSv.value = e.y;
+      dragPanXSv.value = 0;
+      dragPanYSv.value = 0;
     })
     .onUpdate((e) => {
       const tx = e.translationX;
@@ -214,78 +297,20 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
         }
       }
 
-      // The crease sits under the finger, 1:1 -- you press the fold line into
-      // the paper rather than dragging its far corner across.
-      //
-      // It used to sit at the MIDPOINT between the folding edge and the
-      // finger, which is what real paper does, but that made deep folds
-      // physically unreachable: the finger must travel twice as far as the
-      // crease moves, so creasing a 6-wide sheet one cell from its left edge
-      // needed a finger position about four cells PAST the paper -- roughly
-      // 200dp off the side of the screen. Levels whose only legal folds were
-      // deep ones (a pin banning the other direction) could not be played at
-      // all. Tracking 1:1 keeps every legal crease inside the sheet.
-      //
-      // Push into an edge zone and the PAPER slides rather than the finger
-      // having to travel further. Without this, deep creases on a big board
-      // sit under the screen border, where Android's back-swipe grabs the
-      // touch mid-fold.
-      let boostX = 0;
-      if (e.x < EDGE_ZONE) boostX = (e.x - EDGE_ZONE) * EDGE_BOOST;
-      else if (e.x > size - EDGE_ZONE) boostX = (e.x - (size - EDGE_ZONE)) * EDGE_BOOST;
-      let boostY = 0;
-      if (e.y < EDGE_ZONE) boostY = (e.y - EDGE_ZONE) * EDGE_BOOST;
-      else if (e.y > size - EDGE_ZONE) boostY = (e.y - (size - EDGE_ZONE)) * EDGE_BOOST;
-      // Content shifts opposite the boost so the crease stays under the finger.
-      dragPanXSv.value = -boostX;
-      dragPanYSv.value = -boostY;
-
-      // Touch coords are in view space; the paper is panned, so work in the
-      // base frame the edge/pin constants live in.
-      const px = e.x - panXSv.value + boostX;
-      const py = e.y - panYSv.value + boostY;
-      let target = creaseSv.value;
-      if (key === 0) {
-        const c = leftEdgePx + (px - leftEdgePx) * CREASE_TRACKING;
-        target = Math.min(Math.max(c, leftEdgePx), creaseMaxK0);
-      } else if (key === 1) {
-        const c = rightEdgePx + (px - rightEdgePx) * CREASE_TRACKING;
-        target = Math.max(Math.min(c, rightEdgePx), creaseMinK1);
-      } else if (key === 2) {
-        const c = topEdgePx + (py - topEdgePx) * CREASE_TRACKING;
-        target = Math.min(Math.max(c, topEdgePx), creaseMaxK2);
-      } else {
-        const c = bottomEdgePx + (py - bottomEdgePx) * CREASE_TRACKING;
-        target = Math.max(Math.min(c, bottomEdgePx), creaseMinK3);
-      }
-      // Ease toward the finger rather than snapping to it. The crease starts
-      // at the folding edge, so without this it would jump straight to
-      // wherever the finger happened to land. Converges in ~150ms, which
-      // also gives the paper a little weight.
-      creaseSv.value = creaseSv.value + (target - creaseSv.value) * 0.4;
-
-      // Track which line the fold would drop on; fade the indicator in
-      // softly whenever it appears or moves.
-      const span = key <= 1 ? nCols : nRows;
-      const idx = Math.min(
-        Math.max(Math.round(Math.abs(creaseSv.value - edge) / cell), 0),
-        span
-      );
-      if (idx !== dropIdxSv.value) {
-        dropIdxSv.value = idx;
-        if (idx > 0) {
-          dropOpacitySv.value = 0;
-          dropOpacitySv.value = withTiming(1, { duration: 140 });
-        } else {
-          dropOpacitySv.value = withTiming(0, { duration: 80 });
-        }
-      }
+      // Just record where the finger is. The crease itself is advanced by
+      // the frame callback below, so that holding still at an edge keeps the
+      // paper sliding instead of stalling until the finger moves again.
+      fingerXSv.value = e.x;
+      fingerYSv.value = e.y;
     })
     .onFinalize((_e, success) => {
+      const key = armedKeySv.value;
+      // Stop the frame driver before animating anything: it writes the crease
+      // every frame while armed, so it would fight the settle animations below.
+      armedKeySv.value = -1;
       dragPanXSv.value = withTiming(0, { duration: 160 });
       dragPanYSv.value = withTiming(0, { duration: 160 });
 
-      const key = armedKeySv.value;
       // `success` is false when the system took the touch away -- Android's
       // back-swipe and edge panels do this near the screen border. Committing
       // then would fold the paper without the player ever letting go, so an
