@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { allLevels, WORLD_NAMES } from '../data/levels';
 import { highestUnlocked, type ProgressMap } from '../state/progress';
 import { theme } from '../theme';
@@ -10,6 +11,7 @@ interface HomeScreenProps {
 }
 
 export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
+  const insets = useSafeAreaInsets();
   // Dev builds unlock everything for level previewing; release keeps progression.
   const unlocked = __DEV__ ? Infinity : highestUnlocked(progress, allLevels.map((l) => l.id));
   const totalStars = Object.values(progress).reduce((sum, p) => sum + p.stars, 0);
@@ -18,7 +20,13 @@ export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
   const worlds = [...new Set(allLevels.map((l) => l.world))];
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.root}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: insets.top + 52, paddingBottom: insets.bottom + 40 },
+      ]}
+    >
       {/* masthead */}
       <View style={styles.masthead}>
         <View style={styles.logoMark}>
@@ -94,8 +102,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.bg,
   },
   content: {
-    paddingTop: 84,
-    paddingBottom: 48,
     paddingHorizontal: 24,
   },
   masthead: {

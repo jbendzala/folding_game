@@ -24,6 +24,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cb057cb7-2372-4219-8546-ca2e15ebacfa"
+      }
+    },
+    "owner": "bendzalaj"
   }
 }

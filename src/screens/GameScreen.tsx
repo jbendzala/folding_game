@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PaperCanvas } from '../components/PaperCanvas';
 import { checkGoal, createInitialState, isValidFold, replayFolds, solve } from '../core';
 import type { Fold, LevelDefinition } from '../core/types';
@@ -18,6 +19,10 @@ interface GameScreenProps {
 }
 
 export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenProps) {
+  // Real insets rather than the hand-tuned padding this used to carry: on a
+  // notched iPhone the header sat under the Dynamic Island, and on a phone
+  // without one the fixed padding was simply too much.
+  const insets = useSafeAreaInsets();
   const [folds, setFolds] = useState<Fold[]>([]);
   const [hintFold, setHintFold] = useState<Fold | null>(null);
   const [hintsLeft, setHintsLeft] = useState(HINTS_PER_LEVEL);
@@ -104,7 +109,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   }, [level]);
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { paddingTop: insets.top + 28 }]}>
       {/* header */}
       <View style={styles.header}>
         <Pressable style={styles.backButton} onPress={onExit} hitSlop={12}>
@@ -158,7 +163,9 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
         />
       </View>
 
-      <Text style={styles.concept}>{level.newConcept}</Text>
+      <Text style={[styles.concept, { paddingBottom: insets.bottom + 28 }]}>
+        {level.newConcept}
+      </Text>
 
       {/* solved overlay */}
       {showSolved && (
@@ -267,7 +274,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: theme.colors.bg,
-    paddingTop: 64,
   },
   header: {
     flexDirection: 'row',
@@ -391,7 +397,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 36,
     paddingTop: 16,
-    paddingBottom: 56,
     lineHeight: 19,
   },
   overlay: {
