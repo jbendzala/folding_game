@@ -197,27 +197,37 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
         }
       }
 
-      // Crease = midpoint between the folding edge and the finger --
-      // continuous, follows the finger exactly. Clamped so the fold can
-      // never exceed the sheet (last legal crease is one cell short of the
-      // far edge).
+      // The crease sits under the finger, 1:1 -- you press the fold line into
+      // the paper rather than dragging its far corner across.
+      //
+      // It used to sit at the MIDPOINT between the folding edge and the
+      // finger, which is what real paper does, but that made deep folds
+      // physically unreachable: the finger must travel twice as far as the
+      // crease moves, so creasing a 6-wide sheet one cell from its left edge
+      // needed a finger position about four cells PAST the paper -- roughly
+      // 200dp off the side of the screen. Levels whose only legal folds were
+      // deep ones (a pin banning the other direction) could not be played at
+      // all. Tracking 1:1 keeps every legal crease inside the sheet.
+      //
       // Touch coords are in view space; the paper is panned, so work in the
       // base frame the edge/pin constants live in.
       const px = e.x - panXSv.value;
       const py = e.y - panYSv.value;
+      let target = creaseSv.value;
       if (key === 0) {
-        const c = (leftEdgePx + px) / 2;
-        creaseSv.value = Math.min(Math.max(c, leftEdgePx), creaseMaxK0);
+        target = Math.min(Math.max(px, leftEdgePx), creaseMaxK0);
       } else if (key === 1) {
-        const c = (rightEdgePx + px) / 2;
-        creaseSv.value = Math.max(Math.min(c, rightEdgePx), creaseMinK1);
+        target = Math.max(Math.min(px, rightEdgePx), creaseMinK1);
       } else if (key === 2) {
-        const c = (topEdgePx + py) / 2;
-        creaseSv.value = Math.min(Math.max(c, topEdgePx), creaseMaxK2);
+        target = Math.min(Math.max(py, topEdgePx), creaseMaxK2);
       } else {
-        const c = (bottomEdgePx + py) / 2;
-        creaseSv.value = Math.max(Math.min(c, bottomEdgePx), creaseMinK3);
+        target = Math.max(Math.min(py, bottomEdgePx), creaseMinK3);
       }
+      // Ease toward the finger rather than snapping to it. The crease starts
+      // at the folding edge, so without this it would jump straight to
+      // wherever the finger happened to land. Converges in ~150ms, which
+      // also gives the paper a little weight.
+      creaseSv.value = creaseSv.value + (target - creaseSv.value) * 0.4;
 
       // Track which line the fold would drop on; fade the indicator in
       // softly whenever it appears or moves.
