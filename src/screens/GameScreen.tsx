@@ -140,7 +140,9 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
           <Text style={styles.backGlyph}>‹</Text>
         </Pressable>
         <View style={styles.headerCenter}>
-          <Text style={styles.eyebrow}>WORLD {level.world}</Text>
+          <Text style={styles.eyebrow}>
+            WORLD {level.world} · LEVEL {level.id}
+          </Text>
           <Text style={styles.title}>{level.name}</Text>
         </View>
         <View style={styles.headerSpacer} />
