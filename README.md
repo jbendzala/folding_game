@@ -82,16 +82,66 @@ shareable URL and QR code on expo.dev -- anyone with the link can install it.
 No hosting to arrange. If you'd rather self-host, the APK is just a file:
 GitHub Releases, Firebase App Distribution, or any static host works.
 
-Platform differences worth knowing before you start:
+**Android** is easy: the APK installs on any device once the tester allows
+"install from unknown sources". No account beyond Expo, no device registry.
 
-- **Android** is easy. The APK installs on any device once the tester allows
-  "install from unknown sources". No account beyond Expo, no device registry.
-- **iOS needs a paid Apple Developer account** ($99/yr) to run on physical
-  devices, and each tester's device UDID must be registered
-  (`npx eas-cli device:create`) before the build -- adding a device later means
-  rebuilding. TestFlight avoids the UDID dance and is the better route past a
-  handful of testers. A free alternative for yourself only:
-  `--profile preview-simulator` builds for the iOS Simulator.
+## Getting it onto other people's iPhones
+
+Unlike Android, there is **no free route** to a standalone app on a physical
+iPhone. Everything below needs the **Apple Developer Program, $99/year**
+(developer.apple.com/programs). Enrolment involves an identity check and can
+take a day or two, so start it before you need it.
+
+Before paying, confirm the game actually works on iOS using Expo Go -- that
+needs no account at all. Only then pick one of these.
+
+### Route A -- TestFlight (recommended past two or three testers)
+
+Testers install Apple's TestFlight app and accept an email invite. No device
+IDs to collect, and they get every later build automatically.
+
+```
+npx eas-cli build -p ios --profile production
+npx eas-cli submit -p ios --latest
+```
+
+Then in App Store Connect -> TestFlight, add tester emails. EAS creates the
+certificates and provisioning for you; it will ask for your Apple ID during
+the build.
+
+Things that surprise people:
+- An **App Store Connect app record** is required even though you are not
+  publishing. `eas submit` can create it.
+- **External testers trigger a Beta App Review** on the first build. It is
+  much lighter than a full App Store review, usually a day, but it exists.
+  Internal testers (people added to your App Store Connect team) skip it.
+- **Builds expire after 90 days.**
+
+### Route B -- ad hoc (fastest for one or two devices)
+
+No review, no App Store Connect record -- but every device must be
+registered by its UDID *before* the build.
+
+```
+npx eas-cli device:create        # produces a link/QR for each tester's iPhone
+npx eas-cli build -p ios --profile preview
+```
+
+Each tester opens the registration link on their iPhone, installs a small
+profile, and their UDID is added. Then they install the finished build from
+its EAS URL. The catch: **a device registered after the build cannot install
+it** -- adding a tester means rebuilding. Limit is 100 devices per year, and
+that count resets only at renewal.
+
+### Route C -- iOS Simulator, free but Mac-only
+
+No Apple account, but needs full Xcode installed (a ~10GB App Store
+download; Command Line Tools alone are not enough). Useful only if no real
+iPhone is available.
+
+```
+npx eas-cli build -p ios --profile preview-simulator
+```
 
 For the stores later, `--profile production` produces an Android App Bundle
 and a store-signed iOS build, then `npx eas-cli submit`.
