@@ -10,7 +10,7 @@ Design doc for all 50 planned levels: [docs/design/fold-levels.md](docs/design/f
 
 - **Expo (React Native) + TypeScript** -- `App.tsx` / `src/`
 - **`@shopify/react-native-skia`** -- renders the paper
-- **`react-native-reanimated`** + **`react-native-gesture-handler`** -- fold animation and interaction (gesture-driven folding is still a follow-up; the current UI uses tap-to-select-line, tap-to-pick-direction)
+- **`react-native-reanimated`** + **`react-native-gesture-handler`** -- drag-to-fold. The crease follows your finger (at half speed, so the paper's edge moves at finger speed) and the whole gesture runs on the UI thread
 - **`vitest`** -- unit tests for the game engine (`src/core`), which has zero React Native dependencies and is tested standalone
 
 ## Project layout
@@ -43,13 +43,23 @@ device is the fastest inner loop here.
 ## Sharing a build with other people
 
 The app uses no custom native code, so there are two routes. Both need a free
-Expo account (`npx eas login`), and the first one needs nothing else.
+Expo account, and the first one needs nothing else.
+
+The npm package is **`eas-cli`** (it installs a binary called `eas`), so
+`npx eas ...` fails with "could not determine executable to run". Either use
+the package name each time, or install it once:
+
+```
+npm install -g eas-cli   # then just: eas login, eas build, ...
+# or, without installing:
+npx eas-cli@latest login
+```
 
 **1. Expo Go + EAS Update** -- no build, seconds to publish, testers need the
 Expo Go app:
 
 ```
-npx eas update --branch preview --message "what changed"
+npx eas-cli update --branch preview --message "what changed"
 ```
 
 Share the resulting link. Testers open it in Expo Go. Free, but only works
@@ -59,9 +69,9 @@ the SDK (57).
 **2. EAS Build** -- real installable apps:
 
 ```
-npx eas init                              # once: links the project
-npx eas build -p android --profile preview   # -> APK
-npx eas build -p ios     --profile preview   # -> ad hoc IPA
+npx eas-cli init                              # once: links the project
+npx eas-cli build -p android --profile preview   # -> APK
+npx eas-cli build -p ios     --profile preview   # -> ad hoc IPA
 ```
 
 `preview` is configured for internal distribution in `eas.json`, so Android
@@ -78,13 +88,13 @@ Platform differences worth knowing before you start:
   "install from unknown sources". No account beyond Expo, no device registry.
 - **iOS needs a paid Apple Developer account** ($99/yr) to run on physical
   devices, and each tester's device UDID must be registered
-  (`npx eas device:create`) before the build -- adding a device later means
+  (`npx eas-cli device:create`) before the build -- adding a device later means
   rebuilding. TestFlight avoids the UDID dance and is the better route past a
   handful of testers. A free alternative for yourself only:
   `--profile preview-simulator` builds for the iOS Simulator.
 
 For the stores later, `--profile production` produces an Android App Bundle
-and a store-signed iOS build, then `npx eas submit`.
+and a store-signed iOS build, then `npx eas-cli submit`.
 
 ## Testing
 
