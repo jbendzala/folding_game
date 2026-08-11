@@ -204,9 +204,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
         />
       </View>
 
-      <Text style={[styles.concept, { paddingBottom: insets.bottom + 28 }]}>
-        {level.newConcept}
-      </Text>
+      <View style={{ paddingBottom: insets.bottom + 20 }} />
 
       {/* solved overlay */}
       {showSolved && (
@@ -485,14 +483,6 @@ const styles = StyleSheet.create({
   },
   controlLabelDisabled: {
     color: theme.colors.inkFaint,
-  },
-  concept: {
-    color: theme.colors.inkSoft,
-    fontSize: theme.font.small,
-    textAlign: 'center',
-    paddingHorizontal: 36,
-    paddingTop: 16,
-    lineHeight: 19,
   },
   overlay: {
     position: 'absolute',
