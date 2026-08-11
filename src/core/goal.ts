@@ -81,6 +81,18 @@ export function checkGoal(state: FoldState, goal: LevelGoal): boolean {
     }
   }
 
+  if (goal.backCells) {
+    // Two-sided paper: the top layer at each cell must be showing the side
+    // the goal asks for. faceUp is the front; it toggles on every fold the
+    // cell takes part in.
+    const wantBack = new Set(goal.backCells.map(key));
+    for (const cell of goal.shape.cells) {
+      const top = getStackAt(state, { row: cell.row + minRow, col: cell.col + minCol })[0];
+      if (!top) return false;
+      if (wantBack.has(key(cell)) === top.faceUp) return false;
+    }
+  }
+
   if (!goal.stackRequirements || goal.stackRequirements.length === 0) return true;
   const toAbsolute = (at: CellCoord): CellCoord => ({
     row: at.row + minRow,

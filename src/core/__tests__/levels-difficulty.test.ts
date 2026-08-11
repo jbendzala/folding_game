@@ -49,14 +49,42 @@ describe('the late game is a chain of folds, not a single move', () => {
   // A short, very tight level among long ones is good pacing -- Pinned Frame
   // is three folds and among the most constrained in the game -- so the rule
   // is a floor per level plus an average per chapter, not a flat minimum.
-  it('late chapters are built from chains, with no one-gesture levels', () => {
-    for (const level of allLevels.filter((l) => l.world >= 7)) {
+  //
+  // Chapters that INTRODUCE a mechanic are exempt from the floor: the curve
+  // is meant to be a sawtooth, dipping to teach a new rule before climbing
+  // past the previous peak. Which chapters those are is derived from the
+  // level data rather than listed here, so a future mechanic exempts its own
+  // chapter automatically.
+  const mechanicsOf = (l: (typeof allLevels)[number]) => {
+    const m: string[] = [];
+    if (l.start.cells.length < l.start.width * l.start.height) m.push('holes');
+    if (l.pins?.length) m.push('pins');
+    if (l.goal.uniformDepth !== undefined) m.push('layers');
+    if (l.goal.backCells !== undefined) m.push('faces');
+    return m;
+  };
+  const introducing = new Set<number>();
+  const seenMechanics = new Set<string>();
+  for (const world of [...new Set(allLevels.map((l) => l.world))].sort((a, b) => a - b)) {
+    for (const level of allLevels.filter((l) => l.world === world)) {
+      for (const m of mechanicsOf(level)) {
+        if (!seenMechanics.has(m)) {
+          seenMechanics.add(m);
+          introducing.add(world);
+        }
+      }
+    }
+  }
+
+  it('late chapters are chains, unless they are teaching a new rule', () => {
+    for (const level of allLevels.filter((l) => l.world >= 7 && !introducing.has(l.world))) {
       expect(level.expectedFolds, `${level.name} is a single fold this late`).toBeGreaterThanOrEqual(3);
     }
-    for (const world of [7, 8, 9]) {
+    for (const world of [...new Set(allLevels.map((l) => l.world))].filter((w) => w >= 7)) {
       const chapter = allLevels.filter((l) => l.world === world);
       const mean = chapter.reduce((sum, l) => sum + l.expectedFolds, 0) / chapter.length;
-      expect(mean, `chapter ${world} averages too few folds`).toBeGreaterThanOrEqual(4.5);
+      const floor = introducing.has(world) ? 1.5 : 4.5;
+      expect(mean, `chapter ${world} averages too few folds`).toBeGreaterThanOrEqual(floor);
     }
   });
 });

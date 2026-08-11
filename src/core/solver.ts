@@ -14,9 +14,9 @@ import type { Fold, FoldState, LevelGoal } from './types';
  * footprints and depths can differ in layer order. Extend the key before
  * using this solver there.
  */
-export function canonicalKey(state: FoldState, withDepths: boolean): string {
+export function canonicalKey(state: FoldState, withDepths: boolean, withFaces = false): string {
   const { minRow, maxRow, minCol, maxCol } = getBounds(state.cells);
-  if (!withDepths) {
+  if (!withDepths && !withFaces) {
     const positions = getOccupiedPositions(state)
       .map((p) => `${p.row}:${p.col}`)
       .sort()
@@ -24,12 +24,18 @@ export function canonicalKey(state: FoldState, withDepths: boolean): string {
     return `${minRow},${maxRow},${minCol},${maxCol}|${positions}`;
   }
   const counts = new Map<string, number>();
+  const topFace = new Map<string, boolean>();
+  const topZ = new Map<string, number>();
   for (const cs of state.cells) {
     const k = `${cs.position.row}:${cs.position.col}`;
     counts.set(k, (counts.get(k) ?? 0) + 1);
+    if ((topZ.get(k) ?? -1) < cs.zOrder) {
+      topZ.set(k, cs.zOrder);
+      topFace.set(k, cs.faceUp);
+    }
   }
   const positions = [...counts.entries()]
-    .map(([k, n]) => `${k}=${n}`)
+    .map(([k, n]) => `${k}=${n}${withFaces ? (topFace.get(k) ? 'F' : 'B') : ''}`)
     .sort()
     .join(',');
   return `${minRow},${maxRow},${minCol},${maxCol}|${positions}`;
@@ -81,12 +87,13 @@ export function solve(start: FoldState, goal: LevelGoal, cap: number): Fold[] | 
   if (checkGoal(start, goal)) return [];
 
   const withDepths = goal.uniformDepth !== undefined;
+  const withFaces = goal.backCells !== undefined;
   interface Node {
     state: FoldState;
     path: Fold[];
   }
   let frontier: Node[] = [{ state: start, path: [] }];
-  const seen = new Set<string>([canonicalKey(start, withDepths)]);
+  const seen = new Set<string>([canonicalKey(start, withDepths, withFaces)]);
 
   for (let depth = 1; depth <= cap; depth++) {
     const next: Node[] = [];
@@ -99,7 +106,7 @@ export function solve(start: FoldState, goal: LevelGoal, cap: number): Fold[] | 
         // Branch & bound: drop states that provably can't finish under cap.
         if (depth + lowerBound(state, goal) > cap) continue;
 
-        const key = canonicalKey(state, withDepths);
+        const key = canonicalKey(state, withDepths, withFaces);
         if (seen.has(key)) continue;
         seen.add(key);
         next.push({ state, path });

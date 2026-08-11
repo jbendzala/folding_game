@@ -100,6 +100,21 @@ export interface LevelGoal {
    * overlap somewhere is a missing layer somewhere else.
    */
   uniformDepth?: number;
+  /**
+   * Two-sided paper. Cells (in the goal shape's own coordinates) that must
+   * finish showing the BACK of the sheet -- i.e. the topmost layer there has
+   * been flipped an odd number of times. Every other goal cell must show the
+   * front.
+   *
+   * This is what makes fold ORDER visible. Folding one end of a strip over
+   * and folding the other end over produce the same silhouette but mirrored
+   * patterns, so a pattern goal tells apart solutions the silhouette alone
+   * treats as identical.
+   *
+   * Undefined means faces are unconstrained, which is every level authored
+   * before this existed.
+   */
+  backCells?: CellCoord[];
   stackRequirements?: StackRequirement[];
 }
 

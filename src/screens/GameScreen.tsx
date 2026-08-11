@@ -155,7 +155,12 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
       {!goalCells && (
         <View style={styles.goalRow}>
           <Text style={styles.goalLabel}>GOAL</Text>
-          <GoalPreview shape={level.goal.shape} color={palette.tint} />
+          <GoalPreview
+            shape={level.goal.shape}
+            color={palette.tint}
+            backCells={level.goal.backCells}
+            backColor={palette.paperDown[2]}
+          />
           {level.goal.uniformDepth !== undefined && (
             <View style={[styles.depthChip, { backgroundColor: palette.tintSoft }]}>
               <Text style={[styles.depthChipText, { color: palette.tint }]}>
@@ -249,10 +254,16 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
 function GoalPreview({
   shape,
   color,
+  backCells,
+  backColor,
 }: {
   shape: { width: number; height: number; cells: { row: number; col: number }[] };
   color: string;
+  /** Two-sided levels: these cells must finish showing the sheet's back. */
+  backCells?: { row: number; col: number }[];
+  backColor?: string;
 }) {
+  const wantsBack = new Set((backCells ?? []).map((c) => `${c.row}:${c.col}`));
   const mini = Math.min(Math.floor(64 / Math.max(shape.width, shape.height)), 16);
   return (
     <View
@@ -270,7 +281,12 @@ function GoalPreview({
             top: c.row * mini,
             width: mini,
             height: mini,
-            backgroundColor: color,
+            backgroundColor:
+              !backCells
+                ? color
+                : wantsBack.has(`${c.row}:${c.col}`)
+                  ? backColor
+                  : theme.colors.ink,
             borderWidth: 0.5,
             borderColor: theme.colors.bgRaised,
           }}

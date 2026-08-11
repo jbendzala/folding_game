@@ -59,6 +59,7 @@ const WORLD_HUES: Record<number, number> = {
   8: 168, // teal
   9: 96, // moss
   10: 62, // olive
+  11: 18, // ember -- two-sided paper, so the back needs a strong colour
 };
 
 const DEPTH_STEPS = 7;
@@ -81,7 +82,7 @@ export interface WorldPalette {
   hue: number;
   /** Front-face paper by stack depth (index = depth - 1). */
   paper: string[];
-  /** Back-face paper: same ramp desaturated, so a flip is visible. */
+  /** Back-face paper: the world's colour, so a flip is unmistakable. */
   paperDown: string[];
   /** Crease lines, keyed off the world hue so they sit in the paper. */
   crease: string;
@@ -120,8 +121,12 @@ function buildPalette(hue: number): WorldPalette {
     // (t^0.65): with a linear ramp the second and third layers -- the ones
     // players actually see most -- were still reading as plain grey.
     const k = Math.pow(t, 0.65);
-    paper.push(hsl(hue, 14 + k * 46, 96 - k * 46));
-    paperDown.push(hsl(hue, (14 + k * 46) * 0.4, 91 - k * 44));
+    // Two-sided sheet: the FRONT is pale and the BACK carries the world's
+    // colour, like real origami paper. Saturation says which face you are
+    // looking at, lightness says how many layers are stacked there, so the
+    // two readouts stay independent.
+    paper.push(hsl(hue, 14 + k * 34, 96 - k * 40));
+    paperDown.push(hsl(hue, 58 + k * 24, 63 - k * 26));
   }
   const comp = (hue + 180) % 360;
   return {

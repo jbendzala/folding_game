@@ -22,7 +22,7 @@ export function shapeLevel(params: {
   designerNotes: string;
 }): LevelDefinition {
   const { shape: start, pins } = shapeFromRows(params.rows);
-  const { shape: goalShape } = shapeFromRows(params.goalRows);
+  const { shape: goalShape, backCells } = shapeFromRows(params.goalRows);
 
   if (params.uniformDepth !== undefined) {
     const need = goalShape.cells.length * params.uniformDepth;
@@ -39,10 +39,11 @@ export function shapeLevel(params: {
     name: params.name,
     world: params.world,
     start,
-    goal:
-      params.uniformDepth !== undefined
-        ? { shape: goalShape, uniformDepth: params.uniformDepth }
-        : { shape: goalShape },
+    goal: {
+      shape: goalShape,
+      ...(params.uniformDepth !== undefined ? { uniformDepth: params.uniformDepth } : {}),
+      ...(backCells.length > 0 ? { backCells } : {}),
+    },
     ...(pins.length > 0 ? { pins } : {}),
     newConcept: params.newConcept,
     difficulty: params.difficulty,
