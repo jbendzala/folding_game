@@ -14,7 +14,7 @@ import {
 } from '../core';
 import type { Fold, LevelDefinition } from '../core/types';
 import { starsFor } from '../state/progress';
-import { theme } from '../theme';
+import { theme, worldPalette } from '../theme';
 
 // Hints and undo are unrestricted for now. A future limit (daily allowance,
 // purchasable extras) goes here rather than being sprinkled through the
@@ -33,6 +33,9 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   // notched iPhone the header sat under the Dynamic Island, and on a phone
   // without one the fixed padding was simply too much.
   const insets = useSafeAreaInsets();
+  // Each world folds in its own colour; the indicator is its complement, so
+  // goal tints and crease lines never sink into the paper.
+  const palette = worldPalette(level.world);
   const [folds, setFolds] = useState<Fold[]>([]);
   const [hintFold, setHintFold] = useState<Fold | null>(null);
   const [showSolved, setShowSolved] = useState(false);
@@ -133,10 +136,10 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   }, [level]);
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 28 }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 28, backgroundColor: palette.bg }]}>
       {/* header */}
       <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={onExit} hitSlop={12}>
+        <Pressable style={[styles.backButton, { backgroundColor: palette.bgRaised }]} onPress={onExit} hitSlop={12}>
           <Text style={styles.backGlyph}>‹</Text>
         </Pressable>
         <View style={styles.headerCenter}>
@@ -152,10 +155,11 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
       {!goalCells && (
         <View style={styles.goalRow}>
           <Text style={styles.goalLabel}>GOAL</Text>
-          <GoalPreview shape={level.goal.shape} />
+          <GoalPreview shape={level.goal.shape} color={palette.accent} />
           {level.goal.uniformDepth !== undefined && (
-            <View style={styles.depthChip}>
-              <Text style={styles.depthChipText}>×{level.goal.uniformDepth} thick</Text>
+            <View style={[styles.depthChip, { backgroundColor: palette.accentSoft }]}>
+              <Text style={[styles.depthChipText, { color: palette.accent }]}>
+                ×{level.goal.uniformDepth} thick</Text>
             </View>
           )}
         </View>
@@ -169,6 +173,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
           size={canvasSize}
           goalCells={goalCells}
           hint={hintFold}
+          palette={palette}
           onFold={handleFold}
         />
       </View>
@@ -186,7 +191,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
       {/* fold counter -- its own row so nothing can obscure it */}
       <View style={styles.counterRow}>
         <Text style={styles.counterLabel}>FOLDS</Text>
-        <Text style={[styles.counterValue, overPar && styles.counterOver]}>
+        <Text style={[styles.counterValue, overPar && { color: palette.accent }]}>
           {folds.length}
         </Text>
         <Text style={styles.counterPar}>/ {level.expectedFolds}</Text>
@@ -196,12 +201,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
       <View style={styles.controls}>
         <ControlButton label="Undo" onPress={undo} disabled={folds.length === 0} />
         <ControlButton label="Reset" onPress={reset} disabled={folds.length === 0} />
-        <ControlButton
-          label="Hint"
-          onPress={showHint}
-          disabled={solved}
-          accent
-        />
+        <ControlButton label="Hint" onPress={showHint} disabled={solved} accentColor={palette.accent} />
       </View>
 
       <View style={{ paddingBottom: insets.bottom + 20 }} />
@@ -232,7 +232,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
                 <Text style={styles.secondaryLabel}>Replay</Text>
               </Pressable>
               {onNextLevel && (
-                <Pressable style={styles.primaryButton} onPress={onNextLevel}>
+                <Pressable style={[styles.primaryButton, { backgroundColor: palette.accent }]} onPress={onNextLevel}>
                   <Text style={styles.primaryLabel}>Next Level</Text>
                 </Pressable>
               )}
@@ -246,7 +246,13 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
 
 /** Tiny rendering of the target silhouette, shown when the goal is a shape
  * (not a board-anchored cell). */
-function GoalPreview({ shape }: { shape: { width: number; height: number; cells: { row: number; col: number }[] } }) {
+function GoalPreview({
+  shape,
+  color,
+}: {
+  shape: { width: number; height: number; cells: { row: number; col: number }[] };
+  color: string;
+}) {
   const mini = Math.min(Math.floor(64 / Math.max(shape.width, shape.height)), 16);
   return (
     <View
@@ -264,7 +270,7 @@ function GoalPreview({ shape }: { shape: { width: number; height: number; cells:
             top: c.row * mini,
             width: mini,
             height: mini,
-            backgroundColor: theme.colors.accent,
+            backgroundColor: color,
             borderWidth: 0.5,
             borderColor: theme.colors.bgRaised,
           }}
@@ -278,12 +284,12 @@ function ControlButton({
   label,
   onPress,
   disabled,
-  accent,
+  accentColor,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
-  accent?: boolean;
+  accentColor?: string;
 }) {
   return (
     <Pressable
@@ -291,7 +297,7 @@ function ControlButton({
       disabled={disabled}
       style={({ pressed }) => [
         styles.controlButton,
-        accent && styles.controlButtonAccent,
+        accentColor ? { backgroundColor: `${accentColor}26` } : null,
         pressed && styles.controlButtonPressed,
         disabled && styles.controlButtonDisabled,
       ]}
@@ -299,7 +305,7 @@ function ControlButton({
       <Text
         style={[
           styles.controlLabel,
-          accent && styles.controlLabelAccent,
+          accentColor ? { color: accentColor } : null,
           disabled && styles.controlLabelDisabled,
         ]}
       >

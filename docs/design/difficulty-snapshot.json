@@ -1,0 +1,886 @@
+{
+  "takenAt": "2026-08-11",
+  "commit": "d052934",
+  "summary": {
+    "levels": 50,
+    "meanFolds": 3.7,
+    "meanTrap": 0.666,
+    "meanScore": 7.472,
+    "longest": 7,
+    "combinationLevels": 20
+  },
+  "levels": [
+    {
+      "id": 1,
+      "name": "Tiny Square",
+      "world": 1,
+      "worldName": "First Folds",
+      "authoredDifficulty": 1,
+      "expectedFolds": 2,
+      "minFolds": 2,
+      "openings": 4,
+      "viableOpenings": 2,
+      "trapRate": 0.5,
+      "meanTrap": 0.5,
+      "score": 5.3,
+      "mechanics": [
+        "anchored"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Wide Rectangle",
+      "world": 1,
+      "worldName": "First Folds",
+      "authoredDifficulty": 2,
+      "expectedFolds": 3,
+      "minFolds": 3,
+      "openings": 8,
+      "viableOpenings": 2,
+      "trapRate": 0.75,
+      "meanTrap": 0.583,
+      "score": 6.4,
+      "mechanics": [
+        "anchored"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Center Target",
+      "world": 1,
+      "worldName": "First Folds",
+      "authoredDifficulty": 3,
+      "expectedFolds": 4,
+      "minFolds": 4,
+      "openings": 12,
+      "viableOpenings": 2,
+      "trapRate": 0.833,
+      "meanTrap": 0.729,
+      "score": 7.9,
+      "mechanics": [
+        "anchored"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "L Shape",
+      "world": 1,
+      "worldName": "First Folds",
+      "authoredDifficulty": 3,
+      "expectedFolds": 1,
+      "minFolds": 1,
+      "openings": 8,
+      "viableOpenings": 2,
+      "trapRate": 0.75,
+      "meanTrap": 0.75,
+      "score": 6.2,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "U Shape",
+      "world": 1,
+      "worldName": "First Folds",
+      "authoredDifficulty": 4,
+      "expectedFolds": 1,
+      "minFolds": 1,
+      "openings": 10,
+      "viableOpenings": 1,
+      "trapRate": 0.9,
+      "meanTrap": 0.9,
+      "score": 7.2,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Missing Corner",
+      "world": 2,
+      "worldName": "Holes & Pins",
+      "authoredDifficulty": 3,
+      "expectedFolds": 1,
+      "minFolds": 1,
+      "openings": 8,
+      "viableOpenings": 2,
+      "trapRate": 0.75,
+      "meanTrap": 0.75,
+      "score": 6.2,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Opposite Corner",
+      "world": 2,
+      "worldName": "Holes & Pins",
+      "authoredDifficulty": 4,
+      "expectedFolds": 2,
+      "minFolds": 2,
+      "openings": 8,
+      "viableOpenings": 2,
+      "trapRate": 0.75,
+      "meanTrap": 0.792,
+      "score": 7.3,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Hole Meets Hole",
+      "world": 2,
+      "worldName": "Holes & Pins",
+      "authoredDifficulty": 4,
+      "expectedFolds": 1,
+      "minFolds": 1,
+      "openings": 8,
+      "viableOpenings": 2,
+      "trapRate": 0.75,
+      "meanTrap": 0.75,
+      "score": 6.2,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Hold It Down",
+      "world": 2,
+      "worldName": "Holes & Pins",
+      "authoredDifficulty": 4,
+      "expectedFolds": 1,
+      "minFolds": 1,
+      "openings": 4,
+      "viableOpenings": 2,
+      "trapRate": 0.5,
+      "meanTrap": 0.5,
+      "score": 4.4,
+      "mechanics": [
+        "pins"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Around the Pin",
+      "world": 2,
+      "worldName": "Holes & Pins",
+      "authoredDifficulty": 5,
+      "expectedFolds": 4,
+      "minFolds": 4,
+      "openings": 6,
+      "viableOpenings": 2,
+      "trapRate": 0.667,
+      "meanTrap": 0.458,
+      "score": 5.9,
+      "mechanics": [
+        "pins",
+        "anchored"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Double Over",
+      "world": 3,
+      "worldName": "Layers",
+      "authoredDifficulty": 3,
+      "expectedFolds": 1,
+      "minFolds": 1,
+      "openings": 8,
+      "viableOpenings": 2,
+      "trapRate": 0.75,
+      "meanTrap": 0.75,
+      "score": 5.2,
+      "mechanics": [
+        "layers"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Four Ply",
+      "world": 3,
+      "worldName": "Layers",
+      "authoredDifficulty": 4,
+      "expectedFolds": 2,
+      "minFolds": 2,
+      "openings": 12,
+      "viableOpenings": 4,
+      "trapRate": 0.667,
+      "meanTrap": 0.708,
+      "score": 5.3,
+      "mechanics": [
+        "layers"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Thick Three",
+      "world": 3,
+      "worldName": "Layers",
+      "authoredDifficulty": 5,
+      "expectedFolds": 2,
+      "minFolds": 2,
+      "openings": 8,
+      "viableOpenings": 4,
+      "trapRate": 0.5,
+      "meanTrap": 0.583,
+      "score": 5.7,
+      "mechanics": [
+        "layers"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Blocked Book",
+      "world": 3,
+      "worldName": "Layers",
+      "authoredDifficulty": 5,
+      "expectedFolds": 1,
+      "minFolds": 1,
+      "openings": 5,
+      "viableOpenings": 1,
+      "trapRate": 0.8,
+      "meanTrap": 0.8,
+      "score": 6.5,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Squash the Frame",
+      "world": 3,
+      "worldName": "Layers",
+      "authoredDifficulty": 6,
+      "expectedFolds": 1,
+      "minFolds": 1,
+      "openings": 12,
+      "viableOpenings": 1,
+      "trapRate": 0.917,
+      "meanTrap": 0.917,
+      "score": 7.3,
+      "mechanics": [
+        "holes",
+        "layers"
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Staircase",
+      "world": 4,
+      "worldName": "Strange Geometry",
+      "authoredDifficulty": 8,
+      "expectedFolds": 3,
+      "minFolds": 3,
+      "openings": 12,
+      "viableOpenings": 6,
+      "trapRate": 0.5,
+      "meanTrap": 0.725,
+      "score": 7.3,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 17,
+      "name": "Pyramid",
+      "world": 4,
+      "worldName": "Strange Geometry",
+      "authoredDifficulty": 8,
+      "expectedFolds": 3,
+      "minFolds": 3,
+      "openings": 12,
+      "viableOpenings": 5,
+      "trapRate": 0.583,
+      "meanTrap": 0.719,
+      "score": 7.5,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 18,
+      "name": "Hourglass",
+      "world": 4,
+      "worldName": "Strange Geometry",
+      "authoredDifficulty": 8,
+      "expectedFolds": 4,
+      "minFolds": 4,
+      "openings": 16,
+      "viableOpenings": 8,
+      "trapRate": 0.5,
+      "meanTrap": 0.635,
+      "score": 7.8,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 19,
+      "name": "Lightning",
+      "world": 4,
+      "worldName": "Strange Geometry",
+      "authoredDifficulty": 8,
+      "expectedFolds": 3,
+      "minFolds": 3,
+      "openings": 10,
+      "viableOpenings": 8,
+      "trapRate": 0.2,
+      "meanTrap": 0.497,
+      "score": 5.6,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 20,
+      "name": "Pinned Diamond",
+      "world": 4,
+      "worldName": "Strange Geometry",
+      "authoredDifficulty": 7,
+      "expectedFolds": 4,
+      "minFolds": 4,
+      "openings": 8,
+      "viableOpenings": 3,
+      "trapRate": 0.625,
+      "meanTrap": 0.731,
+      "score": 8.3,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 21,
+      "name": "Even Strip",
+      "world": 5,
+      "worldName": "Thick & Thin",
+      "authoredDifficulty": 5,
+      "expectedFolds": 2,
+      "minFolds": 2,
+      "openings": 14,
+      "viableOpenings": 2,
+      "trapRate": 0.857,
+      "meanTrap": 0.762,
+      "score": 5.6,
+      "mechanics": [
+        "layers"
+      ]
+    },
+    {
+      "id": 22,
+      "name": "Quarter Fold",
+      "world": 5,
+      "worldName": "Thick & Thin",
+      "authoredDifficulty": 6,
+      "expectedFolds": 2,
+      "minFolds": 2,
+      "openings": 12,
+      "viableOpenings": 2,
+      "trapRate": 0.833,
+      "meanTrap": 0.792,
+      "score": 6.8,
+      "mechanics": [
+        "layers"
+      ]
+    },
+    {
+      "id": 23,
+      "name": "Fold the Banner",
+      "world": 5,
+      "worldName": "Thick & Thin",
+      "authoredDifficulty": 7,
+      "expectedFolds": 2,
+      "minFolds": 2,
+      "openings": 3,
+      "viableOpenings": 1,
+      "trapRate": 0.667,
+      "meanTrap": 0.333,
+      "score": 3.5,
+      "mechanics": [
+        "pins",
+        "layers"
+      ]
+    },
+    {
+      "id": 24,
+      "name": "Thick Corner",
+      "world": 5,
+      "worldName": "Thick & Thin",
+      "authoredDifficulty": 7,
+      "expectedFolds": 2,
+      "minFolds": 2,
+      "openings": 12,
+      "viableOpenings": 4,
+      "trapRate": 0.667,
+      "meanTrap": 0.708,
+      "score": 6.7,
+      "mechanics": [
+        "holes",
+        "layers"
+      ]
+    },
+    {
+      "id": 25,
+      "name": "Swiss",
+      "world": 5,
+      "worldName": "Thick & Thin",
+      "authoredDifficulty": 8,
+      "expectedFolds": 5,
+      "minFolds": 5,
+      "openings": 20,
+      "viableOpenings": 10,
+      "trapRate": 0.5,
+      "meanTrap": 0.578,
+      "score": 7.6,
+      "mechanics": [
+        "holes",
+        "layers"
+      ]
+    },
+    {
+      "id": 26,
+      "name": "Arrowhead",
+      "world": 6,
+      "worldName": "Masterpieces",
+      "authoredDifficulty": 9,
+      "expectedFolds": 4,
+      "minFolds": 4,
+      "openings": 16,
+      "viableOpenings": 8,
+      "trapRate": 0.5,
+      "meanTrap": 0.608,
+      "score": 7.1,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 27,
+      "name": "Butterfly",
+      "world": 6,
+      "worldName": "Masterpieces",
+      "authoredDifficulty": 8,
+      "expectedFolds": 4,
+      "minFolds": 4,
+      "openings": 16,
+      "viableOpenings": 8,
+      "trapRate": 0.5,
+      "meanTrap": 0.635,
+      "score": 7.8,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 28,
+      "name": "Iron Cross",
+      "world": 6,
+      "worldName": "Masterpieces",
+      "authoredDifficulty": 9,
+      "expectedFolds": 4,
+      "minFolds": 4,
+      "openings": 16,
+      "viableOpenings": 8,
+      "trapRate": 0.5,
+      "meanTrap": 0.635,
+      "score": 7.8,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 29,
+      "name": "Pinned Cross",
+      "world": 6,
+      "worldName": "Masterpieces",
+      "authoredDifficulty": 9,
+      "expectedFolds": 2,
+      "minFolds": 2,
+      "openings": 8,
+      "viableOpenings": 2,
+      "trapRate": 0.75,
+      "meanTrap": 0.804,
+      "score": 7.3,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 30,
+      "name": "Pinned Masterpiece",
+      "world": 6,
+      "worldName": "Masterpieces",
+      "authoredDifficulty": 9,
+      "expectedFolds": 4,
+      "minFolds": 4,
+      "openings": 8,
+      "viableOpenings": 3,
+      "trapRate": 0.625,
+      "meanTrap": 0.731,
+      "score": 8.3,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 31,
+      "name": "Long Diamond",
+      "world": 7,
+      "worldName": "The Long Fold",
+      "authoredDifficulty": 8,
+      "expectedFolds": 5,
+      "minFolds": 5,
+      "openings": 24,
+      "viableOpenings": 12,
+      "trapRate": 0.5,
+      "meanTrap": 0.692,
+      "score": 8.6,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 32,
+      "name": "The Long Cross",
+      "world": 7,
+      "worldName": "The Long Fold",
+      "authoredDifficulty": 9,
+      "expectedFolds": 6,
+      "minFolds": 6,
+      "openings": 24,
+      "viableOpenings": 24,
+      "trapRate": 0,
+      "meanTrap": 0.393,
+      "score": 7.4,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 33,
+      "name": "Butterfly Net",
+      "world": 7,
+      "worldName": "The Long Fold",
+      "authoredDifficulty": 10,
+      "expectedFolds": 6,
+      "minFolds": 6,
+      "openings": 24,
+      "viableOpenings": 8,
+      "trapRate": 0.667,
+      "meanTrap": 0.72,
+      "score": 9.7,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 34,
+      "name": "Wingspan",
+      "world": 7,
+      "worldName": "The Long Fold",
+      "authoredDifficulty": 9,
+      "expectedFolds": 6,
+      "minFolds": 6,
+      "openings": 24,
+      "viableOpenings": 12,
+      "trapRate": 0.5,
+      "meanTrap": 0.628,
+      "score": 9.2,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 35,
+      "name": "The Last Fold",
+      "world": 7,
+      "worldName": "The Long Fold",
+      "authoredDifficulty": 10,
+      "expectedFolds": 6,
+      "minFolds": 6,
+      "openings": 24,
+      "viableOpenings": 24,
+      "trapRate": 0,
+      "meanTrap": 0.393,
+      "score": 7.4,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 36,
+      "name": "Perforated",
+      "world": 8,
+      "worldName": "The Gauntlet",
+      "authoredDifficulty": 9,
+      "expectedFolds": 5,
+      "minFolds": 5,
+      "openings": 20,
+      "viableOpenings": 12,
+      "trapRate": 0.4,
+      "meanTrap": 0.621,
+      "score": 8.4,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 37,
+      "name": "The Window",
+      "world": 8,
+      "worldName": "The Gauntlet",
+      "authoredDifficulty": 10,
+      "expectedFolds": 6,
+      "minFolds": 6,
+      "openings": 20,
+      "viableOpenings": 8,
+      "trapRate": 0.6,
+      "meanTrap": 0.66,
+      "score": 9.9,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 38,
+      "name": "Half Window",
+      "world": 8,
+      "worldName": "The Gauntlet",
+      "authoredDifficulty": 9,
+      "expectedFolds": 5,
+      "minFolds": 5,
+      "openings": 20,
+      "viableOpenings": 6,
+      "trapRate": 0.7,
+      "meanTrap": 0.77,
+      "score": 9.3,
+      "mechanics": [
+        "holes"
+      ]
+    },
+    {
+      "id": 39,
+      "name": "Pinned Frame",
+      "world": 8,
+      "worldName": "The Gauntlet",
+      "authoredDifficulty": 9,
+      "expectedFolds": 3,
+      "minFolds": 3,
+      "openings": 6,
+      "viableOpenings": 2,
+      "trapRate": 0.667,
+      "meanTrap": 0.639,
+      "score": 5.9,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 40,
+      "name": "Nailed Window",
+      "world": 8,
+      "worldName": "The Gauntlet",
+      "authoredDifficulty": 10,
+      "expectedFolds": 5,
+      "minFolds": 5,
+      "openings": 10,
+      "viableOpenings": 3,
+      "trapRate": 0.7,
+      "meanTrap": 0.736,
+      "score": 9.6,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 41,
+      "name": "The Gauntlet",
+      "world": 9,
+      "worldName": "No Mercy",
+      "authoredDifficulty": 10,
+      "expectedFolds": 6,
+      "minFolds": 6,
+      "openings": 10,
+      "viableOpenings": 4,
+      "trapRate": 0.6,
+      "meanTrap": 0.606,
+      "score": 9.6,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 42,
+      "name": "Nailed Swiss",
+      "world": 9,
+      "worldName": "No Mercy",
+      "authoredDifficulty": 10,
+      "expectedFolds": 5,
+      "minFolds": 5,
+      "openings": 10,
+      "viableOpenings": 5,
+      "trapRate": 0.5,
+      "meanTrap": 0.578,
+      "score": 7.6,
+      "mechanics": [
+        "holes",
+        "pins",
+        "layers"
+      ]
+    },
+    {
+      "id": 43,
+      "name": "Pinned Perforation",
+      "world": 9,
+      "worldName": "No Mercy",
+      "authoredDifficulty": 10,
+      "expectedFolds": 5,
+      "minFolds": 5,
+      "openings": 10,
+      "viableOpenings": 6,
+      "trapRate": 0.4,
+      "meanTrap": 0.621,
+      "score": 8.4,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 44,
+      "name": "Pinned Net",
+      "world": 9,
+      "worldName": "No Mercy",
+      "authoredDifficulty": 10,
+      "expectedFolds": 7,
+      "minFolds": 7,
+      "openings": 12,
+      "viableOpenings": 4,
+      "trapRate": 0.667,
+      "meanTrap": 0.711,
+      "score": 10,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 45,
+      "name": "The Last Word",
+      "world": 9,
+      "worldName": "No Mercy",
+      "authoredDifficulty": 10,
+      "expectedFolds": 6,
+      "minFolds": 6,
+      "openings": 12,
+      "viableOpenings": 6,
+      "trapRate": 0.5,
+      "meanTrap": 0.558,
+      "score": 8.4,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 46,
+      "name": "Tight Net",
+      "world": 10,
+      "worldName": "Endgame",
+      "authoredDifficulty": 10,
+      "expectedFolds": 6,
+      "minFolds": 6,
+      "openings": 12,
+      "viableOpenings": 3,
+      "trapRate": 0.75,
+      "meanTrap": 0.788,
+      "score": 10,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 47,
+      "name": "Pinned Wingspan",
+      "world": 10,
+      "worldName": "Endgame",
+      "authoredDifficulty": 10,
+      "expectedFolds": 6,
+      "minFolds": 6,
+      "openings": 12,
+      "viableOpenings": 4,
+      "trapRate": 0.667,
+      "meanTrap": 0.74,
+      "score": 10,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 48,
+      "name": "Nailed Diamond",
+      "world": 10,
+      "worldName": "Endgame",
+      "authoredDifficulty": 10,
+      "expectedFolds": 5,
+      "minFolds": 5,
+      "openings": 12,
+      "viableOpenings": 4,
+      "trapRate": 0.667,
+      "meanTrap": 0.713,
+      "score": 8.9,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    },
+    {
+      "id": 49,
+      "name": "Eight Deep",
+      "world": 10,
+      "worldName": "Endgame",
+      "authoredDifficulty": 10,
+      "expectedFolds": 4,
+      "minFolds": 4,
+      "openings": 20,
+      "viableOpenings": 8,
+      "trapRate": 0.6,
+      "meanTrap": 0.66,
+      "score": 7.3,
+      "mechanics": [
+        "holes",
+        "layers"
+      ]
+    },
+    {
+      "id": 50,
+      "name": "Endgame",
+      "world": 10,
+      "worldName": "Endgame",
+      "authoredDifficulty": 10,
+      "expectedFolds": 7,
+      "minFolds": 7,
+      "openings": 12,
+      "viableOpenings": 4,
+      "trapRate": 0.667,
+      "meanTrap": 0.725,
+      "score": 10,
+      "mechanics": [
+        "holes",
+        "pins"
+      ]
+    }
+  ]
+}

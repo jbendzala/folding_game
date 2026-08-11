@@ -12,7 +12,7 @@ import {
 import { isValidFold } from '../core/fold';
 import { getBounds, getStackAt } from '../core/grid';
 import type { CellCoord, Fold, FoldState, ShapePattern } from '../core/types';
-import { paperColor, theme } from '../theme';
+import { paperColor, theme, type WorldPalette } from '../theme';
 
 // Travel before a drag commits to an axis/direction.
 const SLOP = 8;
@@ -54,6 +54,8 @@ interface PaperCanvasProps {
   goalCells?: CellCoord[];
   /** A suggested next fold to visualize (hint system). */
   hint?: Fold | null;
+  /** This world's colours: paper ramp plus a complementary indicator. */
+  palette: WorldPalette;
   onFold: (fold: Fold) => void;
 }
 
@@ -72,7 +74,7 @@ interface PaperCanvasProps {
  * value feeding Skia transforms and clips directly. React state changes only
  * when a drag arms and when a fold commits.
  */
-export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: PaperCanvasProps) {
+export function PaperCanvas({ state, start, size, goalCells, hint, palette, onFold }: PaperCanvasProps) {
   const [armKey, setArmKey] = useState<ArmKey | null>(null);
 
   // --- geometry (cell size frozen per level via `start`) ---
@@ -412,7 +414,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
       y={screenY(c.pos.row)}
       width={cell}
       height={cell}
-      color={paperColor(c.depth, flipped ? !c.faceUp : c.faceUp)}
+      color={paperColor(palette, c.depth, flipped ? !c.faceUp : c.faceUp)}
     />
   );
 
@@ -446,7 +448,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
 
   const renderCreases = () =>
     creaseSegments.map((s) => (
-      <Rect key={s.key} x={s.x} y={s.y} width={s.w} height={s.h} color={theme.colors.crease} />
+      <Rect key={s.key} x={s.x} y={s.y} width={s.w} height={s.h} color={palette.crease} />
     ));
 
   const renderSheetShadow = (c: { pos: CellCoord }) => (
@@ -532,7 +534,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
               y={screenY(g.row)}
               width={cell}
               height={cell}
-              color={theme.colors.accent}
+              color={palette.accent}
               opacity={0.4}
             />
           ))}
@@ -562,7 +564,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
               y={dropLineY}
               width={armVertical ? 3 : (nCols + 1) * cell}
               height={armVertical ? (nRows + 1) * cell : 3}
-              color={theme.colors.accent}
+              color={palette.accent}
               opacity={dropOpacitySv}
             />
           )}
@@ -576,9 +578,9 @@ export function PaperCanvas({ state, start, size, goalCells, hint, onFold }: Pap
                 width={hintShapes.isV ? 4 : hintShapes.hi - hintShapes.lo}
                 height={hintShapes.isV ? hintShapes.hi - hintShapes.lo : 4}
                 r={2}
-                color={theme.colors.gold}
+                color={palette.accent}
               />
-              <Path path={hintShapes.arrow} color={theme.colors.gold} />
+              <Path path={hintShapes.arrow} color={palette.accent} />
             </Group>
           )}
          </Group>

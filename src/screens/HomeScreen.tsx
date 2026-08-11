@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { allLevels, WORLD_NAMES } from '../data/levels';
 import { highestUnlocked, type ProgressMap } from '../state/progress';
-import { theme } from '../theme';
+import { theme, worldPalette } from '../theme';
 
 interface HomeScreenProps {
   progress: ProgressMap;
@@ -49,9 +49,10 @@ export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
       {/* worlds */}
       {worlds.map((world) => {
         const levels = allLevels.filter((l) => l.world === world);
+        const wp = worldPalette(world);
         return (
           <View key={world} style={styles.worldSection}>
-            <Text style={styles.worldTitle}>
+            <Text style={[styles.worldTitle, { color: wp.paper[3] }]}>
               WORLD {world} — {WORLD_NAMES[world] ?? ''}
             </Text>
             <View style={styles.grid}>
@@ -68,13 +69,18 @@ export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
                     }}
                     style={({ pressed }) => [
                       styles.tile,
-                      p?.solved && styles.tileSolved,
+                      { backgroundColor: wp.bgRaised },
+                      p?.solved && { backgroundColor: wp.paper[4] },
                       !isUnlocked && styles.tileLocked,
                       pressed && styles.tilePressed,
                     ]}
                   >
                     <Text
-                      style={[styles.tileNumber, !isUnlocked && styles.tileNumberLocked]}
+                      style={[
+                        styles.tileNumber,
+                        p?.solved && { color: '#15171d' },
+                        !isUnlocked && styles.tileNumberLocked,
+                      ]}
                     >
                       {level.id}
                     </Text>
@@ -116,7 +122,7 @@ const styles = StyleSheet.create({
   logoBase: {
     position: 'absolute',
     inset: 0,
-    backgroundColor: theme.colors.paper[2],
+    backgroundColor: '#dfcb9e',
     borderRadius: 10,
   },
   logoFlap: {
