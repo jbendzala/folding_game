@@ -534,8 +534,8 @@ export function PaperCanvas({ state, start, size, goalCells, hint, palette, onFo
               y={screenY(g.row)}
               width={cell}
               height={cell}
-              color={palette.accent}
-              opacity={0.4}
+              color={palette.tintDeep}
+              opacity={0.55}
             />
           ))}
 

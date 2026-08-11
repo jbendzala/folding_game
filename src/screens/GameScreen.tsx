@@ -155,10 +155,10 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
       {!goalCells && (
         <View style={styles.goalRow}>
           <Text style={styles.goalLabel}>GOAL</Text>
-          <GoalPreview shape={level.goal.shape} color={palette.accent} />
+          <GoalPreview shape={level.goal.shape} color={palette.tint} />
           {level.goal.uniformDepth !== undefined && (
-            <View style={[styles.depthChip, { backgroundColor: palette.accentSoft }]}>
-              <Text style={[styles.depthChipText, { color: palette.accent }]}>
+            <View style={[styles.depthChip, { backgroundColor: palette.tintSoft }]}>
+              <Text style={[styles.depthChipText, { color: palette.tint }]}>
                 ×{level.goal.uniformDepth} thick</Text>
             </View>
           )}
@@ -191,7 +191,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
       {/* fold counter -- its own row so nothing can obscure it */}
       <View style={styles.counterRow}>
         <Text style={styles.counterLabel}>FOLDS</Text>
-        <Text style={[styles.counterValue, overPar && { color: palette.accent }]}>
+        <Text style={[styles.counterValue, overPar && { color: palette.tint }]}>
           {folds.length}
         </Text>
         <Text style={styles.counterPar}>/ {level.expectedFolds}</Text>
@@ -201,7 +201,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
       <View style={styles.controls}>
         <ControlButton label="Undo" onPress={undo} disabled={folds.length === 0} />
         <ControlButton label="Reset" onPress={reset} disabled={folds.length === 0} />
-        <ControlButton label="Hint" onPress={showHint} disabled={solved} accentColor={palette.accent} />
+        <ControlButton label="Hint" onPress={showHint} disabled={solved} accentColor={palette.tint} />
       </View>
 
       <View style={{ paddingBottom: insets.bottom + 20 }} />
@@ -232,7 +232,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
                 <Text style={styles.secondaryLabel}>Replay</Text>
               </Pressable>
               {onNextLevel && (
-                <Pressable style={[styles.primaryButton, { backgroundColor: palette.accent }]} onPress={onNextLevel}>
+                <Pressable style={[styles.primaryButton, { backgroundColor: palette.tint }]} onPress={onNextLevel}>
                   <Text style={styles.primaryLabel}>Next Level</Text>
                 </Pressable>
               )}

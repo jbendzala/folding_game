@@ -85,8 +85,23 @@ export interface WorldPalette {
   paperDown: string[];
   /** Crease lines, keyed off the world hue so they sit in the paper. */
   crease: string;
-  /** Complementary hue: goal tint, crease preview, drop line, hints. Chosen
-   * opposite the paper so it never disappears into whatever the world is. */
+  /**
+   * The world's own colour, for anything that says "this world" or "this is
+   * the target": goal preview, chips, buttons. Deliberately NOT the
+   * complement -- a yellow world showing a blue goal shape reads as a
+   * different world entirely.
+   */
+  tint: string;
+  tintSoft: string;
+  /** Saturated world hue for marks drawn ON the paper (the goal cells in the
+   * anchored worlds), where the pale ramp needs something darker to read. */
+  tintDeep: string;
+  /**
+   * Complementary hue, reserved for live fold indicators drawn over the
+   * paper -- crease, drop line, hint. These have to stay legible against
+   * whatever the paper is doing, and keeping them distinct from the world
+   * colour also separates "what you are doing" from "what you are aiming at".
+   */
   accent: string;
   accentSoft: string;
   /** Stage, tinted a few percent toward the hue so the world reads before
@@ -114,6 +129,9 @@ function buildPalette(hue: number): WorldPalette {
     paper,
     paperDown,
     crease: `hsla(${hue}, 45%, 25%, 0.18)`,
+    tint: hsl(hue, 62, 60),
+    tintSoft: `hsla(${hue}, 62%, 60%, 0.18)`,
+    tintDeep: hsl(hue, 70, 42),
     // Muted rather than neon: saturation stays in the 60s, which still reads
     // clearly against any paper tint without glowing off the screen.
     accent: hsl(comp, 64, 62),
