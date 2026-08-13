@@ -15,9 +15,8 @@ import { shapeLevel } from './helpers';
  */
 export const world10Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 46,
+    key: 'tight-net',
     name: 'Tight Net',
-    world: 10,
     rows: [
       '# # . . . # #',
       '# # # . # # #',
@@ -34,9 +33,8 @@ export const world10Levels: LevelDefinition[] = [
     designerNotes: '79% mean trap: the most constrained level in the game, measured.',
   }),
   shapeLevel({
-    id: 47,
+    key: 'pinned-wingspan',
     name: 'Pinned Wingspan',
-    world: 10,
     rows: [
       '# # . . . # #',
       '# P # . # # #',
@@ -53,9 +51,8 @@ export const world10Levels: LevelDefinition[] = [
     designerNotes: '74% mean trap. Pairs with level 34, whose solution is banned here.',
   }),
   shapeLevel({
-    id: 48,
+    key: 'nailed-diamond',
     name: 'Nailed Diamond',
-    world: 10,
     rows: [
       '. . . # . . .',
       '. . # # # . .',
@@ -72,9 +69,8 @@ export const world10Levels: LevelDefinition[] = [
     designerNotes: 'A different sheet from the butterfly levels either side of it.',
   }),
   shapeLevel({
-    id: 49,
+    key: 'eight-deep',
     name: 'Eight Deep',
-    world: 10,
     rows: [
       '# # # # # #',
       '# # # # # #',
@@ -91,9 +87,8 @@ export const world10Levels: LevelDefinition[] = [
     designerNotes: 'The opposite of 48: here the window must be sealed perfectly, not kept.',
   }),
   shapeLevel({
-    id: 50,
+    key: 'endgame',
     name: 'Endgame',
-    world: 10,
     rows: [
       '# P . . . # #',
       '# # # . # # #',

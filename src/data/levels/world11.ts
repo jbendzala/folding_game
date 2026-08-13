@@ -17,9 +17,8 @@ import { shapeLevel } from './helpers';
  */
 export const world11Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 51,
+    key: 'show-your-back',
     name: 'Show Your Back',
-    world: 11,
     rows: ['# # # #', '# # # #'],
     goalRows: ['B # #', 'B # #'],
     newConcept: 'NEW: the paper has two sides. Fold one over and its colour shows.',
@@ -28,9 +27,8 @@ export const world11Levels: LevelDefinition[] = [
     designerNotes: 'The whole rule in one fold: which column ends up coloured is the puzzle.',
   }),
   shapeLevel({
-    id: 52,
+    key: 'left-or-right',
     name: 'Left or Right',
-    world: 11,
     rows: ['# # # #'],
     goalRows: ['# # B'],
     newConcept: 'Same outline either way -- only the coloured end says which fold was right.',
@@ -40,9 +38,8 @@ export const world11Levels: LevelDefinition[] = [
       + 'but only one puts the colour where the goal wants it.',
   }),
   shapeLevel({
-    id: 53,
+    key: 'two-tone',
     name: 'Two Tone',
-    world: 11,
     rows: ['# # # #', '# # # #'],
     goalRows: ['B #', 'B #'],
     newConcept: 'Two folds, and the colour has to survive the second one.',
@@ -51,9 +48,8 @@ export const world11Levels: LevelDefinition[] = [
     designerNotes: '73% mean trap. Folding again over a coloured cell flips it back to pale.',
   }),
   shapeLevel({
-    id: 54,
+    key: 'bookend',
     name: 'Bookend',
-    world: 11,
     rows: ['# # # # # #'],
     goalRows: ['B # # B'],
     newConcept: 'Colour at both ends, pale in the middle -- fold in from each side.',
@@ -62,9 +58,8 @@ export const world11Levels: LevelDefinition[] = [
     designerNotes: '84% mean trap. Symmetric target, and both folds have to be exact.',
   }),
   shapeLevel({
-    id: 55,
+    key: 'alternating',
     name: 'Alternating',
-    world: 11,
     rows: ['# # # # # #'],
     goalRows: ['B # B'],
     newConcept: 'Colour, pale, colour. Three folds and every one of them flips something.',

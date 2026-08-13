@@ -9,9 +9,8 @@ import { shapeLevel } from './helpers';
  */
 export const world9Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 41,
+    key: 'the-gauntlet',
     name: 'The Gauntlet',
-    world: 9,
     rows: [
       'P # # # # #',
       '# # # # # #',
@@ -27,9 +26,8 @@ export const world9Levels: LevelDefinition[] = [
     designerNotes: 'Level 37 with a corner pinned, so the route that solved it is illegal.',
   }),
   shapeLevel({
-    id: 42,
+    key: 'nailed-swiss',
     name: 'Nailed Swiss',
-    world: 9,
     rows: [
       'P # # # # #',
       '# . # # . #',
@@ -46,9 +44,8 @@ export const world9Levels: LevelDefinition[] = [
     designerNotes: 'The only level using holes, thickness and a pin together.',
   }),
   shapeLevel({
-    id: 43,
+    key: 'pinned-perforation',
     name: 'Pinned Perforation',
-    world: 9,
     rows: [
       'P # # # # # #',
       '# . # . # . #',
@@ -63,9 +60,8 @@ export const world9Levels: LevelDefinition[] = [
     designerNotes: 'Pairs with 36: same sheet, and the pin moves which hole can live.',
   }),
   shapeLevel({
-    id: 44,
+    key: 'pinned-net',
     name: 'Pinned Net',
-    world: 9,
     rows: [
       'P # . . . # #',
       '# # # . # # #',
@@ -83,9 +79,8 @@ export const world9Levels: LevelDefinition[] = [
       + 'solves the unpinned version (level 33), forcing a seventh fold.',
   }),
   shapeLevel({
-    id: 45,
+    key: 'the-last-word',
     name: 'The Last Word',
-    world: 9,
     rows: [
       '. . # # # . .',
       '. . # # # . .',

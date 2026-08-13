@@ -9,9 +9,8 @@ import { shapeLevel, singleCellLevel } from './helpers';
  */
 export const world2Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 6,
+    key: 'missing-corner',
     name: 'Missing Corner',
-    world: 2,
     rows: ['# # #', '# # #', '# # .'],
     goalRows: ['# # #', '# # #'],
     newConcept: 'NEW: holes. Fold a gap onto solid paper and it vanishes for good.',
@@ -20,9 +19,8 @@ export const world2Levels: LevelDefinition[] = [
     designerNotes: 'Subverts "a hole is permanent".',
   }),
   shapeLevel({
-    id: 7,
+    key: 'opposite-corner',
     name: 'Opposite Corner',
-    world: 2,
     rows: ['. # #', '# # #', '# # #'],
     goalRows: ['. #', '# #'],
     newConcept: 'The reverse: fold only what never crosses the gap, and it survives.',
@@ -31,9 +29,8 @@ export const world2Levels: LevelDefinition[] = [
     designerNotes: 'Paired with level 6 -- same silhouette, opposite intent.',
   }),
   shapeLevel({
-    id: 8,
+    key: 'hole-meets-hole',
     name: 'Hole Meets Hole',
-    world: 2,
     rows: ['# . #', '# . #', '# # #'],
     goalRows: ['# . #', '# # #'],
     newConcept: 'Empty onto empty stays empty -- the only way to move a hole.',
@@ -42,9 +39,8 @@ export const world2Levels: LevelDefinition[] = [
     designerNotes: 'Completes the hole vocabulary: patch, preserve, combine.',
   }),
   shapeLevel({
-    id: 9,
+    key: 'hold-it-down',
     name: 'Hold It Down',
-    world: 2,
     rows: ['P # #', '# # #', '# # #'],
     goalRows: ['# # #', '# # #'],
     newConcept: 'NEW: pins. A pinned cell never moves, so half the folds simply refuse.',
@@ -53,9 +49,8 @@ export const world2Levels: LevelDefinition[] = [
     designerNotes: 'The paper physically will not budge -- the rule teaches itself.',
   }),
   singleCellLevel({
-    id: 10,
+    key: 'around-the-pin',
     name: 'Around the Pin',
-    world: 2,
     rows: ['# # # #', '# # @ #', '# # # #', '# # # #'],
     newConcept: 'A pin in the middle bans whole directions. Route around it.',
     difficulty: 5,

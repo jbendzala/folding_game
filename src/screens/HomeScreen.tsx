@@ -13,7 +13,7 @@ interface HomeScreenProps {
 export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
   const insets = useSafeAreaInsets();
   // Dev builds unlock everything for level previewing; release keeps progression.
-  const unlocked = __DEV__ ? Infinity : highestUnlocked(progress, allLevels.map((l) => l.id));
+  const unlocked = __DEV__ ? Infinity : highestUnlocked(progress, allLevels);
   const totalStars = Object.values(progress).reduce((sum, p) => sum + p.stars, 0);
   const solvedCount = Object.values(progress).filter((p) => p.solved).length;
 
@@ -57,7 +57,7 @@ export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
             </Text>
             <View style={styles.grid}>
               {levels.map((level) => {
-                const p = progress[level.id];
+                const p = progress[level.key];
                 const isUnlocked = level.id <= unlocked;
                 return (
                   <Pressable

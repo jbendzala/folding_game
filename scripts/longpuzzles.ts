@@ -166,6 +166,7 @@ for (const name of names) {
   for (const goal of goals) {
     if (shown >= 5) break;
     const level: LevelDefinition = {
+      key: 'probe',
       id: 0,
       name,
       world: 0,

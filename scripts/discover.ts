@@ -63,6 +63,7 @@ for (const name of names) {
     seen.add(key);
 
     const level: LevelDefinition = {
+      key: 'probe',
       id: 0,
       name: name,
       world: 0,

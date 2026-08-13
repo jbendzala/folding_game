@@ -10,9 +10,8 @@ import { shapeLevel } from './helpers';
  */
 export const world4Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 16,
+    key: 'staircase',
     name: 'Staircase',
-    world: 4,
     rows: ['# # # #', '. # # #', '. . # #', '. . . #'],
     goalRows: ['# #', '# .', '# .'],
     newConcept: 'Three folds, and one of them has to reach past the far edge.',
@@ -21,9 +20,8 @@ export const world4Levels: LevelDefinition[] = [
     designerNotes: 'Was a one-fold level. 73% mean trap and the solution needs an overhang fold.',
   }),
   shapeLevel({
-    id: 17,
+    key: 'pyramid',
     name: 'Pyramid',
-    world: 4,
     rows: ['. . # . .', '. # # # .', '# # # # #'],
     goalRows: ['# # #', '. # .'],
     newConcept: 'Fold the pyramid off its own edge and catch it on the way back.',
@@ -32,9 +30,8 @@ export const world4Levels: LevelDefinition[] = [
     designerNotes: '72% mean trap, overhang required. Was one fold.',
   }),
   shapeLevel({
-    id: 18,
+    key: 'hourglass',
     name: 'Hourglass',
-    world: 4,
     rows: [
       '# # # # #',
       '. # # # .',
@@ -50,9 +47,8 @@ export const world4Levels: LevelDefinition[] = [
       + 'trap, overhang required. Was a single fold.',
   }),
   shapeLevel({
-    id: 19,
+    key: 'lightning',
     name: 'Lightning',
-    world: 4,
     rows: ['# # # .', '. . # .', '. # # #'],
     goalRows: ['# #', '# .'],
     newConcept: 'No symmetry, three folds, and the bolt has to leave the sheet to get there.',
@@ -61,9 +57,8 @@ export const world4Levels: LevelDefinition[] = [
     designerNotes: 'Overhang required. Was one fold.',
   }),
   shapeLevel({
-    id: 20,
+    key: 'pinned-diamond',
     name: 'Pinned Diamond',
-    world: 4,
     rows: [
       '. . # . .',
       '. # # # .',

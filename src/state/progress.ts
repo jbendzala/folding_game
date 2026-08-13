@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { LevelDefinition } from '../core/types';
 
-// v4: the level set was restructured so every mechanic is taught by level
-// 15 instead of level 26; ids mean entirely different puzzles now.
-const STORAGE_KEY = 'fold/progress/v4';
+// v5: progress is now saved against each level's stable KEY rather than its
+// position, so rearranging the curriculum no longer wipes what was solved.
+// The one-time cost is this reset, because old entries were keyed by id.
+const STORAGE_KEY = 'fold/progress/v5';
 
 export interface LevelProgress {
   solved: boolean;
@@ -13,7 +14,8 @@ export interface LevelProgress {
   stars: number;
 }
 
-export type ProgressMap = Record<number, LevelProgress>;
+/** Keyed by LevelDefinition.key, never by id. */
+export type ProgressMap = Record<string, LevelProgress>;
 
 /** 3 stars = optimal, 2 = close, 1 = solved at all. */
 export function starsFor(level: LevelDefinition, folds: number): number {
@@ -27,19 +29,22 @@ export function recordSolve(
   level: LevelDefinition,
   folds: number
 ): ProgressMap {
-  const prev = progress[level.id];
+  const prev = progress[level.key];
   const bestFolds = prev ? Math.min(prev.bestFolds, folds) : folds;
   return {
     ...progress,
-    [level.id]: { solved: true, bestFolds, stars: starsFor(level, bestFolds) },
+    [level.key]: { solved: true, bestFolds, stars: starsFor(level, bestFolds) },
   };
 }
 
 /** Highest level id the player may open: everything solved, plus the next one. */
-export function highestUnlocked(progress: ProgressMap, levelIds: number[]): number {
-  let unlocked = levelIds[0] ?? 1;
-  for (const id of levelIds) {
-    if (progress[id]?.solved) unlocked = Math.max(unlocked, id + 1);
+export function highestUnlocked(
+  progress: ProgressMap,
+  levels: { id: number; key: string }[]
+): number {
+  let unlocked = levels[0]?.id ?? 1;
+  for (const level of levels) {
+    if (progress[level.key]?.solved) unlocked = Math.max(unlocked, level.id + 1);
   }
   return unlocked;
 }

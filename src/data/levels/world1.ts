@@ -10,9 +10,8 @@ import { shapeLevel, singleCellLevel } from './helpers';
  */
 export const world1Levels: LevelDefinition[] = [
   singleCellLevel({
-    id: 1,
+    key: 'tiny-square',
     name: 'Tiny Square',
-    world: 1,
     rows: ['# #', '# *'],
     newConcept: 'Fold the paper onto the marked cell. Direction is everything.',
     difficulty: 1,
@@ -20,9 +19,8 @@ export const world1Levels: LevelDefinition[] = [
     designerNotes: 'The whole grammar in the smallest possible box.',
   }),
   singleCellLevel({
-    id: 2,
+    key: 'wide-rectangle',
     name: 'Wide Rectangle',
-    world: 1,
     rows: ['* # # #', '# # # #'],
     newConcept: 'A long side needs more than one fold -- or one fold in half.',
     difficulty: 2,
@@ -30,9 +28,8 @@ export const world1Levels: LevelDefinition[] = [
     designerNotes: 'First taste of chaining.',
   }),
   singleCellLevel({
-    id: 3,
+    key: 'center-target',
     name: 'Center Target',
-    world: 1,
     rows: ['# # # #', '# # * #', '# # # #', '# # # #'],
     newConcept: 'The target sits near the middle -- only one direction per axis keeps it.',
     difficulty: 3,
@@ -40,9 +37,8 @@ export const world1Levels: LevelDefinition[] = [
     designerNotes: 'First deliberate "obvious fold is wrong" trap.',
   }),
   shapeLevel({
-    id: 4,
+    key: 'l-shape',
     name: 'L Shape',
-    world: 1,
     rows: ['# # #', '# . .', '# . .'],
     goalRows: ['# # #', '# . .'],
     newConcept: 'NEW: the goal is a SHAPE now, not a cell. Fold the L into a smaller L.',
@@ -51,9 +47,8 @@ export const world1Levels: LevelDefinition[] = [
     designerNotes: 'You must fold INTO the shape, not flatten it. 75% of openings lose.',
   }),
   shapeLevel({
-    id: 5,
+    key: 'u-shape',
     name: 'U Shape',
-    world: 1,
     rows: ['# . . #', '# . . #', '# # # #'],
     goalRows: ['. #', '. #', '# #'],
     newConcept: 'Close it like a book -- the two arms meet exactly.',

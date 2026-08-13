@@ -144,6 +144,13 @@ export interface LevelGoal {
 }
 
 export interface LevelDefinition {
+  /**
+   * Stable identity, independent of where the level sits in the curriculum.
+   * Order changes constantly during design; progress is saved against this,
+   * so reordering never wipes what a player has solved.
+   */
+  key: string;
+  /** Position in the curriculum (1-based). Assigned, not authored. */
   id: number;
   name: string;
   world: number;

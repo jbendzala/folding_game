@@ -107,6 +107,7 @@ let shown = 0;
 for (const f of candidates) {
   if (shown >= 8) break;
   const level: LevelDefinition = {
+    key: 'probe',
     id: 0,
     name: 'probe',
     world: 0,

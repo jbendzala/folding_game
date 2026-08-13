@@ -8,9 +8,8 @@ import { shapeLevel } from './helpers';
  */
 export const world6Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 26,
+    key: 'arrowhead',
     name: 'Arrowhead',
-    world: 6,
     rows: [
       '. . # . .',
       '. # # # .',
@@ -25,9 +24,8 @@ export const world6Levels: LevelDefinition[] = [
     designerNotes: '61% mean trap with an overhang fold. Was a single fold.',
   }),
   shapeLevel({
-    id: 27,
+    key: 'butterfly',
     name: 'Butterfly',
-    world: 6,
     rows: [
       '# . . . #',
       '# # . # #',
@@ -42,9 +40,8 @@ export const world6Levels: LevelDefinition[] = [
     designerNotes: '63% mean trap. Patch a gap by accident and it is lost.',
   }),
   shapeLevel({
-    id: 28,
+    key: 'iron-cross',
     name: 'Iron Cross',
-    world: 6,
     rows: [
       '. . # . .',
       '. . # . .',
@@ -59,9 +56,8 @@ export const world6Levels: LevelDefinition[] = [
     designerNotes: '63% mean trap, overhang required. Was two folds.',
   }),
   shapeLevel({
-    id: 29,
+    key: 'pinned-cross',
     name: 'Pinned Cross',
-    world: 6,
     rows: [
       '. . # . .',
       '. . # . .',
@@ -76,9 +72,8 @@ export const world6Levels: LevelDefinition[] = [
     designerNotes: 'Pairs with 28: identical goal, and the route that solved it is illegal.',
   }),
   shapeLevel({
-    id: 30,
+    key: 'pinned-masterpiece',
     name: 'Pinned Masterpiece',
-    world: 6,
     rows: [
       '. . # . .',
       '. # # # .',

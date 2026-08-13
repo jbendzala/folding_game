@@ -8,9 +8,8 @@ import { shapeLevel } from './helpers';
  */
 export const world3Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 11,
+    key: 'double-over',
     name: 'Double Over',
-    world: 3,
     rows: ['# # # #', '# # # #'],
     goalRows: ['# #', '# #'],
     uniformDepth: 2,
@@ -20,9 +19,8 @@ export const world3Levels: LevelDefinition[] = [
     designerNotes: 'Easiest possible example, so the chip explains itself.',
   }),
   shapeLevel({
-    id: 12,
+    key: 'four-ply',
     name: 'Four Ply',
-    world: 3,
     rows: ['# # # #', '# # # #', '# # # #', '# # # #'],
     goalRows: ['# #', '# #'],
     uniformDepth: 4,
@@ -32,9 +30,8 @@ export const world3Levels: LevelDefinition[] = [
     designerNotes: 'First level where a solved-LOOKING shape is still wrong.',
   }),
   shapeLevel({
-    id: 13,
+    key: 'thick-three',
     name: 'Thick Three',
-    world: 3,
     rows: ['# # #', '# # #', '# # #'],
     goalRows: ['# # #'],
     uniformDepth: 3,
@@ -44,9 +41,8 @@ export const world3Levels: LevelDefinition[] = [
     designerNotes: 'Everyone knows this one from envelopes.',
   }),
   shapeLevel({
-    id: 14,
+    key: 'blocked-book',
     name: 'Blocked Book',
-    world: 3,
     rows: ['P . . #', '# . . #', '# # # #'],
     goalRows: ['# .', '# .', '# #'],
     newConcept: 'FIRST COMBINATION: pin plus hole. The pin decides which way it closes.',
@@ -55,9 +51,8 @@ export const world3Levels: LevelDefinition[] = [
     designerNotes: 'Level 5\'s book fold, but one arm is nailed down. 80% trap.',
   }),
   shapeLevel({
-    id: 15,
+    key: 'squash-the-frame',
     name: 'Squash the Frame',
-    world: 3,
     rows: ['# # # #', '# . . #', '# . . #', '# # # #'],
     goalRows: ['# #', '. #', '. #', '# #'],
     uniformDepth: 2,

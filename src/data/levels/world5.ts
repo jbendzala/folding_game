@@ -8,9 +8,8 @@ import { shapeLevel } from './helpers';
  */
 export const world5Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 21,
+    key: 'even-strip',
     name: 'Even Strip',
-    world: 5,
     rows: ['# # # # # # # #'],
     goalRows: ['# #'],
     uniformDepth: 4,
@@ -20,9 +19,8 @@ export const world5Levels: LevelDefinition[] = [
     designerNotes: 'The accordion in miniature.',
   }),
   shapeLevel({
-    id: 22,
+    key: 'quarter-fold',
     name: 'Quarter Fold',
-    world: 5,
     rows: ['# # # #', '# # # #', '# # # #', '# # # #'],
     goalRows: ['#', '#', '#', '#'],
     uniformDepth: 4,
@@ -32,9 +30,8 @@ export const world5Levels: LevelDefinition[] = [
     designerNotes: '83% trap: every horizontal fold here looks like progress and loses.',
   }),
   shapeLevel({
-    id: 23,
+    key: 'fold-the-banner',
     name: 'Fold the Banner',
-    world: 5,
     rows: ['P # # P', '# # # #', '# # # #', '# # # #'],
     goalRows: ['# # # #'],
     uniformDepth: 4,
@@ -44,9 +41,8 @@ export const world5Levels: LevelDefinition[] = [
     designerNotes: 'Read the pins first, then roll the banner up.',
   }),
   shapeLevel({
-    id: 24,
+    key: 'thick-corner',
     name: 'Thick Corner',
-    world: 5,
     rows: ['# # # #', '# # # #', '# # . .', '# # . .'],
     goalRows: ['# #', '# #'],
     uniformDepth: 3,
@@ -56,9 +52,8 @@ export const world5Levels: LevelDefinition[] = [
     designerNotes: 'Holes plus thickness: patch the notch or a column comes up short.',
   }),
   shapeLevel({
-    id: 25,
+    key: 'swiss',
     name: 'Swiss',
-    world: 5,
     rows: [
       '# # # # # #',
       '# . # # . #',

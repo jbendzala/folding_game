@@ -10,9 +10,8 @@ import { shapeLevel } from './helpers';
  */
 export const world8Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 36,
+    key: 'perforated',
     name: 'Perforated',
-    world: 8,
     rows: [
       '# # # # # # #',
       '# . # . # . #',
@@ -27,9 +26,8 @@ export const world8Levels: LevelDefinition[] = [
     designerNotes: '62% mean trap.',
   }),
   shapeLevel({
-    id: 37,
+    key: 'the-window',
     name: 'The Window',
-    world: 8,
     rows: [
       '# # # # # #',
       '# # # # # #',
@@ -45,9 +43,8 @@ export const world8Levels: LevelDefinition[] = [
     designerNotes: 'One careless fold seals the window and it is over.',
   }),
   shapeLevel({
-    id: 38,
+    key: 'half-window',
     name: 'Half Window',
-    world: 8,
     rows: [
       '# # # # # #',
       '# # # # # #',
@@ -64,9 +61,8 @@ export const world8Levels: LevelDefinition[] = [
       + 'level that the length guard correctly rejected from a finale chapter.',
   }),
   shapeLevel({
-    id: 39,
+    key: 'pinned-frame',
     name: 'Pinned Frame',
-    world: 8,
     rows: ['P # # #', '# . . #', '# . . #', '# # # #'],
     goalRows: ['# #'],
     newConcept: 'The frame with a corner nailed down: its natural route is banned.',
@@ -75,9 +71,8 @@ export const world8Levels: LevelDefinition[] = [
     designerNotes: 'Pin plus enclosed hole.',
   }),
   shapeLevel({
-    id: 40,
+    key: 'nailed-window',
     name: 'Nailed Window',
-    world: 8,
     rows: [
       'P # # # # #',
       '# # # # # #',

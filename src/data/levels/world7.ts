@@ -10,9 +10,8 @@ import { shapeLevel } from './helpers';
  */
 export const world7Levels: LevelDefinition[] = [
   shapeLevel({
-    id: 31,
+    key: 'long-diamond',
     name: 'Long Diamond',
-    world: 7,
     rows: [
       '. . . # . . .',
       '. . # # # . .',
@@ -29,9 +28,8 @@ export const world7Levels: LevelDefinition[] = [
     designerNotes: '69% mean trap across all five steps.',
   }),
   shapeLevel({
-    id: 32,
+    key: 'the-long-cross',
     name: 'The Long Cross',
-    world: 7,
     rows: [
       '. . # # # . .',
       '. . # # # . .',
@@ -48,9 +46,8 @@ export const world7Levels: LevelDefinition[] = [
     designerNotes: 'The L-of-three-boxes target.',
   }),
   shapeLevel({
-    id: 33,
+    key: 'butterfly-net',
     name: 'Butterfly Net',
-    world: 7,
     rows: [
       '# # . . . # #',
       '# # # . # # #',
@@ -67,9 +64,8 @@ export const world7Levels: LevelDefinition[] = [
     designerNotes: 'Best measured level in the game: 6 folds at 72% mean trap.',
   }),
   shapeLevel({
-    id: 34,
+    key: 'wingspan',
     name: 'Wingspan',
-    world: 7,
     rows: [
       '# # . . . # #',
       '# # # . # # #',
@@ -86,9 +82,8 @@ export const world7Levels: LevelDefinition[] = [
     designerNotes: 'Pairs with 33: identical start, different destination.',
   }),
   shapeLevel({
-    id: 35,
+    key: 'the-last-fold',
     name: 'The Last Fold',
-    world: 7,
     rows: [
       '. . # # # . .',
       '. . # # # . .',

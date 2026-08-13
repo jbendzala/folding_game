@@ -76,11 +76,16 @@ describe('the late game is a chain of folds, not a single move', () => {
     }
   }
 
+  // "Late" is the last 40% of the curriculum rather than a fixed chapter
+  // number, so this keeps meaning the same thing as chapters are added.
+  const worlds = [...new Set(allLevels.map((l) => l.world))].sort((a, b) => a - b);
+  const lateFrom = Math.ceil(worlds.length * 0.6) + 1;
+
   it('late chapters are chains, unless they are teaching a new rule', () => {
-    for (const level of allLevels.filter((l) => l.world >= 7 && !introducing.has(l.world))) {
+    for (const level of allLevels.filter((l) => l.world >= lateFrom && !introducing.has(l.world))) {
       expect(level.expectedFolds, `${level.name} is a single fold this late`).toBeGreaterThanOrEqual(3);
     }
-    for (const world of [...new Set(allLevels.map((l) => l.world))].filter((w) => w >= 7)) {
+    for (const world of worlds.filter((w) => w >= lateFrom)) {
       const chapter = allLevels.filter((l) => l.world === world);
       const mean = chapter.reduce((sum, l) => sum + l.expectedFolds, 0) / chapter.length;
       const floor = introducing.has(world) ? 1.5 : 4.5;

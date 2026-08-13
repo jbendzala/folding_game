@@ -10,9 +10,8 @@ import type { CellCoord, Fold, LevelDefinition } from '../../core/types';
  *  - Pins come from 'P' tokens in the starting art.
  */
 export function shapeLevel(params: {
-  id: number;
+  key: string;
   name: string;
-  world: number;
   rows: string[];
   goalRows: string[];
   uniformDepth?: number;
@@ -34,16 +33,18 @@ export function shapeLevel(params: {
     const need = goalShape.cells.length * params.uniformDepth;
     if (need !== start.cells.length) {
       throw new Error(
-        `Level ${params.id} (${params.name}): uniformDepth ${params.uniformDepth} needs ` +
+        `Level ${params.key} (${params.name}): uniformDepth ${params.uniformDepth} needs ` +
           `${need} start cells but the shape has ${start.cells.length} -- paper is conserved`
       );
     }
   }
 
   return {
-    id: params.id,
+    key: params.key,
+    // Placeholders: the curriculum assigns position and chapter.
+    id: 0,
+    world: 0,
     name: params.name,
-    world: params.world,
     start,
     goal: {
       shape: goalShape,
@@ -79,9 +80,8 @@ export function shapeLevel(params: {
  * paper behind. Only *where* that stack sits is up for grabs.)
  */
 export function singleCellLevel(params: {
-  id: number;
+  key: string;
   name: string;
-  world: number;
   rows: string[];
   newConcept: string;
   difficulty: number;
@@ -91,13 +91,14 @@ export function singleCellLevel(params: {
   const { shape, markers, pins } = shapeFromRows(params.rows);
   const target = markers.get('target');
   if (!target) {
-    throw new Error(`Level ${params.id} (${params.name}): starting art has no '*' target marker`);
+    throw new Error(`Level ${params.key} (${params.name}): starting art has no '*' target marker`);
   }
 
   return {
-    id: params.id,
+    key: params.key,
+    id: 0,
+    world: 0,
     name: params.name,
-    world: params.world,
     start: shape,
     goal: {
       shape: { width: 1, height: 1, cells: [{ row: 0, col: 0 }] },
