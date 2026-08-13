@@ -179,6 +179,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
           goalCells={goalCells}
           hint={hintFold}
           palette={palette}
+          twoSided={level.goal.backCells !== undefined}
           onFold={handleFold}
         />
       </View>

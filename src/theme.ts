@@ -82,8 +82,17 @@ export interface WorldPalette {
   hue: number;
   /** Front-face paper by stack depth (index = depth - 1). */
   paper: string[];
-  /** Back-face paper: the world's colour, so a flip is unmistakable. */
+  /** Back-face paper on two-sided levels: the world's colour, so a flip is
+   * unmistakable. */
   paperDown: string[];
+  /**
+   * Back-face paper everywhere else: barely distinguishable from the front.
+   * On levels whose goal says nothing about faces, a flipped cell carries no
+   * meaning, and painting it bright would both invent a signal that is not
+   * there and fight the depth readout, which is what the lightness ramp is
+   * for.
+   */
+  paperDownMuted: string[];
   /** Crease lines, keyed off the world hue so they sit in the paper. */
   crease: string;
   /**
@@ -114,6 +123,7 @@ export interface WorldPalette {
 function buildPalette(hue: number): WorldPalette {
   const paper: string[] = [];
   const paperDown: string[] = [];
+  const paperDownMuted: string[] = [];
   for (let i = 0; i < DEPTH_STEPS; i++) {
     const t = i / (DEPTH_STEPS - 1);
     // One sheet is near-white with a hint of colour; each layer pushes
@@ -127,12 +137,14 @@ function buildPalette(hue: number): WorldPalette {
     // two readouts stay independent.
     paper.push(hsl(hue, 14 + k * 34, 96 - k * 40));
     paperDown.push(hsl(hue, 58 + k * 24, 63 - k * 26));
+    paperDownMuted.push(hsl(hue, (14 + k * 34) * 0.5, 92 - k * 38));
   }
   const comp = (hue + 180) % 360;
   return {
     hue,
     paper,
     paperDown,
+    paperDownMuted,
     crease: `hsla(${hue}, 45%, 25%, 0.18)`,
     tint: hsl(hue, 62, 60),
     tintSoft: `hsla(${hue}, 62%, 60%, 0.18)`,
@@ -158,8 +170,17 @@ export function worldPalette(world: number): WorldPalette {
   return built;
 }
 
-/** Paper fill for a stack of the given depth (1-based) and top-face state. */
-export function paperColor(palette: WorldPalette, depth: number, faceUp: boolean): string {
-  const ramp = faceUp ? palette.paper : palette.paperDown;
+/**
+ * Paper fill for a stack of the given depth (1-based) and top-face state.
+ * `twoSided` is on only for levels whose goal constrains faces; elsewhere a
+ * flipped cell stays near-white, because there the flip means nothing.
+ */
+export function paperColor(
+  palette: WorldPalette,
+  depth: number,
+  faceUp: boolean,
+  twoSided: boolean
+): string {
+  const ramp = faceUp ? palette.paper : twoSided ? palette.paperDown : palette.paperDownMuted;
   return ramp[Math.min(Math.max(depth, 1), ramp.length) - 1];
 }

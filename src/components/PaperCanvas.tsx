@@ -56,6 +56,9 @@ interface PaperCanvasProps {
   hint?: Fold | null;
   /** This world's colours: paper ramp plus a complementary indicator. */
   palette: WorldPalette;
+  /** True when the goal constrains which face shows, which is the only time
+   * the back of the sheet should be painted the world's colour. */
+  twoSided: boolean;
   onFold: (fold: Fold) => void;
 }
 
@@ -74,7 +77,16 @@ interface PaperCanvasProps {
  * value feeding Skia transforms and clips directly. React state changes only
  * when a drag arms and when a fold commits.
  */
-export function PaperCanvas({ state, start, size, goalCells, hint, palette, onFold }: PaperCanvasProps) {
+export function PaperCanvas({
+  state,
+  start,
+  size,
+  goalCells,
+  hint,
+  palette,
+  twoSided,
+  onFold,
+}: PaperCanvasProps) {
   const [armKey, setArmKey] = useState<ArmKey | null>(null);
 
   // --- geometry (cell size frozen per level via `start`) ---
@@ -414,7 +426,7 @@ export function PaperCanvas({ state, start, size, goalCells, hint, palette, onFo
       y={screenY(c.pos.row)}
       width={cell}
       height={cell}
-      color={paperColor(palette, c.depth, flipped ? !c.faceUp : c.faceUp)}
+      color={paperColor(palette, c.depth, flipped ? !c.faceUp : c.faceUp, twoSided)}
     />
   );
 
