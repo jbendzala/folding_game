@@ -13,6 +13,7 @@ import { world11Levels } from './world11';
 import { lockedLevels } from './rulesLocked';
 import { blockedLevels } from './rulesBlocked';
 import { tearLevels } from './rulesTear';
+import { comboLevels } from './combos';
 
 /**
  * Every level that exists, keyed by its stable key. The files this reads from
@@ -41,6 +42,7 @@ const LIBRARY: LevelDefinition[] = [
   ...lockedLevels,
   ...blockedLevels,
   ...tearLevels,
+  ...comboLevels,
 ];
 
 export interface Chapter {
@@ -99,6 +101,13 @@ export const CHAPTERS: Chapter[] = [
   {
     name: 'Masterpieces',
     keys: ['arrowhead', 'butterfly', 'iron-cross', 'pinned-diamond', 'pinned-masterpiece'],
+  },
+  {
+    // Combination chapter at 3-4 folds, so it sits before the long-fold
+    // chapters rather than after them: the guard rejected it as a finale
+    // and was right to, since it is shorter than the Endgame it followed.
+    name: 'Threading',
+    keys: ['ring-around', 'clamped-hollow', 'gap-in-the-wall', 'threaded-pin', 'threaded-wide'],
   },
   {
     name: 'The Long Fold',
