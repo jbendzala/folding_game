@@ -5,6 +5,7 @@ import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PaperCanvas } from '../components/PaperCanvas';
 import {
+  activeRules,
   checkGoal,
   createInitialState,
   isGoalStillReachable,
@@ -36,6 +37,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   // Each world folds in its own colour; the indicator is its complement, so
   // goal tints and crease lines never sink into the paper.
   const palette = worldPalette(level.world);
+  const rules = useMemo(() => activeRules(level), [level]);
   const [folds, setFolds] = useState<Fold[]>([]);
   const [hintFold, setHintFold] = useState<Fold | null>(null);
   const [showSolved, setShowSolved] = useState(false);
@@ -150,6 +152,17 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
         </View>
         <View style={styles.headerSpacer} />
       </View>
+
+      {/* which rules are in play -- derived from the level, never hand-tagged */}
+      {rules.length > 0 && (
+        <View style={styles.legendRow}>
+          {rules.map((rule) => (
+            <View key={rule.key} style={[styles.legendChip, { borderColor: palette.tintSoft }]}>
+              <Text style={[styles.legendText, { color: palette.tint }]}>{rule.label}</Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       {/* silhouette goal preview (worlds with shape goals, no board anchor) */}
       {!goalCells && (
@@ -445,6 +458,25 @@ const styles = StyleSheet.create({
   },
   foldPillTextOver: {
     color: theme.colors.accent,
+  },
+  legendRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 6,
+    paddingTop: 12,
+    paddingHorizontal: 24,
+  },
+  legendChip: {
+    paddingVertical: 4,
+    paddingHorizontal: 9,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+  },
+  legendText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.2,
   },
   goalRow: {
     flexDirection: 'row',
