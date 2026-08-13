@@ -74,15 +74,19 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     name: 'Clamped',
-    keys: ['clamped', 'clamped-corner', 'clamped-notch', 'clamped-pin', 'clamped-strip'],
+    keys: ['clamped', 'clamped-notch', 'clamped-corner', 'clamped-grid', 'clamped-thick'],
   },
   {
     name: 'No Go',
-    keys: ['no-go', 'boxed-in', 'narrow-escape', 'blocked-pin', 'walled-garden'],
+    keys: ['no-go', 'boxed-in', 'narrow-escape', 'blocked-wall', 'blocked-column'],
   },
   {
+    // Short by nature rather than by neglect: a tear limit forbids exactly
+    // the stacking that long solutions are built from, so searching found
+    // nothing past two folds on any sheet, with or without a block beside
+    // it. This chapter trades length for tightness.
     name: 'Fragile',
-    keys: ['careful-now', 'thin-ice', 'two-ply-square', 'fragile-notch', 'fragile-pin'],
+    keys: ['careful-now', 'thin-ice', 'fragile-notch', 'fragile-hole', 'fragile-grid'],
   },
   {
     name: 'Strange Geometry',
