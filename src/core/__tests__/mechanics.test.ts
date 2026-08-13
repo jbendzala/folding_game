@@ -8,7 +8,7 @@ import { allLevels } from '../../data/levels';
 describe('pinned cells', () => {
   it('bans any fold whose moving side contains a pin', () => {
     const { shape, pins } = shapeFromRows(['P # #', '# # #']);
-    const state = createInitialState(shape, pins);
+    const state = createInitialState(shape, { pins });
 
     // Pin at (0,0): anything moving col 0 or row 0 is out.
     expect(isValidFold(state, { axis: 'vertical', line: 0, moves: 'lower' })).toBe(false);
@@ -21,14 +21,14 @@ describe('pinned cells', () => {
 
   it('listValidFolds filters pinned folds and pins survive applyFold', () => {
     const { shape, pins } = shapeFromRows(['P # #', '# # #']);
-    let state = createInitialState(shape, pins);
+    let state = createInitialState(shape, { pins });
 
     const folds = listValidFolds(state);
     expect(folds.every((f) => isValidFold(state, f))).toBe(true);
     expect(folds.some((f) => f.moves === 'lower')).toBe(false); // pin sits at min row+col
 
     state = applyFold(state, { axis: 'vertical', line: 1, moves: 'upper' });
-    expect(state.pins).toEqual([{ row: 0, col: 0 }]);
+    expect(state.constraints?.pins).toEqual([{ row: 0, col: 0 }]);
     // Still enforced after folding.
     expect(isValidFold(state, { axis: 'vertical', line: 0, moves: 'lower' })).toBe(false);
   });
@@ -107,8 +107,52 @@ describe('dead position detection', () => {
 
   it('never reports a solved position as dead', () => {
     for (const level of allLevels.slice(0, 12)) {
-      const state = createInitialState(level.start, level.pins);
+      const state = createInitialState(level.start, level.constraints);
       expect(isGoalStillReachable(state, level.goal), level.name).toBe(true);
     }
+  });
+});
+
+describe('locked creases', () => {
+  it('refuses the clamped line in both directions, and allows its neighbours', () => {
+    const { shape } = shapeFromRows(['# # # #']);
+    const state = createInitialState(shape, {
+      lockedCreases: [{ axis: 'vertical', line: 1, moves: 'lower' }],
+    });
+    expect(isValidFold(state, { axis: 'vertical', line: 1, moves: 'lower' })).toBe(false);
+    expect(isValidFold(state, { axis: 'vertical', line: 1, moves: 'upper' })).toBe(false);
+    expect(isValidFold(state, { axis: 'vertical', line: 0, moves: 'lower' })).toBe(true);
+    expect(isValidFold(state, { axis: 'vertical', line: 2, moves: 'upper' })).toBe(true);
+  });
+});
+
+describe('forbidden squares', () => {
+  it('refuses any fold that would land paper on a blocked cell', () => {
+    // 1x3 strip with the square to its right blocked.
+    const { shape } = shapeFromRows(['# # # X']);
+    const state = createInitialState(shape, { forbidden: [{ row: 0, col: 3 }] });
+    // Folding col 0 rightward puts paper on col 1 -- fine.
+    expect(isValidFold(state, { axis: 'vertical', line: 0, moves: 'lower' })).toBe(true);
+    // Folding cols 0-1 over line 1 sends col 0 to col 3, which is blocked.
+    expect(isValidFold(state, { axis: 'vertical', line: 1, moves: 'lower' })).toBe(false);
+  });
+});
+
+describe('max depth', () => {
+  it('refuses a fold that would stack more sheets than the paper can take', () => {
+    const { shape } = shapeFromRows(['# # # #']);
+    const state = createInitialState(shape, { maxDepth: 2 });
+    // 4 -> 2 columns, two sheets each: allowed.
+    const halved = applyFold(state, { axis: 'vertical', line: 1, moves: 'lower' });
+    expect(halved.cells).toHaveLength(4);
+    // Halving again would make four sheets on a cell: refused.
+    expect(isValidFold(halved, { axis: 'vertical', line: 2, moves: 'lower' })).toBe(false);
+  });
+
+  it('leaves folds alone when no ceiling is set', () => {
+    const { shape } = shapeFromRows(['# # # #']);
+    let state = createInitialState(shape);
+    state = applyFold(state, { axis: 'vertical', line: 1, moves: 'lower' });
+    expect(isValidFold(state, { axis: 'vertical', line: 2, moves: 'lower' })).toBe(true);
   });
 });

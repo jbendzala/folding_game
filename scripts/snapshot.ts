@@ -38,7 +38,7 @@ function mechanicsOf(level: (typeof allLevels)[number]): string[] {
   const out: string[] = [];
   const holes = level.start.cells.length < level.start.width * level.start.height;
   if (holes) out.push('holes');
-  if (level.pins?.length) out.push('pins');
+  if (level.constraints?.pins?.length) out.push('pins');
   if (level.goal.uniformDepth !== undefined) out.push('layers');
   if (level.goal.anchor) out.push('anchored');
   return out;

@@ -156,7 +156,7 @@ for (const name of names) {
   );
   console.log(render(start).join('\n'));
 
-  const goals = reachableGoals(start, maxFolds, pins)
+  const goals = reachableGoals(start, maxFolds, { pins })
     // Small, specific targets -- the kind you have to work down to.
     .filter((g) => g.shape.cells.length >= 2 && g.shape.cells.length <= 8)
     // Longest solutions first: that is the whole point of this pass.
@@ -170,7 +170,7 @@ for (const name of names) {
       name,
       world: 0,
       start,
-      ...(pins.length > 0 ? { pins } : {}),
+      ...(pins.length > 0 ? { constraints: { pins } } : {}),
       goal:
         goal.uniformDepth !== undefined
           ? { shape: goal.shape, uniformDepth: goal.uniformDepth }

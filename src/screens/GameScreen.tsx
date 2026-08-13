@@ -45,7 +45,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   const reportedRef = useRef(false);
 
   const state = useMemo(
-    () => replayFolds(() => createInitialState(level.start, level.pins), folds),
+    () => replayFolds(() => createInitialState(level.start, level.constraints), folds),
     [level, folds]
   );
   const solved = useMemo(() => checkGoal(state, level.goal), [state, level]);

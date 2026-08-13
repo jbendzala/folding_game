@@ -9,7 +9,7 @@ import { allLevels } from '../src/data/levels';
 
 const CAP = 8;
 for (const level of allLevels) {
-  const path = solve(createInitialState(level.start, level.pins), level.goal, CAP);
+  const path = solve(createInitialState(level.start, level.constraints), level.goal, CAP);
   const actual = path ? path.length : null;
   const flag =
     actual === null ? 'UNSOLVABLE' : actual === level.expectedFolds ? '' : `<- was ${level.expectedFolds}`;

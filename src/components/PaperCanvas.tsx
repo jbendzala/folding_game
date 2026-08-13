@@ -117,7 +117,9 @@ export function PaperCanvas({
 
   // Pins cap how far the crease may travel: the fold can include cells up to
   // but never past a pinned row/column (a pin must stay on the still side).
-  const pins = state.pins ?? [];
+  const pins = state.constraints?.pins ?? [];
+  const lockedCreases = state.constraints?.lockedCreases ?? [];
+  const forbidden = state.constraints?.forbidden ?? [];
   const creaseMaxK0 = pins.length
     ? Math.min(rightEdgePx - cell, ...pins.map((p) => screenX(p.col)))
     : rightEdgePx - cell;
@@ -550,6 +552,56 @@ export function PaperCanvas({
               opacity={0.55}
             />
           ))}
+
+          {/* blocked squares: paper may never land here */}
+          {forbidden.map((f) => (
+            <Group key={`no${f.row}:${f.col}`}>
+              <Rect
+                x={screenX(f.col)}
+                y={screenY(f.row)}
+                width={cell}
+                height={cell}
+                color={palette.accentSoft}
+              />
+              <Path
+                path={`M ${screenX(f.col) + cell * 0.28} ${screenY(f.row) + cell * 0.28} L ${
+                  screenX(f.col) + cell * 0.72
+                } ${screenY(f.row) + cell * 0.72} M ${screenX(f.col) + cell * 0.72} ${
+                  screenY(f.row) + cell * 0.28
+                } L ${screenX(f.col) + cell * 0.28} ${screenY(f.row) + cell * 0.72}`}
+                color={palette.accent}
+                style="stroke"
+                strokeWidth={2}
+              />
+            </Group>
+          ))}
+
+          {/* locked creases: clamped lines that cannot be folded */}
+          {lockedCreases.map((lc) => {
+            const isV = lc.axis === 'vertical';
+            const x = isV ? screenX(lc.line + 1) - 1.5 : screenX(bounds.minCol);
+            const y = isV ? screenY(bounds.minRow) : screenY(lc.line + 1) - 1.5;
+            const len = isV ? (nRows + 1) * cell : (nCols + 1) * cell;
+            // Dashes, so it reads as "you cannot fold here" rather than as a
+            // crease you have already made.
+            const dashes = Math.max(Math.floor(len / (cell * 0.4)), 1);
+            return (
+              <Group key={`lock${lc.axis}${lc.line}`}>
+                {Array.from({ length: dashes }).map((_, i) =>
+                  i % 2 === 0 ? (
+                    <Rect
+                      key={i}
+                      x={isV ? x : x + i * (len / dashes)}
+                      y={isV ? y + i * (len / dashes) : y}
+                      width={isV ? 3 : len / dashes}
+                      height={isV ? len / dashes : 3}
+                      color={palette.accent}
+                    />
+                  ) : null
+                )}
+              </Group>
+            );
+          })}
 
           {/* pins: fastened to the table, these cells never move */}
           {pins.map((p) => (

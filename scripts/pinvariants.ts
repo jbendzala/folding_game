@@ -34,7 +34,7 @@ if (uniformDepth !== undefined) {
 }
 
 console.log(`=== ${base.name} (level ${id})`);
-const plain = analyzeLevel({ ...base, goal, pins: undefined }, 3, false);
+const plain = analyzeLevel({ ...base, goal, constraints: undefined }, 3, false);
 console.log(
   `  no pin: ${plain.minFolds} folds, meanTrap ${Math.round(plain.meanTrap * 100)}%` +
     `${uniformDepth !== undefined ? `  (x${uniformDepth} thick)` : ''}`
@@ -47,7 +47,12 @@ interface Row {
 }
 const rows: Row[] = [];
 for (const pin of base.start.cells) {
-  const level: LevelDefinition = { ...base, goal, pins: [pin], expectedFolds: 10 };
+  const level: LevelDefinition = {
+    ...base,
+    goal,
+    constraints: { ...base.constraints, pins: [pin] },
+    expectedFolds: 10,
+  };
   const a = analyzeLevel(level, 0, false);
   if (a.minFolds === null) continue;
   rows.push({ pin, folds: a.minFolds, meanTrap: a.meanTrap });

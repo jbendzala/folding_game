@@ -55,16 +55,41 @@ export interface CellState {
   faceUp: boolean;
 }
 
+/**
+ * Rules that restrict which folds are legal. All are constant for a level
+ * (nothing here moves), and all are enforced in isValidFold, so an illegal
+ * fold simply cannot be made rather than being made and then punished.
+ */
+export interface FoldConstraints {
+  /**
+   * Board coordinates pinned to the table. A pinned cell can never be on the
+   * moving side of a fold; paper may still fold ONTO a pin -- it holds the
+   * bottom layer down.
+   */
+  pins?: CellCoord[];
+  /**
+   * Grid lines that cannot be creased, as if a rod were clamped across the
+   * table. Unlike a pin, which bans folds by which SIDE moves, this bans one
+   * specific fold position outright.
+   */
+  lockedCreases?: Fold[];
+  /**
+   * Board cells the paper may never cover. The only rule about where paper
+   * ends up rather than what it does to itself.
+   */
+  forbidden?: CellCoord[];
+  /**
+   * Layer ceiling: a fold that would stack more than this many sheets on any
+   * cell is refused -- the paper would tear. The inverse of a uniformDepth
+   * goal, and it makes big folds dangerous rather than efficient.
+   */
+  maxDepth?: number;
+}
+
 export interface FoldState {
   cells: CellState[];
   history: Fold[];
-  /**
-   * Board coordinates pinned to the table. A pinned cell can never be on the
-   * moving side of a fold (the fold is simply invalid); paper may still fold
-   * ONTO a pin -- it holds the bottom layer down. Pins never move, so these
-   * coordinates are constant for the whole level.
-   */
-  pins?: CellCoord[];
+  constraints?: FoldConstraints;
 }
 
 /** A static shape pattern, normalized so its bounding box starts at (0,0). */
@@ -124,8 +149,8 @@ export interface LevelDefinition {
   world: number;
   start: ShapePattern;
   goal: LevelGoal;
-  /** Cells pinned to the table (see FoldState.pins). */
-  pins?: CellCoord[];
+  /** Rules restricting which folds are legal (pins, locked creases, ...). */
+  constraints?: FoldConstraints;
   newConcept: string;
   difficulty: number;
   expectedFolds: number;

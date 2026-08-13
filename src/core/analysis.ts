@@ -43,7 +43,7 @@ export function analyzeLevel(
   /** Counting minimal paths explodes on long solutions; skip when searching. */
   countPaths = true
 ): LevelAnalysis {
-  const start = createInitialState(level.start, level.pins);
+  const start = createInitialState(level.start, level.constraints);
   const shortest = solve(start, level.goal, level.expectedFolds + extraCap);
   const minFolds = shortest ? shortest.length : null;
 
@@ -174,9 +174,9 @@ const shapeKey = (s: ShapePattern) =>
 export function reachableGoals(
   start: ShapePattern,
   maxFolds: number,
-  pins?: LevelDefinition['pins']
+  constraints?: LevelDefinition['constraints']
 ): ReachableGoal[] {
-  const initial = createInitialState(start, pins);
+  const initial = createInitialState(start, constraints);
   const found = new Map<string, ReachableGoal>();
   const seen = new Set<string>([canonicalKey(initial, true)]);
   let frontier: FoldState[] = [initial];

@@ -11,6 +11,7 @@ import type { CellCoord, ShapePattern } from './types';
  *
  *   . or empty token -> hole (no paper)
  *   P                 -> paper, pinned to the table (collected in `pins`)
+ *   X                 -> NOT paper: a board square the paper may never cover
  *   B                 -> paper that must finish showing its BACK face
  *                        (collected in `backCells`; only meaningful in goals)
  *   @                 -> pinned paper that is ALSO the '*' target marker
@@ -21,16 +22,29 @@ import type { CellCoord, ShapePattern } from './types';
 export function shapeFromRows(
   rows: string[],
   markerNames: Record<string, string> = { '*': 'target', '@': 'target' }
-): { shape: ShapePattern; markers: Map<string, CellCoord>; pins: CellCoord[]; backCells: CellCoord[] } {
+): {
+  shape: ShapePattern;
+  markers: Map<string, CellCoord>;
+  pins: CellCoord[];
+  backCells: CellCoord[];
+  forbidden: CellCoord[];
+} {
   const grid = rows.map((row) => row.trim().split(/\s+/));
   const cells: CellCoord[] = [];
   const markers = new Map<string, CellCoord>();
   const pins: CellCoord[] = [];
   const backCells: CellCoord[] = [];
+  const forbidden: CellCoord[] = [];
 
   grid.forEach((tokens, row) => {
     tokens.forEach((token, col) => {
       if (token === '.' || token === '') return;
+      // A forbidden square is a hole in the sheet AND a no-go zone on the
+      // board: no paper starts there and none may ever land there.
+      if (token === 'X') {
+        forbidden.push({ row, col });
+        return;
+      }
       cells.push({ row, col });
       if (token === 'P' || token === '@') pins.push({ row, col });
       if (token === 'B') backCells.push({ row, col });
@@ -41,5 +55,5 @@ export function shapeFromRows(
 
   const height = grid.length;
   const width = Math.max(...grid.map((r) => r.length));
-  return { shape: { width, height, cells }, markers, pins, backCells };
+  return { shape: { width, height, cells }, markers, pins, backCells, forbidden };
 }

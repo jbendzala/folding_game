@@ -58,7 +58,7 @@ describe('the late game is a chain of folds, not a single move', () => {
   const mechanicsOf = (l: (typeof allLevels)[number]) => {
     const m: string[] = [];
     if (l.start.cells.length < l.start.width * l.start.height) m.push('holes');
-    if (l.pins?.length) m.push('pins');
+    if (l.constraints?.pins?.length) m.push('pins');
     if (l.goal.uniformDepth !== undefined) m.push('layers');
     if (l.goal.backCells !== undefined) m.push('faces');
     return m;

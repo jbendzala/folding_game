@@ -1,9 +1,12 @@
 import { getBounds } from './grid';
 import type { CellState, Fold, FoldState } from './types';
 
-/** A fold line must sit strictly inside the current shape's extent on that
- * axis (otherwise it wouldn't move any paper), and the moving side must not
- * contain a pinned cell -- pins hold their spot on the table. */
+/**
+ * A fold is legal when its line sits strictly inside the current shape on
+ * that axis (otherwise it moves no paper) and it breaks none of the level's
+ * constraints. Everything is checked here rather than at commit time, so an
+ * illegal fold cannot be made at all -- the paper simply refuses.
+ */
 export function isValidFold(state: FoldState, fold: Fold): boolean {
   const { minRow, maxRow, minCol, maxCol } = getBounds(state.cells);
   const inBounds =
@@ -12,14 +15,47 @@ export function isValidFold(state: FoldState, fold: Fold): boolean {
       : fold.line >= minRow && fold.line < maxRow;
   if (!inBounds) return false;
 
-  if (state.pins) {
-    const axisKey = fold.axis === 'vertical' ? 'col' : 'row';
-    for (const pin of state.pins) {
+  const c = state.constraints;
+  if (!c) return true;
+  const axisKey = fold.axis === 'vertical' ? 'col' : 'row';
+
+  // Pins hold their spot on the table, so they can never be on the moving side.
+  if (c.pins) {
+    for (const pin of c.pins) {
       const v = pin[axisKey];
       const pinMoves = fold.moves === 'lower' ? v <= fold.line : v > fold.line;
       if (pinMoves) return false;
     }
   }
+
+  // A clamped line cannot be creased, whichever way you fold it.
+  if (c.lockedCreases) {
+    for (const locked of c.lockedCreases) {
+      if (locked.axis === fold.axis && locked.line === fold.line) return false;
+    }
+  }
+
+  // Forbidden squares and the layer ceiling both depend on where the paper
+  // LANDS, so they need the resulting positions.
+  if (c.forbidden || c.maxDepth !== undefined) {
+    const forbidden = new Set((c.forbidden ?? []).map((f) => `${f.row}:${f.col}`));
+    const depth = new Map<string, number>();
+    for (const cs of state.cells) {
+      const value = cs.position[axisKey];
+      const moves = fold.moves === 'lower' ? value <= fold.line : value > fold.line;
+      const pos = moves
+        ? { ...cs.position, [axisKey]: 2 * fold.line + 1 - value }
+        : cs.position;
+      const k = `${pos.row}:${pos.col}`;
+      if (forbidden.has(k)) return false;
+      if (c.maxDepth !== undefined) {
+        const n = (depth.get(k) ?? 0) + 1;
+        if (n > c.maxDepth) return false;
+        depth.set(k, n);
+      }
+    }
+  }
+
   return true;
 }
 
@@ -79,8 +115,8 @@ export function applyFold(state: FoldState, fold: Fold): FoldState {
     };
   });
 
-  return state.pins
-    ? { cells, history: [...state.history, fold], pins: state.pins }
+  return state.constraints
+    ? { cells, history: [...state.history, fold], constraints: state.constraints }
     : { cells, history: [...state.history, fold] };
 }
 
@@ -108,5 +144,5 @@ export function listValidFolds(state: FoldState): Fold[] {
     candidates.push({ axis: 'horizontal', line, moves: 'lower' });
     candidates.push({ axis: 'horizontal', line, moves: 'upper' });
   }
-  return state.pins ? candidates.filter((f) => isValidFold(state, f)) : candidates;
+  return state.constraints ? candidates.filter((f) => isValidFold(state, f)) : candidates;
 }

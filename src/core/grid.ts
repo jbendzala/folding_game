@@ -1,16 +1,16 @@
-import type { CellCoord, CellState, FoldState, ShapePattern } from './types';
+import type { CellCoord, CellState, FoldConstraints, FoldState, ShapePattern } from './types';
 
 /** Builds the starting FoldState for a shape: every occupied cell is its own
  * original cell, at zOrder 0 (the base layer), face up. Pins (cells that can
  * never move) ride along in the state so fold validation can see them. */
-export function createInitialState(shape: ShapePattern, pins?: CellCoord[]): FoldState {
+export function createInitialState(shape: ShapePattern, constraints?: FoldConstraints): FoldState {
   const cells: CellState[] = shape.cells.map(({ row, col }) => ({
     cell: { id: `${row}_${col}`, initial: { row, col } },
     position: { row, col },
     zOrder: 0,
     faceUp: true,
   }));
-  return pins && pins.length > 0 ? { cells, history: [], pins } : { cells, history: [] };
+  return constraints ? { cells, history: [], constraints } : { cells, history: [] };
 }
 
 export interface Bounds {

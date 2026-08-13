@@ -38,7 +38,7 @@ function render(shape: ShapePattern): string[] {
 /** True if any fold in the sequence sends paper past the far edge. */
 function usesOverhang(level: LevelDefinition, folds: ReturnType<typeof solve>): boolean {
   if (!folds) return false;
-  let state = createInitialState(level.start, level.pins);
+  let state = createInitialState(level.start, level.constraints);
   for (const fold of folds) {
     const before = getBounds(state.cells);
     state = applyFold(state, fold);
@@ -55,7 +55,7 @@ function usesOverhang(level: LevelDefinition, folds: ReturnType<typeof solve>): 
 console.log(`=== ${base.name} (level ${id}) -- currently ${base.expectedFolds} folds`);
 console.log(render(base.start).join('\n'));
 
-const goals = reachableGoals(base.start, maxFolds, base.pins)
+const goals = reachableGoals(base.start, maxFolds, base.constraints)
   .filter((g) => g.folds >= 3 && g.shape.cells.length >= 2)
   .sort((a, b) => b.folds - a.folds || b.appeal - a.appeal);
 
@@ -73,7 +73,7 @@ for (const goal of goals) {
   const a = analyzeLevel(level, 0, false);
   if (a.minFolds === null || a.meanTrap < 0.45) continue;
 
-  const path = solve(createInitialState(base.start, base.pins), level.goal, a.minFolds);
+  const path = solve(createInitialState(base.start, base.constraints), level.goal, a.minFolds);
   const over = usesOverhang(level, path);
   console.log(
     `\n  ${a.minFolds} FOLDS  meanTrap ${Math.round(a.meanTrap * 100)}%` +

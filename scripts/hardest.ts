@@ -29,7 +29,7 @@ for (const id of ids) {
 
   const results: { pins: CellCoord[]; folds: number }[] = [];
   for (const pin of base.start.cells) {
-    const path = solve(createInitialState(base.start, [pin]), base.goal, CAP);
+    const path = solve(createInitialState(base.start, { pins: [pin] }), base.goal, CAP);
     if (path) results.push({ pins: [pin], folds: path.length });
   }
 
@@ -40,7 +40,7 @@ for (const id of ids) {
     for (let i = 0; i < best.length; i++) {
       for (let j = i + 1; j < best.length; j++) {
         const pins = [best[i].pins[0], best[j].pins[0]];
-        const path = solve(createInitialState(base.start, pins), base.goal, CAP);
+        const path = solve(createInitialState(base.start, { pins }), base.goal, CAP);
         if (path) results.push({ pins, folds: path.length });
       }
     }
@@ -55,7 +55,11 @@ for (const id of ids) {
     if (seen.has(k)) continue;
     seen.add(k);
     const delta = plain ? r.folds - plain.length : 0;
-    const level: LevelDefinition = { ...base, pins: r.pins, expectedFolds: r.folds };
+    const level: LevelDefinition = {
+      ...base,
+      constraints: { ...base.constraints, pins: r.pins },
+      expectedFolds: r.folds,
+    };
     const a = analyzeLevel(level, 0, false);
     console.log(
       `  pin ${r.pins.map(key).join(' + ').padEnd(12)} ${r.folds} folds ` +

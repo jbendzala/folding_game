@@ -1,5 +1,5 @@
 import { shapeFromRows } from '../../core/parseShape';
-import type { LevelDefinition } from '../../core/types';
+import type { CellCoord, Fold, LevelDefinition } from '../../core/types';
 
 /**
  * Shape-goal level: fold the sheet into a target silhouette -- anywhere on
@@ -16,12 +16,18 @@ export function shapeLevel(params: {
   rows: string[];
   goalRows: string[];
   uniformDepth?: number;
+  /** Grid lines that can never be creased. */
+  lockedCreases?: Fold[];
+  /** Board cells the paper may never cover ('X' in the starting art). */
+  forbidden?: CellCoord[];
+  /** Layer ceiling -- a fold stacking more than this on any cell is refused. */
+  maxDepth?: number;
   newConcept: string;
   difficulty: number;
   expectedFolds: number;
   designerNotes: string;
 }): LevelDefinition {
-  const { shape: start, pins } = shapeFromRows(params.rows);
+  const { shape: start, pins, forbidden } = shapeFromRows(params.rows);
   const { shape: goalShape, backCells } = shapeFromRows(params.goalRows);
 
   if (params.uniformDepth !== undefined) {
@@ -44,7 +50,17 @@ export function shapeLevel(params: {
       ...(params.uniformDepth !== undefined ? { uniformDepth: params.uniformDepth } : {}),
       ...(backCells.length > 0 ? { backCells } : {}),
     },
-    ...(pins.length > 0 ? { pins } : {}),
+    ...(() => {
+      const constraints = {
+        ...(pins.length > 0 ? { pins } : {}),
+        ...(params.lockedCreases ? { lockedCreases: params.lockedCreases } : {}),
+        ...(forbidden.length > 0 || params.forbidden
+          ? { forbidden: [...forbidden, ...(params.forbidden ?? [])] }
+          : {}),
+        ...(params.maxDepth !== undefined ? { maxDepth: params.maxDepth } : {}),
+      };
+      return Object.keys(constraints).length > 0 ? { constraints } : {};
+    })(),
     newConcept: params.newConcept,
     difficulty: params.difficulty,
     expectedFolds: params.expectedFolds,
@@ -87,7 +103,7 @@ export function singleCellLevel(params: {
       shape: { width: 1, height: 1, cells: [{ row: 0, col: 0 }] },
       anchor: target,
     },
-    ...(pins.length > 0 ? { pins } : {}),
+    ...(pins.length > 0 ? { constraints: { pins } } : {}),
     newConcept: params.newConcept,
     difficulty: params.difficulty,
     expectedFolds: params.expectedFolds,

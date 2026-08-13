@@ -10,7 +10,7 @@ describe('every level is solvable in exactly its expected fold count', () => {
       // the length assert proves minimality either way, and a wrong
       // expectedFolds shows the true minimum in the failure message.
       const path = solve(
-        createInitialState(level.start, level.pins),
+        createInitialState(level.start, level.constraints),
         level.goal,
         level.expectedFolds + 2
       );
