@@ -174,12 +174,6 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
             backCells={level.goal.backCells}
             backColor={palette.paperDown[2]}
           />
-          {level.goal.uniformDepth !== undefined && (
-            <View style={[styles.depthChip, { backgroundColor: palette.tintSoft }]}>
-              <Text style={[styles.depthChipText, { color: palette.tint }]}>
-                ×{level.goal.uniformDepth} thick</Text>
-            </View>
-          )}
         </View>
       )}
 
@@ -490,17 +484,6 @@ const styles = StyleSheet.create({
     fontSize: theme.font.tiny,
     fontWeight: '800',
     letterSpacing: 2,
-  },
-  depthChip: {
-    backgroundColor: theme.colors.accentSoft,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: theme.radius.pill,
-  },
-  depthChipText: {
-    color: theme.colors.accent,
-    fontSize: theme.font.small,
-    fontWeight: '800',
   },
   stage: {
     flex: 1,

@@ -46,21 +46,22 @@ export const theme = {
 
 // --- world palettes -------------------------------------------------------
 
-/** Base hue per world. Spread around the wheel and deliberately not tied to
- * the old fixed coral, since each world now supplies its own indicator. */
-const WORLD_HUES: Record<number, number> = {
-  1: 42, // sand
-  2: 12, // terracotta
-  3: 340, // rose
-  4: 300, // orchid
-  5: 265, // violet
-  6: 222, // indigo
-  7: 194, // sky
-  8: 168, // teal
-  9: 96, // moss
-  10: 62, // olive
-  11: 18, // ember -- two-sided paper, so the back needs a strong colour
-};
+/**
+ * Hue per chapter, generated rather than listed. A fixed table ran out the
+ * moment the curriculum grew past ten chapters, and every chapter after that
+ * silently fell back to the first one's colour -- four identical-looking
+ * worlds on the map.
+ *
+ * The golden angle spreads any number of chapters around the wheel while
+ * keeping ADJACENT ones far apart, which is what matters here: chapters are
+ * seen next to each other on the level select, never all at once.
+ */
+const GOLDEN_ANGLE = 137.508;
+const FIRST_HUE = 42; // sand, for chapter one
+
+function hueForWorld(world: number): number {
+  return (FIRST_HUE + (world - 1) * GOLDEN_ANGLE) % 360;
+}
 
 const DEPTH_STEPS = 7;
 
@@ -165,7 +166,7 @@ const paletteCache = new Map<number, WorldPalette>();
 export function worldPalette(world: number): WorldPalette {
   const cached = paletteCache.get(world);
   if (cached) return cached;
-  const built = buildPalette(WORLD_HUES[world] ?? WORLD_HUES[1]);
+  const built = buildPalette(hueForWorld(world));
   paletteCache.set(world, built);
   return built;
 }

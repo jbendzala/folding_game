@@ -583,8 +583,11 @@ export function PaperCanvas({
             const y = isV ? screenY(bounds.minRow) : screenY(lc.line + 1) - 1.5;
             const len = isV ? (nRows + 1) * cell : (nCols + 1) * cell;
             // Dashes, so it reads as "you cannot fold here" rather than as a
-            // crease you have already made.
-            const dashes = Math.max(Math.floor(len / (cell * 0.4)), 1);
+            // crease you have already made. The segment length is fixed in
+            // pixels rather than derived from the cell: on a one-row sheet a
+            // cell-relative count came out at two segments, of which only the
+            // first was drawn, so the clamp covered half the paper.
+            const dashes = Math.max(Math.round(len / 9), 3);
             return (
               <Group key={`lock${lc.axis}${lc.line}`}>
                 {Array.from({ length: dashes }).map((_, i) =>
