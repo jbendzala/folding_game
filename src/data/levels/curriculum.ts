@@ -10,6 +10,9 @@ import { world8Levels } from './world8';
 import { world9Levels } from './world9';
 import { world10Levels } from './world10';
 import { world11Levels } from './world11';
+import { lockedLevels } from './rulesLocked';
+import { blockedLevels } from './rulesBlocked';
+import { tearLevels } from './rulesTear';
 
 /**
  * Every level that exists, keyed by its stable key. The files this reads from
@@ -35,6 +38,9 @@ const LIBRARY: LevelDefinition[] = [
   ...world9Levels,
   ...world10Levels,
   ...world11Levels,
+  ...lockedLevels,
+  ...blockedLevels,
+  ...tearLevels,
 ];
 
 export interface Chapter {
@@ -65,6 +71,18 @@ export const CHAPTERS: Chapter[] = [
   {
     name: 'Two Sides',
     keys: ['show-your-back', 'left-or-right', 'two-tone', 'bookend', 'alternating'],
+  },
+  {
+    name: 'Clamped',
+    keys: ['clamped', 'clamped-corner', 'clamped-notch', 'clamped-pin', 'clamped-strip'],
+  },
+  {
+    name: 'No Go',
+    keys: ['no-go', 'boxed-in', 'narrow-escape', 'blocked-pin', 'walled-garden'],
+  },
+  {
+    name: 'Fragile',
+    keys: ['careful-now', 'thin-ice', 'two-ply-square', 'fragile-notch', 'fragile-pin'],
   },
   {
     name: 'Strange Geometry',

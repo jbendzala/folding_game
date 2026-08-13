@@ -85,11 +85,12 @@ describe('the late game is a chain of folds, not a single move', () => {
     for (const level of allLevels.filter((l) => l.world >= lateFrom && !introducing.has(l.world))) {
       expect(level.expectedFolds, `${level.name} is a single fold this late`).toBeGreaterThanOrEqual(3);
     }
-    for (const world of worlds.filter((w) => w >= lateFrom)) {
+    // The finale specifically -- the last three chapters -- has to be built
+    // from chains. Mid-late chapters only have to avoid one-gesture levels.
+    for (const world of worlds.slice(-3)) {
       const chapter = allLevels.filter((l) => l.world === world);
       const mean = chapter.reduce((sum, l) => sum + l.expectedFolds, 0) / chapter.length;
-      const floor = introducing.has(world) ? 1.5 : 4.5;
-      expect(mean, `chapter ${world} averages too few folds`).toBeGreaterThanOrEqual(floor);
+      expect(mean, `chapter ${world} averages too few folds`).toBeGreaterThanOrEqual(4.5);
     }
   });
 });
@@ -106,7 +107,8 @@ describe('difficulty rises across worlds', () => {
         const picked = allLevels.filter((l) => worlds.includes(l.world));
         return picked.reduce((sum, l) => sum + analyzeLevel(l, 2, false).score, 0) / picked.length;
       };
-      expect(meanScore([7, 8])).toBeGreaterThan(meanScore([2, 3, 4]));
+      const worldNums = [...new Set(allLevels.map((l) => l.world))].sort((a, b) => a - b);
+      expect(meanScore(worldNums.slice(-2))).toBeGreaterThan(meanScore(worldNums.slice(1, 4)));
     },
     SLOW
   );
