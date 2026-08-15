@@ -59,11 +59,14 @@ export const blockedLevels: LevelDefinition[] = [
   shapeLevel({
     key: 'blocked-column',
     name: 'Blocked Column',
-    rows: ['# # # # # # #', '# # X # X # #', '# # # # # # #'],
-    goalRows: ['#', '#', '#'],
-    newConcept: 'The same threading, but the column has to stay three tall.',
+    rows: ['# X # # # # #', '# # X # X # #', '# # # # # # #'],
+    goalRows: ['# . #', '# # #'],
+    newConcept: 'Three blocks now, staggered, and a target with a hole in it.',
     difficulty: 9,
     expectedFolds: 4,
-    designerNotes: 'Chapter finale: 64% mean trap, and the taller target is the harder one.',
+    designerNotes: 'Chapter finale: 76% mean trap, up from 64%. The third block is offset '
+      + 'from the other two on purpose -- two blocks in one row can be cleared by a single '
+      + 'fold away from them, which is what made the old version soft. The five-cell target '
+      + 'also has to keep a hole alive through all four folds.',
   }),
 ];

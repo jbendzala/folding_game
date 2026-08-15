@@ -89,13 +89,15 @@ export const irregularLevels: LevelDefinition[] = [
       '# # # # # # .',
       '# # # # # # .',
     ],
-    goalRows: ['# .', '# #'],
+    goalRows: ['# . . .', '# # # #', '# # # .'],
     borders: true,
     lockedCreases: [V(5)],
-    newConcept: 'A long ragged wedge, framed, clamped and pinned.',
+    newConcept: 'A long ragged wedge, framed, clamped and pinned -- into a ragged target.',
     difficulty: 10,
     expectedFolds: 5,
-    designerNotes: '67% mean trap over 5 folds, 3 rules. At or above the Endgame band.',
+    designerNotes: '79% mean trap, up from 67%. Same sheet and same three rules; the whole '
+      + 'gain came from asking for an eight-cell irregular target instead of a three-cell '
+      + 'corner, which leaves far fewer folds that do not wreck it.',
   }),
   shapeLevel({
     key: 'ragged-ring',
@@ -146,13 +148,16 @@ export const irregularLevels: LevelDefinition[] = [
       '# # # . . #',
       '# # # . . .',
     ],
-    goalRows: ['# .', '# #'],
+    goalRows: ['# .', '# #', '# .'],
     borders: true,
-    lockedCreases: [V(0)],
-    newConcept: 'The tightest three-rule sheet in the game.',
+    lockedCreases: [V(1)],
+    newConcept: 'Framed, pinned, and clamped across a line you actually need.',
     difficulty: 10,
     expectedFolds: 5,
-    designerNotes: '74% mean trap over 5 folds, 3 rules. At or above the Endgame band.',
+    designerNotes: 'The clamp used to sit on line v0, the outermost grid line, where it cost '
+      + 'nothing -- you simply never folded there and the rule may as well not have existed. '
+      + 'Moved inward to v1, where avoiding it means giving something up. Same measured 73%, '
+      + 'but the rule now does the work the legend claims it does.',
   }),
   shapeLevel({
     key: 'narrow-margin',
