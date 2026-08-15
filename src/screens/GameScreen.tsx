@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PaperCanvas } from '../components/PaperCanvas';
+import { FailModal } from '../components/FailModal';
 import { WorldIntroModal } from '../components/WorldIntroModal';
 import {
   activeRules,
@@ -17,6 +18,13 @@ import {
 import type { Fold, LevelDefinition } from '../core/types';
 import { worldIntro } from '../core/worldIntro';
 import { allLevels, CHAPTERS } from '../data/levels';
+import {
+  grantLife,
+  loadEconomy,
+  saveEconomy,
+  spendLife,
+  type Economy,
+} from '../state/economy';
 import { loadSeenWorlds, markWorldSeen, starsFor } from '../state/progress';
 import { theme, worldPalette } from '../theme';
 
@@ -68,6 +76,20 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   }, [isWorldOpener, level.world]);
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reportedRef = useRef(false);
+  const [economy, setEconomy] = useState<Economy | null>(null);
+  const [showFail, setShowFail] = useState(false);
+  // A life is charged once per dead position, not once per render.
+  const chargedRef = useRef(false);
+
+  useEffect(() => {
+    loadEconomy().then(setEconomy);
+  }, []);
+
+  // Reset the per-attempt fail state when the level changes.
+  useEffect(() => {
+    setShowFail(false);
+    chargedRef.current = false;
+  }, [level.key]);
 
   const state = useMemo(
     () => replayFolds(() => createInitialState(level.start, level.constraints), folds),
@@ -108,9 +130,18 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   useEffect(() => {
     if (stuck && !wasStuck.current) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      // The engine has PROVED this cannot be won, so charging here is honest
+      // in a way a move limit or a timer never is.
+      if (!chargedRef.current && economy) {
+        chargedRef.current = true;
+        const next = spendLife(economy);
+        setEconomy(next);
+        void saveEconomy(next);
+      }
+      setShowFail(true);
     }
     wasStuck.current = stuck;
-  }, [stuck]);
+  }, [stuck, economy]);
 
   function handleFold(fold: Fold) {
     // Defensive: a gesture racing a re-render could hand us a fold computed
@@ -243,6 +274,33 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
       </View>
 
       <View style={{ paddingBottom: insets.bottom + 20 }} />
+
+      {showFail && economy && (
+        <FailModal
+          lives={economy.lives}
+          nextLifeAt={economy.nextLifeAt}
+          palette={palette}
+          onUndo={() => {
+            setShowFail(false);
+            undo();
+          }}
+          onRestart={() => {
+            setShowFail(false);
+            chargedRef.current = false;
+            reset();
+          }}
+          onWatchAd={() => {
+            // Placeholder until the ad SDK lands: grants the life directly so
+            // the flow can be played end to end.
+            const next = grantLife(economy);
+            setEconomy(next);
+            void saveEconomy(next);
+            setShowFail(false);
+            undo();
+          }}
+          onExit={onExit}
+        />
+      )}
 
       {showIntro && (
         <WorldIntroModal
