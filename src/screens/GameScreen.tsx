@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PaperCanvas } from '../components/PaperCanvas';
+import { WorldIntroModal } from '../components/WorldIntroModal';
 import {
   activeRules,
   checkGoal,
@@ -14,7 +15,9 @@ import {
   solve,
 } from '../core';
 import type { Fold, LevelDefinition } from '../core/types';
-import { starsFor } from '../state/progress';
+import { worldIntro } from '../core/worldIntro';
+import { allLevels, CHAPTERS } from '../data/levels';
+import { loadSeenWorlds, markWorldSeen, starsFor } from '../state/progress';
 import { theme, worldPalette } from '../theme';
 
 // Hints and undo are unrestricted for now. A future limit (daily allowance,
@@ -41,6 +44,28 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   const [folds, setFolds] = useState<Fold[]>([]);
   const [hintFold, setHintFold] = useState<Fold | null>(null);
   const [showSolved, setShowSolved] = useState(false);
+  // The world's introduction, shown once on its first level. Held as null
+  // until storage answers so it cannot flash up for a world already seen.
+  const [showIntro, setShowIntro] = useState(false);
+  const isWorldOpener = useMemo(
+    () => allLevels.find((l) => l.world === level.world)?.id === level.id,
+    [level]
+  );
+  const intro = useMemo(
+    () => worldIntro(level.world, allLevels, CHAPTERS[level.world - 1]?.name ?? `World ${level.world}`),
+    [level.world]
+  );
+
+  useEffect(() => {
+    if (!isWorldOpener) return;
+    let cancelled = false;
+    loadSeenWorlds().then((seen) => {
+      if (!cancelled && !seen.includes(level.world)) setShowIntro(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isWorldOpener, level.world]);
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reportedRef = useRef(false);
 
@@ -219,10 +244,30 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
 
       <View style={{ paddingBottom: insets.bottom + 20 }} />
 
+      {showIntro && (
+        <WorldIntroModal
+          intro={intro}
+          palette={palette}
+          onDismiss={() => {
+            setShowIntro(false);
+            void markWorldSeen(level.world);
+          }}
+        />
+      )}
+
       {/* solved overlay */}
       {showSolved && (
         <Animated.View entering={FadeIn.duration(200)} style={styles.overlay}>
-          <Animated.View entering={ZoomIn.springify().damping(14)} style={styles.card}>
+          {/* Deliberately gentle: the card used to spring in from nothing at
+              damping 14, which read as a jump. It now starts at 0.7 scale --
+              about a third less travel -- and damps harder so it settles
+              instead of overshooting. */}
+          <Animated.View
+            entering={ZoomIn.springify()
+              .damping(19)
+              .withInitialValues({ transform: [{ scale: 0.7 }] })}
+            style={styles.card}
+          >
             <Text style={styles.cardTitle}>Folded!</Text>
             <Animated.View entering={FadeInDown.delay(150)} style={styles.starsRow}>
               {[1, 2, 3].map((i) => (

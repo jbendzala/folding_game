@@ -37,6 +37,31 @@ export function recordSolve(
   };
 }
 
+/** Total stars earned across every solved level. */
+export function totalStars(progress: ProgressMap): number {
+  return Object.values(progress).reduce((sum, p) => sum + (p.solved ? p.stars : 0), 0);
+}
+
+/**
+ * Stars needed to open a world.
+ *
+ * Zero for the first three worlds -- a gate a new player can hit before they
+ * understand the star system is just a wall. After that it asks for a bit
+ * under half of what is theoretically available so far, so someone clearing
+ * levels at two stars still walks straight through, and only someone skipping
+ * levels entirely gets stopped.
+ */
+export function starsToUnlockWorld(world: number, levelsPerWorld = 5): number {
+  if (world <= 3) return 0;
+  const availableBefore = (world - 1) * levelsPerWorld * 3;
+  return Math.floor(availableBefore * 0.45);
+}
+
+/** Worlds the player has enough stars for. */
+export function worldUnlocked(progress: ProgressMap, world: number): boolean {
+  return totalStars(progress) >= starsToUnlockWorld(world);
+}
+
 /** Highest level id the player may open: everything solved, plus the next one. */
 export function highestUnlocked(
   progress: ProgressMap,
@@ -47,6 +72,28 @@ export function highestUnlocked(
     if (progress[level.key]?.solved) unlocked = Math.max(unlocked, level.id + 1);
   }
   return unlocked;
+}
+
+const SEEN_WORLDS_KEY = 'fold/seenWorlds/v1';
+
+/** Worlds whose introduction has already been shown. */
+export async function loadSeenWorlds(): Promise<number[]> {
+  try {
+    const raw = await AsyncStorage.getItem(SEEN_WORLDS_KEY);
+    return raw ? (JSON.parse(raw) as number[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function markWorldSeen(world: number): Promise<void> {
+  try {
+    const seen = await loadSeenWorlds();
+    if (seen.includes(world)) return;
+    await AsyncStorage.setItem(SEEN_WORLDS_KEY, JSON.stringify([...seen, world]));
+  } catch {
+    // Non-fatal: the intro shows again next time, which is harmless.
+  }
 }
 
 export async function loadProgress(): Promise<ProgressMap> {

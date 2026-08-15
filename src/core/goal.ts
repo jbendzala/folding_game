@@ -22,13 +22,20 @@ export function shapesMatch(a: ShapePattern, b: ShapePattern): boolean {
  * NEVER be reached from here, true means "not provably dead" (it may still
  * be, but proving that needs a search).
  *
- * It leans on three things folding can never undo:
+ * It leans on four things folding can never undo:
  *  - the bounding box only ever shrinks, so an axis already smaller than the
  *    goal's can never grow back;
  *  - the number of distinct occupied cells never increases, since every
  *    moved cell lands on exactly one position;
  *  - layers only accumulate, so a stack already deeper than a uniform-depth
- *    goal can never thin out.
+ *    goal can never thin out;
+ *  - an axis one cell wide can never move again. A vertical fold needs a
+ *    crease line strictly inside the occupied columns, so a shape one column
+ *    wide has no vertical fold available and its column is frozen for good.
+ *    Level 1 shipped without this: its goal is a single cell anchored at the
+ *    bottom RIGHT, and folding right-to-left parks the paper in column 0 with
+ *    every shape test still passing, so the game sat there saying nothing
+ *    while the level was already lost.
  *
  * Deliberately not a solver call: running a real search after every fold
  * would stall the UI on the larger boards for seconds. This costs one pass
@@ -45,6 +52,14 @@ export function isGoalStillReachable(state: FoldState, goal: LevelGoal): boolean
   const maxCol = Math.max(...occupied.map((c) => c.col));
   if (maxCol - minCol + 1 < goal.shape.width) return false;
   if (maxRow - minRow + 1 < goal.shape.height) return false;
+
+  // A frozen axis can no longer travel to the anchor. Folding along an axis
+  // needs a crease strictly inside that axis's span, so once the span is one
+  // cell the coordinate is fixed permanently.
+  if (goal.anchor) {
+    if (minCol === maxCol && minCol !== goal.anchor.col) return false;
+    if (minRow === maxRow && minRow !== goal.anchor.row) return false;
+  }
 
   if (goal.uniformDepth !== undefined) {
     const counts = new Map<string, number>();

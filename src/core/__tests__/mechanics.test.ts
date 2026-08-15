@@ -192,3 +192,23 @@ describe('max depth', () => {
     expect(isValidFold(state, { axis: 'vertical', line: 2, moves: 'lower' })).toBe(true);
   });
 });
+
+describe('dead positions with an anchored goal', () => {
+  it('spots that the wrong first fold on level 1 has already lost it', () => {
+    // Level 1: a 2x2 sheet down to one cell anchored at the bottom RIGHT.
+    // Folding right-to-left parks the paper in column 0, and a one-column
+    // shape has no vertical fold left, so it can never travel back.
+    const { shape } = shapeFromRows(['# #', '# #']);
+    const goal = { shape: shapeFromRows(['#']).shape, anchor: { row: 1, col: 1 } };
+    const start = createInitialState(shape);
+    expect(isGoalStillReachable(start, goal)).toBe(true);
+
+    const wrong = applyFold(start, { axis: 'vertical', line: 0, moves: 'upper' });
+    expect(isGoalStillReachable(wrong, goal)).toBe(false);
+
+    const right = applyFold(start, { axis: 'vertical', line: 0, moves: 'lower' });
+    expect(isGoalStillReachable(right, goal)).toBe(true);
+    const won = applyFold(right, { axis: 'horizontal', line: 0, moves: 'lower' });
+    expect(checkGoal(won, goal)).toBe(true);
+  });
+});
