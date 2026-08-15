@@ -21,6 +21,12 @@ export function shapeLevel(params: {
   forbidden?: CellCoord[];
   /** Layer ceiling -- a fold stacking more than this on any cell is refused. */
   maxDepth?: number;
+  /**
+   * A frame the paper may not leave. `true` fits it to the sheet's own
+   * starting box; a number pads that box by that many cells to give slack.
+   * Fitting it exactly is what bans folding the whole sheet over sideways.
+   */
+  borders?: boolean | number;
   newConcept: string;
   difficulty: number;
   expectedFolds: number;
@@ -59,6 +65,19 @@ export function shapeLevel(params: {
           ? { forbidden: [...forbidden, ...(params.forbidden ?? [])] }
           : {}),
         ...(params.maxDepth !== undefined ? { maxDepth: params.maxDepth } : {}),
+        ...(params.borders
+          ? {
+              bounds: (() => {
+                const pad = typeof params.borders === 'number' ? params.borders : 0;
+                return {
+                  minRow: -pad,
+                  maxRow: start.height - 1 + pad,
+                  minCol: -pad,
+                  maxCol: start.width - 1 + pad,
+                };
+              })(),
+            }
+          : {}),
       };
       return Object.keys(constraints).length > 0 ? { constraints } : {};
     })(),

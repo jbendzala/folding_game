@@ -74,6 +74,14 @@ export interface FoldConstraints {
    */
   lockedCreases?: Fold[];
   /**
+   * A frame the paper may never leave. Every other rule constrains HOW the
+   * paper folds -- which side moves, which line creases, which cells it may
+   * cover. This one constrains where it ends up, which is why it stops the
+   * move none of the others could: creasing at the sheet's own edge, so the
+   * whole thing translates sideways instead of collapsing onto itself.
+   */
+  bounds?: { minRow: number; maxRow: number; minCol: number; maxCol: number };
+  /**
    * Board cells the paper may never cover. The only rule about where paper
    * ends up rather than what it does to itself.
    */

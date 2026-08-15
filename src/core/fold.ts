@@ -37,7 +37,7 @@ export function isValidFold(state: FoldState, fold: Fold): boolean {
 
   // Forbidden squares and the layer ceiling both depend on where the paper
   // LANDS, so they need the resulting positions.
-  if (c.forbidden || c.maxDepth !== undefined) {
+  if (c.forbidden || c.maxDepth !== undefined || c.bounds) {
     const forbidden = new Set((c.forbidden ?? []).map((f) => `${f.row}:${f.col}`));
     const depth = new Map<string, number>();
     for (const cs of state.cells) {
@@ -48,6 +48,11 @@ export function isValidFold(state: FoldState, fold: Fold): boolean {
         : cs.position;
       const k = `${pos.row}:${pos.col}`;
       if (forbidden.has(k)) return false;
+      if (c.bounds) {
+        const b = c.bounds;
+        if (pos.row < b.minRow || pos.row > b.maxRow) return false;
+        if (pos.col < b.minCol || pos.col > b.maxCol) return false;
+      }
       if (c.maxDepth !== undefined) {
         const n = (depth.get(k) ?? 0) + 1;
         if (n > c.maxDepth) return false;

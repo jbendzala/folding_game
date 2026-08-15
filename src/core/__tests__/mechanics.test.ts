@@ -126,6 +126,42 @@ describe('locked creases', () => {
   });
 });
 
+describe('borders', () => {
+  it('refuses the fold that walks the whole sheet sideways, but allows folding inward', () => {
+    // A 1x4 strip framed to exactly its own box. Creasing at the outer edge
+    // translates the sheet out of the frame; creasing inside collapses it.
+    const { shape } = shapeFromRows(['# # # #']);
+    const state = createInitialState(shape, {
+      bounds: { minRow: 0, maxRow: 0, minCol: 0, maxCol: 3 },
+    });
+    // Whole sheet flips left over line 0 -> lands on cols -3..0. Out of frame.
+    expect(isValidFold(state, { axis: 'vertical', line: 0, moves: 'upper' })).toBe(false);
+    // Whole sheet flips right over line 2 -> lands on cols 3..6. Out of frame.
+    expect(isValidFold(state, { axis: 'vertical', line: 2, moves: 'lower' })).toBe(false);
+    // Folding in half stays inside the frame either way.
+    expect(isValidFold(state, { axis: 'vertical', line: 1, moves: 'lower' })).toBe(true);
+    expect(isValidFold(state, { axis: 'vertical', line: 1, moves: 'upper' })).toBe(true);
+  });
+
+  it('lets padding buy back the overhang it bans', () => {
+    const { shape } = shapeFromRows(['# # # #']);
+    const tight = createInitialState(shape, {
+      bounds: { minRow: 0, maxRow: 0, minCol: 0, maxCol: 3 },
+    });
+    const padded = createInitialState(shape, {
+      bounds: { minRow: -1, maxRow: 1, minCol: -1, maxCol: 4 },
+    });
+    // Folding the leftmost column over line 0 sends it to col 1: legal in both.
+    expect(isValidFold(tight, { axis: 'vertical', line: 0, moves: 'lower' })).toBe(true);
+    // Line 3 has no paper beyond it in a 1x4, so reach for a real overhang:
+    // over line 2, cols 0-2 land on 5,4,3 -- outside a tight frame, inside a padded one.
+    expect(isValidFold(tight, { axis: 'vertical', line: 2, moves: 'lower' })).toBe(false);
+    expect(isValidFold(padded, { axis: 'vertical', line: 2, moves: 'lower' })).toBe(false);
+    // One further in: over line 1, cols 0-1 land on 3,2 -- inside both.
+    expect(isValidFold(padded, { axis: 'vertical', line: 1, moves: 'lower' })).toBe(true);
+  });
+});
+
 describe('forbidden squares', () => {
   it('refuses any fold that would land paper on a blocked cell', () => {
     // 1x3 strip with the square to its right blocked.

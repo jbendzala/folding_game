@@ -11,7 +11,7 @@ import type { LevelDefinition } from './types';
  * no way to know which rules are in play on the level in front of them.
  */
 export interface ActiveRule {
-  key: 'target' | 'holes' | 'pins' | 'layers' | 'faces' | 'locked' | 'blocked' | 'tear';
+  key: 'target' | 'holes' | 'pins' | 'layers' | 'faces' | 'locked' | 'blocked' | 'tear' | 'bounds';
   /** Short label for the in-level legend. */
   label: string;
   /** One line, for a tap-to-explain popover later. */
@@ -60,6 +60,14 @@ export function activeRules(level: LevelDefinition): ActiveRule[] {
       key: 'locked',
       label: 'LOCKED',
       detail: 'The marked line cannot be creased, whichever way you fold it.',
+    });
+  }
+
+  if (level.constraints?.bounds) {
+    rules.push({
+      key: 'bounds',
+      label: 'BORDERS',
+      detail: 'The paper must stay inside the frame. It may not hang over the edge.',
     });
   }
 

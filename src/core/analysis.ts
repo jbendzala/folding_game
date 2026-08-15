@@ -99,7 +99,14 @@ export function analyzeLevel(
 }
 
 /** Walks one shortest solution, measuring at each step what fraction of the
- * legal moves would leave the shortest path. */
+ * legal moves would leave the shortest path.
+ *
+ * ONE shortest solution -- whichever the BFS happened to return. A puzzle with
+ * several optimal routes has a different trap profile along each, so this is a
+ * sample and not a property of the level. Two levels that are mirror images
+ * measured 74% and 70% here, because the enumeration order that picks the path
+ * is not itself mirror-symmetric. Read it in bands (a 50% level is genuinely
+ * looser than a 70% one); do not rank levels a few points apart by it. */
 function measureMeanTrap(start: FoldState, goal: LevelGoal, solution: readonly Fold[]): number {
   let state = start;
   let sum = 0;

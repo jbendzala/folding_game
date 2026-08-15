@@ -120,6 +120,7 @@ export function PaperCanvas({
   const pins = state.constraints?.pins ?? [];
   const lockedCreases = state.constraints?.lockedCreases ?? [];
   const forbidden = state.constraints?.forbidden ?? [];
+  const frame = state.constraints?.bounds;
   const creaseMaxK0 = pins.length
     ? Math.min(rightEdgePx - cell, ...pins.map((p) => screenX(p.col)))
     : rightEdgePx - cell;
@@ -552,6 +553,49 @@ export function PaperCanvas({
               opacity={0.55}
             />
           ))}
+
+          {/* borders: the paper may not leave this frame. Drawn as corner
+              brackets rather than a full box so it reads as a boundary the
+              paper sits inside, and cannot be mistaken for the paper's own
+              edge or for a clamped line. */}
+          {frame &&
+            (() => {
+              const x0 = screenX(frame.minCol) - 4;
+              const y0 = screenY(frame.minRow) - 4;
+              const x1 = screenX(frame.maxCol + 1) + 4;
+              const y1 = screenY(frame.maxRow + 1) + 4;
+              const arm = Math.min(cell * 0.7, (x1 - x0) / 3, (y1 - y0) / 3);
+              const corners = [
+                `M ${x0} ${y0 + arm} L ${x0} ${y0} L ${x0 + arm} ${y0}`,
+                `M ${x1 - arm} ${y0} L ${x1} ${y0} L ${x1} ${y0 + arm}`,
+                `M ${x1} ${y1 - arm} L ${x1} ${y1} L ${x1 - arm} ${y1}`,
+                `M ${x0 + arm} ${y1} L ${x0} ${y1} L ${x0} ${y1 - arm}`,
+              ];
+              return (
+                <Group>
+                  <Rect
+                    x={x0}
+                    y={y0}
+                    width={x1 - x0}
+                    height={y1 - y0}
+                    color={palette.accent}
+                    style="stroke"
+                    strokeWidth={1}
+                    opacity={0.28}
+                  />
+                  {corners.map((d, i) => (
+                    <Path
+                      key={`fr${i}`}
+                      path={d}
+                      color={palette.accent}
+                      style="stroke"
+                      strokeWidth={3}
+                      opacity={0.9}
+                    />
+                  ))}
+                </Group>
+              );
+            })()}
 
           {/* blocked squares: paper may never land here */}
           {forbidden.map((f) => (

@@ -14,6 +14,7 @@ import { lockedLevels } from './rulesLocked';
 import { blockedLevels } from './rulesBlocked';
 import { tearLevels } from './rulesTear';
 import { comboLevels } from './combos';
+import { finaleLevels } from './finale';
 
 /**
  * Every level that exists, keyed by its stable key. The files this reads from
@@ -43,6 +44,7 @@ const LIBRARY: LevelDefinition[] = [
   ...blockedLevels,
   ...tearLevels,
   ...comboLevels,
+  ...finaleLevels,
 ];
 
 export interface Chapter {
@@ -124,6 +126,25 @@ export const CHAPTERS: Chapter[] = [
   {
     name: 'Endgame',
     keys: ['tight-net', 'pinned-wingspan', 'nailed-diamond', 'eight-deep', 'endgame'],
+  },
+  {
+    // Past the old finale, so these have to be at least as hard as it.
+    // Length cannot rise -- seven folds is the mechanic's ceiling -- so the
+    // difficulty is constraint density instead.
+    name: 'Clamped Sheets',
+    keys: ['clamped-net', 'clamped-net-low', 'clamped-window', 'clamped-cross', 'clamped-wingspan'],
+  },
+  {
+    name: 'Nothing Free',
+    keys: ['nailed-and-clamped', 'last-thread', 'sealed-window', 'thick-and-clamped', 'the-hundredth'],
+  },
+  {
+    // Borders arrive last because they answer a complaint the earlier chapters
+    // earned: that a long sheet can be walked to its target by folding the
+    // whole thing over. The frame is the only rule that constrains where the
+    // paper ENDS UP rather than how it gets there.
+    name: 'Borders',
+    keys: ['the-frame', 'framed-net', 'tight-frame', 'framed-notch', 'framed-cross'],
   },
 ];
 
