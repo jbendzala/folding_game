@@ -15,6 +15,7 @@ import { blockedLevels } from './rulesBlocked';
 import { tearLevels } from './rulesTear';
 import { comboLevels } from './combos';
 import { finaleLevels } from './finale';
+import { irregularLevels } from './irregular';
 
 /**
  * Every level that exists, keyed by its stable key. The files this reads from
@@ -45,6 +46,7 @@ const LIBRARY: LevelDefinition[] = [
   ...tearLevels,
   ...comboLevels,
   ...finaleLevels,
+  ...irregularLevels,
 ];
 
 export interface Chapter {
@@ -136,7 +138,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     name: 'Nothing Free',
-    keys: ['nailed-and-clamped', 'last-thread', 'sealed-window', 'thick-and-clamped', 'the-hundredth'],
+    keys: ['nailed-and-clamped', 'last-thread', 'sealed-window', 'thick-and-clamped', 'nothing-left'],
   },
   {
     // Borders arrive last because they answer a complaint the earlier chapters
@@ -145,6 +147,17 @@ export const CHAPTERS: Chapter[] = [
     // paper ENDS UP rather than how it gets there.
     name: 'Borders',
     keys: ['the-frame', 'framed-net', 'tight-frame', 'framed-notch', 'framed-cross'],
+  },
+  {
+    // Machine-generated sheets, solver-filtered. Irregular so that no two are
+    // reflections of each other -- the symmetric sheets could not stop
+    // repeating themselves.
+    name: 'Offcuts',
+    keys: ['ragged-edge', 'torn-corner', 'offcut', 'the-scrap', 'ragged-ring'],
+  },
+  {
+    name: 'Nothing Straight',
+    keys: ['long-scrap', 'pinned-scrap', 'narrow-margin', 'last-margin', 'the-hundredth'],
   },
 ];
 

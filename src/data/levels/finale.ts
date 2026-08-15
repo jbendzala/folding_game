@@ -245,8 +245,8 @@ export const finaleLevels: LevelDefinition[] = [
     designerNotes: 'Thickness and a clamp: the tidy route to even layers is banned.',
   }),
   shapeLevel({
-    key: 'the-hundredth',
-    name: 'The Hundredth',
+    key: 'nothing-left',
+    name: 'Nothing Left',
     rows: [
       '# P . . . # #',
       '# # # . # # #',
@@ -261,8 +261,9 @@ export const finaleLevels: LevelDefinition[] = [
     newConcept: 'The same sheet, the same doorway, and the clamp turned the other way.',
     difficulty: 10,
     expectedFolds: 7,
-    designerNotes: 'The final level: 77% mean trap at seven folds, the hardest measured '
-      + 'combination in the game. Deliberately paired with Nailed and Clamped -- one clamp '
-      + 'line apart on the same puzzle, and the seven folds have nothing in common.',
+    designerNotes: '77% mean trap at seven folds -- the hardest measured combination of the '
+      + 'regular sheets, and the longest level in the game. Deliberately paired with Nailed '
+      + 'and Clamped: one clamp line apart on the same puzzle, and the seven folds have '
+      + 'nothing in common.',
   }),
 ];
