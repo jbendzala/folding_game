@@ -1,6 +1,8 @@
 import type { LevelDefinition } from '../../core/types';
 import { shapeLevel } from './helpers';
 
+const H = (line: number) => ({ axis: 'horizontal' as const, line, moves: 'lower' as const });
+
 /**
  * Chapter 6 -- "Masterpieces"
  * The big recognizable silhouettes, each folded into another shape worth
@@ -75,18 +77,23 @@ export const world6Levels: LevelDefinition[] = [
   }),
   shapeLevel({
     key: 'pinned-masterpiece',
-    name: 'Pinned Masterpiece',
+    name: 'The Kite',
     rows: [
       '. . # . .',
       '. # # # .',
-      'P # # # #',
+      '# # # # #',
+      '. # # # .',
       '. # # # .',
       '. . # . .',
     ],
-    goalRows: ['. # .', '# # #'],
-    newConcept: 'Four folds off a pinned diamond, and the paper leaves the sheet to get there.',
-    difficulty: 9,
+    goalRows: ['# .', '# #', '# .'],
+    lockedCreases: [H(3)],
+    newConcept: 'A clamped kite down to a T -- the chapter ends on a different shape entirely.',
+    difficulty: 10,
     expectedFolds: 4,
-    designerNotes: '73% mean trap with an overhang fold. Was two folds.',
+    designerNotes: '81% mean trap, up from 73%. This was the pinned diamond with the target '
+      + 'of the level before it mirrored -- the same puzzle reflected, which is why both sat '
+      + 'at exactly 73%. A longer sheet, a clamp instead of a pin, and a target that is not a '
+      + "reflection of anything, so the chapter's last two levels no longer rhyme.",
   }),
 ];

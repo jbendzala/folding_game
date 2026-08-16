@@ -21,7 +21,20 @@ const SLOP = 8;
 // border where Android's back-swipe and edge panels would steal it.
 const EDGE_ZONE = 72;
 // How fast the paper slides while the finger is held at the very edge (px/s).
-const EDGE_PAN_RATE = 1100;
+// 1100 was faster than the eye could follow: a moment of resting a finger near
+// the edge threw the sheet across the canvas.
+const EDGE_PAN_RATE = 420;
+/**
+ * Ceiling on how far the edge slide may carry the view, as a fraction of the
+ * canvas.
+ *
+ * Without a limit the pan accumulated for as long as the finger stayed in the
+ * edge zone, so holding still near an edge would slide the paper right out of
+ * sight with no way back except releasing. The fold itself never needs more
+ * than a fraction of the canvas to stay visible, since the crease is already
+ * clamped to the sheet's own bounds.
+ */
+const MAX_DRAG_PAN = 0.45;
 /**
  * How far the CREASE travels per px of finger travel, measured from the
  * folding edge.
@@ -209,19 +222,29 @@ export function PaperCanvas({
     // Slide the paper while the finger sits in an edge zone. Rate ramps with
     // how far in it is, so a light touch of the edge creeps and a firm one
     // moves properly.
+    const panLimit = size * MAX_DRAG_PAN;
+    const clampPan = (v: number) => Math.min(Math.max(v, -panLimit), panLimit);
     if (horizontal) {
       const fx = fingerXSv.value;
       if (fx < EDGE_ZONE) {
-        dragPanXSv.value += ((EDGE_ZONE - fx) / EDGE_ZONE) * EDGE_PAN_RATE * dt;
+        dragPanXSv.value = clampPan(
+          dragPanXSv.value + ((EDGE_ZONE - fx) / EDGE_ZONE) * EDGE_PAN_RATE * dt
+        );
       } else if (fx > size - EDGE_ZONE) {
-        dragPanXSv.value -= ((fx - (size - EDGE_ZONE)) / EDGE_ZONE) * EDGE_PAN_RATE * dt;
+        dragPanXSv.value = clampPan(
+          dragPanXSv.value - ((fx - (size - EDGE_ZONE)) / EDGE_ZONE) * EDGE_PAN_RATE * dt
+        );
       }
     } else {
       const fy = fingerYSv.value;
       if (fy < EDGE_ZONE) {
-        dragPanYSv.value += ((EDGE_ZONE - fy) / EDGE_ZONE) * EDGE_PAN_RATE * dt;
+        dragPanYSv.value = clampPan(
+          dragPanYSv.value + ((EDGE_ZONE - fy) / EDGE_ZONE) * EDGE_PAN_RATE * dt
+        );
       } else if (fy > size - EDGE_ZONE) {
-        dragPanYSv.value -= ((fy - (size - EDGE_ZONE)) / EDGE_ZONE) * EDGE_PAN_RATE * dt;
+        dragPanYSv.value = clampPan(
+          dragPanYSv.value - ((fy - (size - EDGE_ZONE)) / EDGE_ZONE) * EDGE_PAN_RATE * dt
+        );
       }
     }
 
