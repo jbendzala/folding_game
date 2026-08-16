@@ -44,11 +44,15 @@ export function worldIntro(world: number, levels: LevelDefinition[], name: strin
     }
   }
 
+  // A world with no new rule still gets a proper welcome rather than a
+  // disclaimer about what it lacks. Twelve of the twenty are in that position,
+  // so "no new rules" as a headline would be the most common thing the game
+  // ever says to the player.
   const inWorld = levels.filter((l) => l.world === world);
   const longest = Math.max(...inWorld.map((l) => l.expectedFolds));
   const blurb = newRules.length
     ? 'Something new in this one.'
-    : `${inWorld.length} levels, up to ${longest} folds. No new rules -- just harder.`;
+    : `${inWorld.length} new sheets, up to ${longest} folds deep. Everything you know, harder.`;
 
   return { world, name, newRules, blurb };
 }

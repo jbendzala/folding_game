@@ -37,29 +37,16 @@ export function recordSolve(
   };
 }
 
-/** Total stars earned across every solved level. */
+/**
+ * Total stars earned across every solved level.
+ *
+ * A statistic, not a gate. Star thresholds for unlocking worlds were built and
+ * removed: they would have blocked a player who genuinely solved every level
+ * but did it over par, which punishes the exact person who is enjoying the
+ * game and forces replays to continue. Every level is free to reach.
+ */
 export function totalStars(progress: ProgressMap): number {
   return Object.values(progress).reduce((sum, p) => sum + (p.solved ? p.stars : 0), 0);
-}
-
-/**
- * Stars needed to open a world.
- *
- * Zero for the first three worlds -- a gate a new player can hit before they
- * understand the star system is just a wall. After that it asks for a bit
- * under half of what is theoretically available so far, so someone clearing
- * levels at two stars still walks straight through, and only someone skipping
- * levels entirely gets stopped.
- */
-export function starsToUnlockWorld(world: number, levelsPerWorld = 5): number {
-  if (world <= 3) return 0;
-  const availableBefore = (world - 1) * levelsPerWorld * 3;
-  return Math.floor(availableBefore * 0.45);
-}
-
-/** Worlds the player has enough stars for. */
-export function worldUnlocked(progress: ProgressMap, world: number): boolean {
-  return totalStars(progress) >= starsToUnlockWorld(world);
 }
 
 /** Highest level id the player may open: everything solved, plus the next one. */

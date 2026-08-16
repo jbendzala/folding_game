@@ -2,17 +2,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = 'fold/economy/v1';
 
-export const MAX_LIVES = 5;
-/** Milliseconds to regenerate one life. */
-export const LIFE_REGEN_MS = 20 * 60 * 1000;
 /** Free hints per day. The solver returns an OPTIMAL move, so this is the
- *  genuinely valuable resource and the one worth charging for. */
+ *  genuinely valuable resource and the one worth charging for.
+ *
+ *  There is deliberately no lives system here. It was built and removed: at
+ *  66-85% mean trap a player experimenting legitimately hits dead positions
+ *  constantly, and the implementation charged a life for a position the player
+ *  could undo out of a second later -- a fine for a mistake it then handed
+ *  back. Folding is a thinking game; the scarce resource is the optimal-move
+ *  hint, not permission to play. */
 export const FREE_HINTS_PER_DAY = 1;
 
 export interface Economy {
-  lives: number;
-  /** Epoch ms when the next life lands. 0 when already full. */
-  nextLifeAt: number;
   coins: number;
   hintsUsedToday: number;
   /** Local YYYY-MM-DD the daily counters belong to. */
@@ -25,8 +26,6 @@ export interface Economy {
 const today = () => new Date().toISOString().slice(0, 10);
 
 export const freshEconomy = (): Economy => ({
-  lives: MAX_LIVES,
-  nextLifeAt: 0,
   coins: 0,
   hintsUsedToday: 0,
   day: today(),
@@ -35,52 +34,13 @@ export const freshEconomy = (): Economy => ({
 });
 
 /**
- * Brings a stored economy up to the current wall clock.
- *
- * Regeneration is computed from a timestamp rather than ticked, so it keeps
- * running while the app is closed and cannot be farmed by relaunching. It is
- * still trivially cheatable by moving the device clock forward -- that needs a
- * server to fix properly, and is not worth one before there is anything to
- * buy.
+ * Brings a stored economy up to the current day, resetting the daily hint
+ * allowance when the date rolls over.
  */
-export function settle(economy: Economy, now = Date.now()): Economy {
-  let { lives, nextLifeAt } = economy;
-
-  if (lives < MAX_LIVES && nextLifeAt > 0) {
-    while (lives < MAX_LIVES && now >= nextLifeAt) {
-      lives += 1;
-      nextLifeAt = lives >= MAX_LIVES ? 0 : nextLifeAt + LIFE_REGEN_MS;
-    }
-  }
-  if (lives >= MAX_LIVES) nextLifeAt = 0;
-
+export function settle(economy: Economy): Economy {
   const day = today();
-  const rolledOver = day !== economy.day;
-
-  return {
-    ...economy,
-    lives,
-    nextLifeAt,
-    hintsUsedToday: rolledOver ? 0 : economy.hintsUsedToday,
-    day,
-  };
-}
-
-export function spendLife(economy: Economy, now = Date.now()): Economy {
-  if (economy.lives <= 0) return economy;
-  const lives = economy.lives - 1;
-  return {
-    ...economy,
-    lives,
-    // Start the clock on the first life lost from full; otherwise the player
-    // could lose lives one at a time and keep pushing the timer back.
-    nextLifeAt: economy.nextLifeAt > 0 ? economy.nextLifeAt : now + LIFE_REGEN_MS,
-  };
-}
-
-export function grantLife(economy: Economy): Economy {
-  const lives = Math.min(MAX_LIVES, economy.lives + 1);
-  return { ...economy, lives, nextLifeAt: lives >= MAX_LIVES ? 0 : economy.nextLifeAt };
+  if (day === economy.day) return economy;
+  return { ...economy, hintsUsedToday: 0, day };
 }
 
 export const hintsLeftToday = (economy: Economy): number =>

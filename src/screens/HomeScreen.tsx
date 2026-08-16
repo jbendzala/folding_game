@@ -2,12 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { allLevels, WORLD_NAMES } from '../data/levels';
-import {
-  highestUnlocked,
-  starsToUnlockWorld,
-  worldUnlocked,
-  type ProgressMap,
-} from '../state/progress';
+import { highestUnlocked, type ProgressMap } from '../state/progress';
 import { theme, worldPalette } from '../theme';
 
 interface HomeScreenProps {
@@ -55,27 +50,15 @@ export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
       {worlds.map((world) => {
         const levels = allLevels.filter((l) => l.world === world);
         const wp = worldPalette(world);
-        // Two independent gates: the sequential one (finish the level before)
-        // and the star one (earn enough across everything). A world can be
-        // reachable in sequence but still short of stars, which is the whole
-        // point -- it sends the player back to improve, not forward.
-        const starGate = __DEV__ ? 0 : starsToUnlockWorld(world);
-        const worldOpen = __DEV__ || worldUnlocked(progress, world);
-        const starsShort = starGate - totalStars;
         return (
           <View key={world} style={styles.worldSection}>
             <Text style={[styles.worldTitle, { color: wp.paper[3] }]}>
               WORLD {world} — {WORLD_NAMES[world] ?? ''}
             </Text>
-            {!worldOpen && (
-              <Text style={styles.worldGate}>
-                <Text style={styles.statStar}>★</Text> {starsShort} more to unlock
-              </Text>
-            )}
             <View style={styles.grid}>
               {levels.map((level) => {
                 const p = progress[level.key];
-                const isUnlocked = level.id <= unlocked && worldOpen;
+                const isUnlocked = level.id <= unlocked;
                 return (
                   <Pressable
                     key={level.id}
@@ -178,14 +161,6 @@ const styles = StyleSheet.create({
     color: theme.colors.inkSoft,
     fontSize: theme.font.small,
     fontWeight: '700',
-  },
-  worldGate: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    color: theme.colors.inkFaint,
-    marginTop: -6,
-    marginBottom: 10,
   },
   statStar: {
     color: theme.colors.gold,

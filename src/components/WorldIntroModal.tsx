@@ -24,7 +24,7 @@ export function WorldIntroModal({ intro, palette, onDismiss }: Props) {
         entering={ZoomIn.springify().damping(19).withInitialValues({ transform: [{ scale: 0.8 }] })}
         style={[styles.card, { borderColor: palette.tintSoft }]}
       >
-        <Text style={[styles.eyebrow, { color: palette.tint }]}>WORLD {intro.world}</Text>
+        <Text style={[styles.eyebrow, { color: palette.tint }]}>WELCOME TO WORLD {intro.world}</Text>
         <Text style={styles.title}>{intro.name}</Text>
 
         {intro.newRules.length > 0 ? (

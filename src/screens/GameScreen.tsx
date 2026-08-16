@@ -4,7 +4,6 @@ import * as Haptics from 'expo-haptics';
 import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PaperCanvas } from '../components/PaperCanvas';
-import { FailModal } from '../components/FailModal';
 import { WorldIntroModal } from '../components/WorldIntroModal';
 import {
   activeRules,
@@ -18,13 +17,7 @@ import {
 import type { Fold, LevelDefinition } from '../core/types';
 import { worldIntro } from '../core/worldIntro';
 import { allLevels, CHAPTERS } from '../data/levels';
-import {
-  grantLife,
-  loadEconomy,
-  saveEconomy,
-  spendLife,
-  type Economy,
-} from '../state/economy';
+import { loadEconomy, saveEconomy, touchStreak, type Economy } from '../state/economy';
 import { loadSeenWorlds, markWorldSeen, starsFor } from '../state/progress';
 import { theme, worldPalette } from '../theme';
 
@@ -76,20 +69,16 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   }, [isWorldOpener, level.world]);
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reportedRef = useRef(false);
-  const [economy, setEconomy] = useState<Economy | null>(null);
-  const [showFail, setShowFail] = useState(false);
-  // A life is charged once per dead position, not once per render.
-  const chargedRef = useRef(false);
+  const [, setEconomy] = useState<Economy | null>(null);
 
+  // Opening a level counts as playing today, which is all the streak needs.
   useEffect(() => {
-    loadEconomy().then(setEconomy);
+    loadEconomy().then((e) => {
+      const next = touchStreak(e);
+      setEconomy(next);
+      void saveEconomy(next);
+    });
   }, []);
-
-  // Reset the per-attempt fail state when the level changes.
-  useEffect(() => {
-    setShowFail(false);
-    chargedRef.current = false;
-  }, [level.key]);
 
   const state = useMemo(
     () => replayFolds(() => createInitialState(level.start, level.constraints), folds),
@@ -130,18 +119,9 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   useEffect(() => {
     if (stuck && !wasStuck.current) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-      // The engine has PROVED this cannot be won, so charging here is honest
-      // in a way a move limit or a timer never is.
-      if (!chargedRef.current && economy) {
-        chargedRef.current = true;
-        const next = spendLife(economy);
-        setEconomy(next);
-        void saveEconomy(next);
-      }
-      setShowFail(true);
     }
     wasStuck.current = stuck;
-  }, [stuck, economy]);
+  }, [stuck]);
 
   function handleFold(fold: Fold) {
     // Defensive: a gesture racing a re-render could hand us a fold computed
@@ -275,32 +255,6 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
 
       <View style={{ paddingBottom: insets.bottom + 20 }} />
 
-      {showFail && economy && (
-        <FailModal
-          lives={economy.lives}
-          nextLifeAt={economy.nextLifeAt}
-          palette={palette}
-          onUndo={() => {
-            setShowFail(false);
-            undo();
-          }}
-          onRestart={() => {
-            setShowFail(false);
-            chargedRef.current = false;
-            reset();
-          }}
-          onWatchAd={() => {
-            // Placeholder until the ad SDK lands: grants the life directly so
-            // the flow can be played end to end.
-            const next = grantLife(economy);
-            setEconomy(next);
-            void saveEconomy(next);
-            setShowFail(false);
-            undo();
-          }}
-          onExit={onExit}
-        />
-      )}
 
       {showIntro && (
         <WorldIntroModal
@@ -337,11 +291,28 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
                 </Text>
               ))}
             </Animated.View>
-            <Text style={styles.cardSub}>
-              {folds.length} fold{folds.length === 1 ? '' : 's'}
-              {folds.length <= level.expectedFolds
-                ? ' — perfect!'
-                : ` (best is ${level.expectedFolds})`}
+            {/* Exact, not graded. The solver knows the true minimum, so the
+                game can say precisely how far off you were -- "one fold from
+                optimal" is a target a player can act on, where two stars is
+                just a verdict. */}
+            <View style={styles.scoreBlock}>
+              <View style={styles.scoreRow}>
+                <Text style={styles.scoreLabel}>MINIMUM</Text>
+                <Text style={styles.scoreValue}>{level.expectedFolds}</Text>
+              </View>
+              <View style={styles.scoreRow}>
+                <Text style={styles.scoreLabel}>YOU</Text>
+                <Text style={[styles.scoreValue, !overPar && { color: palette.tint }]}>
+                  {folds.length}
+                </Text>
+              </View>
+            </View>
+            <Text style={[styles.cardSub, !overPar && { color: palette.tint }]}>
+              {!overPar
+                ? 'Optimal solve'
+                : `${folds.length - level.expectedFolds} fold${
+                    folds.length - level.expectedFolds === 1 ? '' : 's'
+                  } from optimal`}
             </Text>
             <View style={styles.cardButtons}>
               <Pressable style={styles.secondaryButton} onPress={reset}>
@@ -665,6 +636,20 @@ const styles = StyleSheet.create({
     color: theme.colors.inkSoft,
     fontSize: theme.font.body,
   },
+  scoreBlock: {
+    flexDirection: 'row',
+    gap: 34,
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  scoreRow: { alignItems: 'center', gap: 3 },
+  scoreLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.4,
+    color: theme.colors.inkFaint,
+  },
+  scoreValue: { fontSize: 30, fontWeight: '700', color: theme.colors.ink },
   cardButtons: {
     flexDirection: 'row',
     gap: 12,
