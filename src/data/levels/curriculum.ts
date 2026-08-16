@@ -17,6 +17,8 @@ import { comboLevels } from './combos';
 import { finaleLevels } from './finale';
 import { irregularLevels } from './irregular';
 import { world21Levels } from './world21';
+import { world22Levels } from './world22';
+import { world23Levels } from './world23';
 
 /**
  * Every level that exists, keyed by its stable key. The files this reads from
@@ -49,6 +51,8 @@ const LIBRARY: LevelDefinition[] = [
   ...finaleLevels,
   ...irregularLevels,
   ...world21Levels,
+  ...world22Levels,
+  ...world23Levels,
 ];
 
 export interface Chapter {
@@ -167,6 +171,14 @@ export const CHAPTERS: Chapter[] = [
     // distinctive thing folding does.
     name: 'Both Sides, Boxed In',
     keys: ['world21-1', 'world21-2', 'world21-3', 'world21-4', 'world21-5'],
+  },
+  {
+    name: 'Held and Turned',
+    keys: ['world22-1', 'world22-2', 'world22-3', 'world22-4', 'world22-5'],
+  },
+  {
+    name: 'Clamped and Blocked',
+    keys: ['world23-1', 'world23-2', 'world23-3', 'world23-4', 'world23-5'],
   },
 ];
 
