@@ -19,9 +19,15 @@
  *    deduplicated by symmetry orbit, so none is another's reflection, but two
  *    ragged sheets can still play similarly.
  *
- *   npx tsx scripts/generateDaily.ts [count] [outFile]
+ * Runs in batches and resumes. It loads whatever is already in the output
+ * file, seeds the duplicate check from it, and appends until the target total
+ * is reached, writing after every keeper. The first version did neither: it
+ * held everything in memory and wrote once at the end, so a long run showed no
+ * progress and lost all of it if interrupted.
+ *
+ *   npx tsx scripts/generateDaily.ts [targetTotal] [outFile] [seed]
  */
-import { writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { analyzeLevel } from '../src/core/analysis';
 import { createInitialState } from '../src/core/grid';
 import { shapeFromRows } from '../src/core/parseShape';
@@ -34,8 +40,12 @@ const OUT = process.argv[3] ?? 'src/data/daily/puzzles.json';
 
 const MIN_FOLDS = 5;
 const MIN_TRAP = 0.75;
+/** Stop searching a sheet once it has produced something this good. */
+const GOOD_ENOUGH_TRAP = 0.8;
+/** Hard ceiling on searches per sheet, so one awkward sheet cannot stall a batch. */
+const MAX_PAIRS_PER_SHEET = 14;
 
-let seed = 20260816;
+let seed = Number(process.argv[4] ?? 20260816);
 const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
 
 function blob(w: number, h: number, n: number): string[] | null {
@@ -84,9 +94,18 @@ interface Puzzle {
   trap: number;
 }
 
-const seen = new Set<string>();
-const puzzles: Puzzle[] = [];
+// Resume from whatever is already on disk.
+const puzzles: Puzzle[] = existsSync(OUT)
+  ? (JSON.parse(readFileSync(OUT, 'utf8')) as Puzzle[])
+  : [];
+const seen = new Set<string>(puzzles.map((p) => orbitKey(p.rows)));
+if (puzzles.length) console.log(`resuming from ${puzzles.length} existing puzzles`);
 let attempts = 0;
+
+const save = () => {
+  puzzles.forEach((p, i) => (p.day = i + 1));
+  writeFileSync(OUT, JSON.stringify(puzzles, null, 1));
+};
 
 while (puzzles.length < WANT && attempts < WANT * 200) {
   attempts++;
@@ -112,10 +131,23 @@ while (puzzles.length < WANT && attempts < WANT * 200) {
   // solving is not, but a sheet that works at all usually works for several
   // combinations -- testing one random pair per sheet threw away most of the
   // yield and needed ~800 sheets per keeper.
+  // Bounded work per sheet. Trying every goal against every clamp is up to 70
+  // searches, and on a 30-cell sheet each one can take a second or more --
+  // minutes per sheet, for a sheet that may yield nothing. Pairs are shuffled
+  // so the cap does not bias toward the first goals in the list.
+  const pairs: [string[], Fold][] = [];
+  for (const [, goalRows] of GOALS) for (const clamp of clamps) pairs.push([goalRows, clamp]);
+  for (let i = pairs.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+  }
+
   let best: { goalRows: string[]; clamp: Fold; folds: number; trap: number } | null = null;
-  for (const [, goalRows] of GOALS) {
-    const { shape: goal } = shapeFromRows(goalRows);
-    for (const clamp of clamps) {
+  let tried = 0;
+  for (const [goalRows, clamp] of pairs) {
+    if (tried++ >= MAX_PAIRS_PER_SHEET || (best && best.trap >= GOOD_ENOUGH_TRAP)) break;
+    {
+      const { shape: goal } = shapeFromRows(goalRows);
       const constraints: FoldConstraints = { bounds: box, lockedCreases: [clamp] };
       const path = solve(createInitialState(shape, constraints), { shape: goal }, 7);
       if (!path || path.length < MIN_FOLDS) continue;
@@ -150,12 +182,11 @@ while (puzzles.length < WANT && attempts < WANT * 200) {
     folds: best.folds,
     trap: Math.round(best.trap * 100),
   });
-  if (puzzles.length % 10 === 0) {
-    console.log(`${puzzles.length}/${WANT} kept (${attempts} sheets tried)  latest: ${best.folds}f ${Math.round(best.trap * 100)}%`);
-  }
+  save();
+  console.log(`${puzzles.length}/${WANT} kept (${attempts} sheets tried)  latest: ${best.folds}f ${Math.round(best.trap * 100)}%`);
 }
 
-writeFileSync(OUT, JSON.stringify(puzzles, null, 1));
+save();
 const avgF = puzzles.reduce((s, p) => s + p.folds, 0) / puzzles.length;
 const avgT = puzzles.reduce((s, p) => s + p.trap, 0) / puzzles.length;
 console.log(`\nwrote ${puzzles.length} puzzles to ${OUT}`);

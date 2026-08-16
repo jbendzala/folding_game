@@ -1,0 +1,945 @@
+[
+ {
+  "day": 1,
+  "rows": [
+   "# # # # . .",
+   ". # # # # #",
+   ". # # # # #",
+   ". # # # # .",
+   "# # # # # .",
+   "# # # # . .",
+   ". . . # . ."
+  ],
+  "goalRows": [
+   "# .",
+   "# #",
+   "# ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 80
+ },
+ {
+  "day": 2,
+  "rows": [
+   ". . # # # # .",
+   "# # # # # # #",
+   "# # # # # # .",
+   "# # # # # . ."
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 78
+ },
+ {
+  "day": 3,
+  "rows": [
+   "# # # . . #",
+   ". # # # # #",
+   "# # # # . .",
+   "# # # # # .",
+   "# # # # . .",
+   "# # # . . ."
+  ],
+  "goalRows": [
+   "# . . .",
+   "# # # #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 86
+ },
+ {
+  "day": 4,
+  "rows": [
+   "# # # # # . .",
+   "# # # # # . .",
+   "# # # # # . .",
+   "# # # # # # .",
+   "# # # # . . .",
+   "# # # . . . ."
+  ],
+  "goalRows": [
+   "# . . .",
+   "# # # #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 86
+ },
+ {
+  "day": 5,
+  "rows": [
+   "# # # # # .",
+   "# # # # . .",
+   "# # # # . .",
+   "# # # # # #",
+   "# # # # # #",
+   "# # # # . #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 6,
+  "trap": 78
+ },
+ {
+  "day": 6,
+  "rows": [
+   ". . . . # #",
+   ". . . # # #",
+   "# . # # # #",
+   "# # # # # #",
+   "# # # # # #",
+   "# # # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 81
+ },
+ {
+  "day": 7,
+  "rows": [
+   ". # . . . .",
+   ". # . . # .",
+   ". # # # # .",
+   ". # # # . #",
+   "# # # # # #",
+   ". # # # . #",
+   "# # # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #",
+   "# ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 6,
+  "trap": 79
+ },
+ {
+  "day": 8,
+  "rows": [
+   "# # # . . . .",
+   "# # # # . . .",
+   "# # # . . . .",
+   "# # # # # . .",
+   "# # # # # . .",
+   ". # # # # # ."
+  ],
+  "goalRows": [
+   "# .",
+   "# #",
+   "# ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 75
+ },
+ {
+  "day": 9,
+  "rows": [
+   "# # # # # . .",
+   "# # # # # . .",
+   "# # # # # . .",
+   "# # # # # # .",
+   "# # # . # . .",
+   "# # # . . . .",
+   ". # # # . . ."
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 86
+ },
+ {
+  "day": 10,
+  "rows": [
+   "# . . . #",
+   "# # . # #",
+   "# # # # #",
+   "# # # # #",
+   "# # # # #",
+   "# # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 76
+ },
+ {
+  "day": 11,
+  "rows": [
+   ". # # # # # #",
+   ". # # # # # #",
+   ". # # # # # #",
+   ". . . . # . #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 4
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 76
+ },
+ {
+  "day": 12,
+  "rows": [
+   "# # # # # # #",
+   "# # # # # # #",
+   "# # # # # # #",
+   "# # # # # # #",
+   "# # # # . # ."
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 2
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 78
+ },
+ {
+  "day": 13,
+  "rows": [
+   ". . # # # # #",
+   ". . # # # # #",
+   "# # # # # # #",
+   ". . . # # # #",
+   ". . . . . # #"
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 2
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 77
+ },
+ {
+  "day": 14,
+  "rows": [
+   "# # # . # . .",
+   "# # # # # # #",
+   ". . # # # # #",
+   ". . # . # # #",
+   ". . # # # # #",
+   ". . . . # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 80
+ },
+ {
+  "day": 15,
+  "rows": [
+   ". # # # #",
+   "# # # # #",
+   "# # # # #",
+   ". # # # #",
+   "# # # # #",
+   ". # # # .",
+   "# # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 4
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 77
+ },
+ {
+  "day": 16,
+  "rows": [
+   "# # # . . .",
+   "# # # # # .",
+   "# # # # # #",
+   "# # # # # .",
+   "# # # # # .",
+   "# # # # . .",
+   "# . . . . ."
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 77
+ },
+ {
+  "day": 17,
+  "rows": [
+   "# # . . .",
+   "# # # # #",
+   "# # # # #",
+   "# # # # #",
+   "# # # # #",
+   "# # # # #",
+   "# # # # ."
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 76
+ },
+ {
+  "day": 18,
+  "rows": [
+   "# # # # # # .",
+   "# # # # # . .",
+   "# # # # # . .",
+   "# # # # # . .",
+   "# # # # # . .",
+   "# . # # # # .",
+   ". . # # . . ."
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 80
+ },
+ {
+  "day": 19,
+  "rows": [
+   "# # # # # . .",
+   "# # # # # . .",
+   "# # # # # # .",
+   "# # # # # # .",
+   ". . # # # # ."
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 2
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 77
+ },
+ {
+  "day": 20,
+  "rows": [
+   ". # # # #",
+   ". # # # #",
+   "# # # # #",
+   ". # # # #",
+   "# # # # #",
+   "# # # # #",
+   "# # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 4
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 77
+ },
+ {
+  "day": 21,
+  "rows": [
+   "# # # # # #",
+   "# # # # # #",
+   "# # # # # #",
+   "# # # # # #",
+   "# # # . # #",
+   "# # . . . .",
+   ". # # . . ."
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 4
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 78
+ },
+ {
+  "day": 22,
+  "rows": [
+   "# # # # #",
+   ". # # # #",
+   ". # # # #",
+   "# # # # #",
+   "# # # # #",
+   "# # # # #",
+   ". . . # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 76
+ },
+ {
+  "day": 23,
+  "rows": [
+   ". . . # # # #",
+   ". . . # # # #",
+   ". # . # # # #",
+   ". # # # # # #",
+   "# # # # # # #",
+   ". . # # # # #"
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 80
+ },
+ {
+  "day": 24,
+  "rows": [
+   "# # . . . .",
+   "# . # . . .",
+   "# # # # . .",
+   "# # # # # #",
+   "# # # # # #",
+   "# # # # # #",
+   "# # # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 81
+ },
+ {
+  "day": 25,
+  "rows": [
+   ". . . . . # .",
+   "# . . . . # .",
+   "# # # # . # #",
+   "# # # # # # #",
+   "# # # # # # #",
+   "# # # # . . ."
+  ],
+  "goalRows": [
+   "# . . .",
+   "# # # #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 4
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 76
+ },
+ {
+  "day": 26,
+  "rows": [
+   ". . # # # #",
+   "# # # # # #",
+   "# # # # # #",
+   "# # # # # #",
+   ". # # # # #",
+   ". # . # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 77
+ },
+ {
+  "day": 27,
+  "rows": [
+   "# # # # # # .",
+   ". # # # # # #",
+   ". # # # # . #",
+   ". . # # # # #",
+   ". . # # # # ."
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 78
+ },
+ {
+  "day": 28,
+  "rows": [
+   ". . # # . . .",
+   ". . # # # # #",
+   ". # # # # # #",
+   ". # # # # # #",
+   ". # # # # # #",
+   ". # # # . # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 77
+ },
+ {
+  "day": 29,
+  "rows": [
+   ". . . . # . .",
+   ". . # . # # .",
+   ". . # # # # #",
+   ". . # # # # #",
+   "# # # # # # #",
+   ". # # # . . ."
+  ],
+  "goalRows": [
+   "# . . .",
+   "# # # #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 86
+ },
+ {
+  "day": 30,
+  "rows": [
+   "# # # . .",
+   "# # # . .",
+   "# # # # .",
+   "# # # # #",
+   ". # # # #",
+   ". . # # #",
+   ". . . # #"
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 4
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 84
+ },
+ {
+  "day": 31,
+  "rows": [
+   ". . . # . .",
+   ". . . # . .",
+   ". . . # # #",
+   ". . . # # #",
+   ". . # # # .",
+   ". # # # # #",
+   "# # # # # #"
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 2
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 78
+ },
+ {
+  "day": 32,
+  "rows": [
+   "# . # # . .",
+   "# # # # # #",
+   "# # # # # #",
+   "# # # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 78
+ },
+ {
+  "day": 33,
+  "rows": [
+   "# # # # # # #",
+   "# # # # # # #",
+   "# # . # # # .",
+   "# # . # # # #",
+   ". # . # # # #",
+   ". # . . . . .",
+   "# # . . . . ."
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 4
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 79
+ },
+ {
+  "day": 34,
+  "rows": [
+   ". . . . # # #",
+   ". . . . # # #",
+   ". . . . # . #",
+   "# # # # # # #",
+   "# # # # # # #",
+   ". . # # # # #"
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 4
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 84
+ },
+ {
+  "day": 35,
+  "rows": [
+   "# # # # # #",
+   "# # # # # #",
+   "# # # # # #",
+   "# . # . # #",
+   ". . # . # #",
+   ". # # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #"
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 6,
+  "trap": 78
+ },
+ {
+  "day": 36,
+  "rows": [
+   ". # # # # # #",
+   ". # # # # # #",
+   ". . . . # # #",
+   ". . # # # # #",
+   ". # # . . # #",
+   ". . . . . # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #",
+   "# ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 2
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 77
+ },
+ {
+  "day": 37,
+  "rows": [
+   ". . . . # # .",
+   "# # # # # # #",
+   "# # # # # # #",
+   ". . # # # # #",
+   ". . # # # # #",
+   ". . # # # # #",
+   ". . . . . . #"
+  ],
+  "goalRows": [
+   "# # #",
+   "# . .",
+   "# . ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 1
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 82
+ },
+ {
+  "day": 38,
+  "rows": [
+   "# # # # #",
+   "# # # # #",
+   ". # # # #",
+   ". # # # #",
+   ". # # # #",
+   ". # # # #",
+   ". # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #",
+   "# ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "horizontal",
+   "line": 2
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 78
+ },
+ {
+  "day": 39,
+  "rows": [
+   "# # # # # # .",
+   ". # # # # # .",
+   "# # # # . . .",
+   ". # # # . . .",
+   ". . # . . . .",
+   ". . # . . . ."
+  ],
+  "goalRows": [
+   "# .",
+   "# #",
+   "# ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 3
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 76
+ },
+ {
+  "day": 40,
+  "rows": [
+   ". . . # # . .",
+   ". # # # # . .",
+   ". # # # # # .",
+   ". # # # # # .",
+   ". . # # # # #",
+   ". . # # # # #"
+  ],
+  "goalRows": [
+   "# .",
+   "# #",
+   "# ."
+  ],
+  "borders": true,
+  "lockedCrease": {
+   "axis": "vertical",
+   "line": 4
+  },
+  "pin": null,
+  "folds": 5,
+  "trap": 78
+ }
+]

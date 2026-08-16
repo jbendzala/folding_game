@@ -1,6 +1,6 @@
 import { shapeFromRows } from '../../core/parseShape';
 import type { LevelDefinition } from '../../core/types';
-import puzzles from './sample.json';
+import puzzles from './puzzles.json';
 
 interface DailyPuzzle {
   day: number;
