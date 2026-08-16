@@ -16,6 +16,7 @@ import { tearLevels } from './rulesTear';
 import { comboLevels } from './combos';
 import { finaleLevels } from './finale';
 import { irregularLevels } from './irregular';
+import { world21Levels } from './world21';
 
 /**
  * Every level that exists, keyed by its stable key. The files this reads from
@@ -47,6 +48,7 @@ const LIBRARY: LevelDefinition[] = [
   ...comboLevels,
   ...finaleLevels,
   ...irregularLevels,
+  ...world21Levels,
 ];
 
 export interface Chapter {
@@ -158,6 +160,13 @@ export const CHAPTERS: Chapter[] = [
   {
     name: 'Nothing Straight',
     keys: ['long-scrap', 'pinned-scrap', 'narrow-margin', 'last-margin', 'the-hundredth'],
+  },
+  {
+    // First of the pair-themed worlds. TWO SIDES was the most wasted rule in
+    // the game -- one level in a hundred -- despite back faces being the most
+    // distinctive thing folding does.
+    name: 'Both Sides, Boxed In',
+    keys: ['world21-1', 'world21-2', 'world21-3', 'world21-4', 'world21-5'],
   },
 ];
 
