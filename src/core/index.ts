@@ -4,4 +4,5 @@ export * from './fold';
 export * from './goal';
 export * from './parseShape';
 export * from './solver';
+export * from './deadPosition';
 export * from './rules';

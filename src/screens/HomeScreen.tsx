@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { todaysDaily } from '../data/daily';
 import { allLevels, WORLD_NAMES } from '../data/levels';
 import { highestUnlocked, type ProgressMap } from '../state/progress';
 import { theme, worldPalette } from '../theme';
@@ -8,14 +9,21 @@ import { theme, worldPalette } from '../theme';
 interface HomeScreenProps {
   progress: ProgressMap;
   onOpenLevel: (id: number) => void;
+  onOpenDaily: () => void;
 }
 
-export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
+export function HomeScreen({ progress, onOpenLevel, onOpenDaily }: HomeScreenProps) {
   const insets = useSafeAreaInsets();
   // Dev builds unlock everything for level previewing; release keeps progression.
   const unlocked = __DEV__ ? Infinity : highestUnlocked(progress, allLevels);
-  const totalStars = Object.values(progress).reduce((sum, p) => sum + p.stars, 0);
-  const solvedCount = Object.values(progress).filter((p) => p.solved).length;
+  // Count against the CURRENT curriculum, not everything in storage. Progress
+  // is keyed by level key and keys outlive the levels that had them -- renaming
+  // a level while hardening it leaves its old entry behind, which is how the
+  // menu came to report 106/100 solved.
+  const daily = todaysDaily();
+  const live = allLevels.map((l) => progress[l.key]).filter((p) => p?.solved);
+  const totalStars = live.reduce((sum, p) => sum + p.stars, 0);
+  const solvedCount = live.length;
 
   const worlds = [...new Set(allLevels.map((l) => l.world))];
 
@@ -45,6 +53,22 @@ export function HomeScreen({ progress, onOpenLevel }: HomeScreenProps) {
           </Text>
         </View>
       </View>
+
+      {/* Daily puzzle. Generated offline and solver-verified, so its fold
+          count is exact rather than an estimate. */}
+      <Pressable
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          onOpenDaily();
+        }}
+        style={({ pressed }) => [styles.dailyCard, pressed && styles.tilePressed]}
+      >
+        <View>
+          <Text style={styles.dailyEyebrow}>DAILY PUZZLE</Text>
+          <Text style={styles.dailyName}>{daily.name}</Text>
+        </View>
+        <Text style={styles.dailyFolds}>{daily.expectedFolds} folds</Text>
+      </Pressable>
 
       {/* worlds */}
       {worlds.map((world) => {
@@ -178,9 +202,30 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     marginBottom: 12,
   },
+  dailyCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: theme.colors.bgRaised,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    marginHorizontal: 20,
+    marginBottom: 26,
+  },
+  dailyEyebrow: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.6,
+    color: theme.colors.gold,
+    marginBottom: 4,
+  },
+  dailyName: { fontSize: 18, fontWeight: '700', color: theme.colors.ink },
+  dailyFolds: { fontSize: 14, fontWeight: '600', color: theme.colors.inkSoft },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: 10,
   },
   tile: {

@@ -6,6 +6,9 @@ import { theme, type WorldPalette } from '../theme';
 interface Props {
   intro: WorldIntro;
   palette: WorldPalette;
+  /** Cancels the host screen's top padding so the card centres on the
+   *  screen rather than on the padded content box. */
+  topOffset?: number;
   onDismiss: () => void;
 }
 
@@ -17,9 +20,9 @@ interface Props {
  * actually contain. Twelve of the twenty worlds add no rule at all; those get
  * an honest "no new rules, just harder" rather than an invented gimmick.
  */
-export function WorldIntroModal({ intro, palette, onDismiss }: Props) {
+export function WorldIntroModal({ intro, palette, topOffset = 0, onDismiss }: Props) {
   return (
-    <Animated.View entering={FadeIn.duration(200)} style={styles.overlay}>
+    <Animated.View entering={FadeIn.duration(200)} style={[styles.overlay, { top: topOffset }]}>
       <Animated.View
         entering={ZoomIn.springify().damping(19).withInitialValues({ transform: [{ scale: 0.8 }] })}
         style={[styles.card, { borderColor: palette.tintSoft }]}

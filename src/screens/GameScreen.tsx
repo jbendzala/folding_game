@@ -9,7 +9,7 @@ import {
   activeRules,
   checkGoal,
   createInitialState,
-  isGoalStillReachable,
+  isDeadPosition,
   isValidFold,
   replayFolds,
   solve,
@@ -88,7 +88,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
   // Provably dead position. Not a failure state -- undo is right there -- so
   // this only warns, and never blocks play.
   const stuck = useMemo(
-    () => !solved && folds.length > 0 && !isGoalStillReachable(state, level.goal),
+    () => !solved && folds.length > 0 && isDeadPosition(state, level.goal),
     [state, level, solved, folds.length]
   );
 
@@ -260,6 +260,7 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
         <WorldIntroModal
           intro={intro}
           palette={palette}
+          topOffset={-(insets.top + 28)}
           onDismiss={() => {
             setShowIntro(false);
             void markWorldSeen(level.world);
@@ -267,9 +268,14 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
         />
       )}
 
-      {/* solved overlay */}
+      {/* Solved overlay. Pulled back up by the root's top padding: an
+          absolutely positioned child is laid out inside the padding box, so
+          top:0 sat below the header inset and the card centred low. */}
       {showSolved && (
-        <Animated.View entering={FadeIn.duration(200)} style={styles.overlay}>
+        <Animated.View
+          entering={FadeIn.duration(200)}
+          style={[styles.overlay, { top: -(insets.top + 28) }]}
+        >
           {/* Deliberately gentle: the card used to spring in from nothing at
               damping 14, which read as a jump. It now starts at 0.7 scale --
               about a third less travel -- and damps harder so it settles

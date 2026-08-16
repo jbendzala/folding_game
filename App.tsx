@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GameScreen } from './src/screens/GameScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { allLevels, getLevel } from './src/data/levels';
+import { todaysDaily } from './src/data/daily';
 import {
   loadProgress,
   recordSolve,
@@ -14,7 +15,7 @@ import {
 } from './src/state/progress';
 import { theme } from './src/theme';
 
-type Route = { screen: 'home' } | { screen: 'level'; id: number };
+type Route = { screen: 'home' } | { screen: 'level'; id: number } | { screen: 'daily' };
 
 export default function App() {
   const [route, setRoute] = useState<Route>({ screen: 'home' });
@@ -45,6 +46,17 @@ export default function App() {
             <HomeScreen
               progress={progress}
               onOpenLevel={(id) => setRoute({ screen: 'level', id })}
+              onOpenDaily={() => setRoute({ screen: 'daily' })}
+            />
+          ) : route.screen === 'daily' ? (
+            <GameScreen
+              key="daily"
+              level={todaysDaily()}
+              onExit={() => setRoute({ screen: 'home' })}
+              // Daily results are not campaign progress, so nothing is
+              // recorded against the level keys the menu counts.
+              onSolved={() => {}}
+              onNextLevel={null}
             />
           ) : (
             <GameScreen
