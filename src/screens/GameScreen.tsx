@@ -324,9 +324,13 @@ export function GameScreen({ level, onExit, onSolved, onNextLevel }: GameScreenP
               <Pressable style={styles.secondaryButton} onPress={reset}>
                 <Text style={styles.secondaryLabel}>Replay</Text>
               </Pressable>
-              {onNextLevel && (
+              {onNextLevel ? (
                 <Pressable style={[styles.primaryButton, { backgroundColor: palette.tint }]} onPress={onNextLevel}>
                   <Text style={styles.primaryLabel}>Next Level</Text>
+                </Pressable>
+              ) : (
+                <Pressable style={[styles.primaryButton, { backgroundColor: palette.tint }]} onPress={onExit}>
+                  <Text style={styles.primaryLabel}>Done</Text>
                 </Pressable>
               )}
             </View>
@@ -641,14 +645,18 @@ const styles = StyleSheet.create({
   cardSub: {
     color: theme.colors.inkSoft,
     fontSize: theme.font.body,
+    textAlign: 'center',
   },
   scoreBlock: {
     flexDirection: 'row',
-    gap: 34,
+    justifyContent: 'center',
     marginTop: 4,
     marginBottom: 10,
   },
-  scoreRow: { alignItems: 'center', gap: 3 },
+  // Equal fixed columns. Sized to their own text, "MINIMUM" and "YOU" made
+  // columns of different widths, so the two numbers were not symmetric about
+  // the card's centre even though the block itself was centred.
+  scoreRow: { width: 96, alignItems: 'center', gap: 3 },
   scoreLabel: {
     fontSize: 11,
     fontWeight: '700',
